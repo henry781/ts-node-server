@@ -1,0 +1,30 @@
+{
+  "name": "ts-node-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/mongodb": "^3.1.14",
+    "fastify": "1.13.0",
+    "fastify-metrics": "2.1.1",
+    "fastify-static": "0.14.0",
+    "inversify": "5.0.1",
+    "jsonwebtoken": "8.4.0",
+    "mixin-deep": "2.0.0",
+    "mongodb": "3.1.10",
+    "pino": "5.8.1",
+    "reflect-metadata": "0.1.12",
+    "swagger-ui-dist": "3.19.5",
+    "tipify": "1.2.8",
+    "url-join": "4.0.0"
+  },
+  "devDependencies": {
+    "pino-pretty": "2.2.3",
+    "typescript": "3.1.6"
+  }
+}
