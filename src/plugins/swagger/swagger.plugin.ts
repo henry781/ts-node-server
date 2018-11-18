@@ -1,13 +1,13 @@
 import {FastifyInstance} from 'fastify';
+import fastifyStatic from 'fastify-static';
+import {Container} from 'inversify';
+import mixin from 'mixin-deep';
+import swaggerUiDist from 'swagger-ui-dist';
+import {ParamOptions} from '../../core/param/ParamOptions';
+import {ExploredMethod, ServerUtil} from '../../core/ServerUtil';
 import {Reply, Request} from '../../Types';
 import {SwaggerConf} from './SwaggerConf';
-import * as fastifyStatic from 'fastify-static';
-import * as swaggerUiDist from 'swagger-ui-dist';
-import * as mixin from 'mixin-deep';
-import {ParamOptions} from '../../core/param/ParamOptions';
 import {SwaggerMethodParameterConf} from './SwaggerMethodParameterConf';
-import {ExploredMethod, ServerUtil} from '../../core/ServerUtil';
-import {Container} from 'inversify';
 
 const SWAGGER_URL_PATH_PARAM_REGEX = /:(\w+)/g;
 
@@ -79,16 +79,16 @@ function buildSwaggerParameterConfiguration(paramOptions: ParamOptions): Swagger
                 in: 'query',
                 name: paramOptions.name,
                 schema: {
-                    type: 'string'
-                }
+                    type: 'string',
+                },
             };
         case 'path':
             return {
                 in: 'path',
                 name: paramOptions.name,
                 schema: {
-                    type: 'string'
-                }
+                    type: 'string',
+                },
             };
         default:
             return undefined;
@@ -99,25 +99,25 @@ function buildSwaggerConfigurationForMethod(exploredMethod: ExploredMethod): Swa
 
     const url = buildSwaggerUrl(exploredMethod.url);
     const method = exploredMethod.methodOptions.method.toLowerCase();
-    const params = exploredMethod.paramsOptions.map(p => buildSwaggerParameterConfiguration(p)).filter(p => p);
+    const params = exploredMethod.paramsOptions.map((p) => buildSwaggerParameterConfiguration(p)).filter((p) => p);
 
     let configuration: SwaggerConf = {
         paths: {
             [url]: {
                 [method]: {
-                    parameters: params
-                }
-            }
-        }
+                    parameters: params,
+                },
+            },
+        },
     };
 
     if (exploredMethod.methodOptions.swagger) {
         const overridenConfiguration: SwaggerConf = {
             paths: {
                 [url]: {
-                    [method]: exploredMethod.methodOptions.swagger
-                }
-            }
+                    [method]: exploredMethod.methodOptions.swagger,
+                },
+            },
         };
 
         configuration = mixin(configuration, overridenConfiguration);
@@ -139,17 +139,17 @@ export function swaggerPlugin(instance: FastifyInstance, opts: { container: Cont
     logger.info('initializing swagger...');
 
     let configuration: SwaggerConf = {
-        openapi: '3.0.0'
+        openapi: '3.0.0',
     };
 
     ServerUtil.exploreMethods(opts.container,
         (m) => {
             logger.trace(`building configuration for [${m.methodOptions.method}] ${m.url}...`);
-            configuration = mixin(configuration, buildSwaggerConfigurationForMethod(m))
+            configuration = mixin(configuration, buildSwaggerConfigurationForMethod(m));
         });
 
     /**
-     * Serve index.html
+     * Serve index.ts.html
      */
     instance.get('/docs', (request: Request, reply: Reply) => {
         reply.type('text/html').send(INDEX_HTML_TEMPLATE);
@@ -168,7 +168,7 @@ export function swaggerPlugin(instance: FastifyInstance, opts: { container: Cont
     instance.register(fastifyStatic, {
         root: swaggerUiDist.getAbsoluteFSPath(),
         prefix: '/docs',
-        index: false
+        index: false,
     });
 
     logger.info('swagger initialized');

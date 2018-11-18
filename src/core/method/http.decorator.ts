@@ -13,7 +13,7 @@ export function http(options: MethodOptions) {
 
     return (target: object, propertyKey: string) => {
         Reflect.defineMetadata(ROUTE_METHOD, options, target, propertyKey);
-    }
+    };
 }
 
 /**
@@ -28,11 +28,11 @@ export function httpGet(options?: string | GenericMethodOptions) {
 
     } else if (typeof(options) === 'string') {
         options = {
-            url: <string>options
+            url: options as string,
         };
     }
 
-    return http(Object.assign(options, {method: <HTTPMethod>'GET'}));
+    return http(Object.assign(options, {method: 'GET' as HTTPMethod}));
 }
 
 /**
@@ -47,11 +47,11 @@ export function httpPost(options?: string | GenericMethodOptions) {
 
     } else if (typeof(options) === 'string') {
         options = {
-            url: <string>options
+            url: options as string,
         };
     }
 
-    return http(Object.assign(options ? options : {}, {method: <HTTPMethod>'POST'}));
+    return http(Object.assign(options ? options : {}, {method: 'POST' as HTTPMethod}));
 }
 
 /**
@@ -66,11 +66,11 @@ export function httpPut(options?: string | GenericMethodOptions) {
 
     } else if (typeof(options) === 'string') {
         options = {
-            url: <string>options
+            url: options as string,
         };
     }
 
-    return http(Object.assign(options, {method: <HTTPMethod>'PUT'}));
+    return http(Object.assign(options, {method: 'PUT' as HTTPMethod}));
 }
 
 /**
@@ -85,11 +85,11 @@ export function httpPatch(options?: string | GenericMethodOptions) {
 
     } else if (typeof(options) === 'string') {
         options = {
-            url: <string>options
+            url: options as string,
         };
     }
 
-    return http(Object.assign(options, {method: <HTTPMethod>'PATCH'}));
+    return http(Object.assign(options, {method: 'PATCH' as HTTPMethod}));
 }
 
 /**
@@ -104,9 +104,9 @@ export function httpDelete(options?: string | GenericMethodOptions) {
 
     } else if (typeof(options) === 'string') {
         options = {
-            url: <string>options
+            url: options as string,
         };
     }
 
-    return http(Object.assign(options, {method: <HTTPMethod>'DELETE'}));
+    return http(Object.assign(options, {method: 'DELETE' as HTTPMethod}));
 }

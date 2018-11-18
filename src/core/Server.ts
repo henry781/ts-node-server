@@ -1,13 +1,13 @@
-import * as fastify from 'fastify';
-import {Instance, Types} from '../Types';
-import * as fastifyMetrics from 'fastify-metrics';
-import {DEFAULT_LOGGER_OPTIONS, ServerOptions} from './ServerOptions';
+import fastify from 'fastify';
+import fastifyMetrics from 'fastify-metrics';
 import {Logger} from 'pino';
+import {HealthcheckController} from '../healthcheck/HealthcheckController';
+import {MongoService} from '../mongo/MongoService';
 import {swaggerPlugin} from '../plugins/swagger/swagger.plugin';
 import {wireupPlugin} from '../plugins/wireup/wireup.plugin';
+import {Instance, Types} from '../Types';
 import {Controller} from './controller/Controller';
-import {HealthcheckController} from '../plugins/healthcheck/HealthcheckController';
-import {MongoService} from '../plugins/mongo/MongoService';
+import {DEFAULT_LOGGER_OPTIONS, ServerOptions} from './ServerOptions';
 
 export class Server {
 
@@ -34,7 +34,7 @@ export class Server {
 
         options.container.bind<Logger>(Types.Logger).toConstantValue(this._instance.log);
 
-        if(options.healthchecks){
+        if (options.healthchecks) {
             options.container.bind<Controller>(Types.Controller).to(HealthcheckController);
         }
 
@@ -46,16 +46,15 @@ export class Server {
 
         if (options.metrics) {
             const endpoint = typeof(options.metrics) === 'string' ? options.metrics : '/metrics';
-            this._instance.register(fastifyMetrics, {endpoint: endpoint});
+            this._instance.register(fastifyMetrics, {endpoint});
         }
 
-        if(options.mongo){
+        if (options.mongo) {
             options.container.bind<MongoService>(Types.MongoService).to(MongoService);
-            (<MongoService>options.container.get(Types.MongoService)).connect(options.mongo);
+            (options.container.get(Types.MongoService) as MongoService).connect(options.mongo);
 
         }
     }
-
 
     /**
      * Listen

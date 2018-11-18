@@ -6,14 +6,14 @@ export interface SwaggerConf {
     info?: {
         version: string,
         title: string,
-        license: { [name: string]: string }
+        license: { [name: string]: string },
     };
 
-    servers?: {
-        url: string
-    }[];
+    servers?: Array<{
+        url: string,
+    }>;
 
     paths?: { [name: string]: SwaggerPathConf };
 
-    components?: {}
+    components?: {};
 }

@@ -18,7 +18,7 @@ function param(options: ParamOptions) {
         params[parameterIndex] = options;
 
         Reflect.defineMetadata(ROUTE_PARAMS, params, target, propertyKey);
-    }
+    };
 }
 
 /**
@@ -30,8 +30,8 @@ function param(options: ParamOptions) {
 export function pathParam(name: string, description?: string) {
     return param({
         type: 'path',
-        name: name,
-        description: description
+        name,
+        description,
     });
 }
 
@@ -44,8 +44,8 @@ export function pathParam(name: string, description?: string) {
 export function queryParam(name: string, description?: string) {
     return param({
         type: 'query',
-        name: name,
-        description: description
+        name,
+        description,
     });
 }
 
@@ -55,7 +55,7 @@ export function queryParam(name: string, description?: string) {
  */
 export function auth() {
     return param({
-        type: 'auth'
+        type: 'auth',
     });
 }
 
@@ -65,7 +65,7 @@ export function auth() {
  */
 export function httpRequest() {
     return param({
-        type: 'httpRequest'
+        type: 'httpRequest',
     });
 }
 
@@ -75,7 +75,7 @@ export function httpRequest() {
  */
 export function httpReply() {
     return param({
-        type: 'httpReply'
+        type: 'httpReply',
     });
 }
 
@@ -85,6 +85,6 @@ export function httpReply() {
  */
 export function body() {
     return param({
-        type: 'body'
+        type: 'body',
     });
 }

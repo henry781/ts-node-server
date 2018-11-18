@@ -16,10 +16,10 @@ export function controller(options?: string | ControllerOptions) {
 
         } else if (typeof(options) === 'string') {
             options = {
-                url: <string>options
-            }
+                url: options as string,
+            };
         }
 
         Reflect.defineMetadata(ROUTE_CONTROLLER, options, target.prototype);
-    }
+    };
 }

@@ -1,13 +1,14 @@
-import {ControllerOptions} from './controller/ControllerOptions';
-import {MethodOptions} from './method/MethodOptions';
 import {Container} from 'inversify';
-import {Controller} from './controller/Controller';
+import 'reflect-metadata';
+import urlJoin from 'url-join';
 import {Types} from '../Types';
-import {ParamOptions} from './param/ParamOptions';
-import {ROUTE_PARAMS} from './param/param.decorator';
+import {Controller} from './controller/Controller';
 import {ROUTE_CONTROLLER} from './controller/controller.decorator';
+import {ControllerOptions} from './controller/ControllerOptions';
 import {ROUTE_METHOD} from './method/http.decorator';
-import * as urlJoin from 'url-join';
+import {MethodOptions} from './method/MethodOptions';
+import {ROUTE_PARAMS} from './param/param.decorator';
+import {ParamOptions} from './param/ParamOptions';
 
 export interface ExploredMethod {
     controller: object;
@@ -18,7 +19,6 @@ export interface ExploredMethod {
     url: string;
 }
 
-
 export class ServerUtil {
 
     public static exploreMethods(
@@ -27,28 +27,28 @@ export class ServerUtil {
 
         const controllers = container.getAll<Controller>(Types.Controller);
 
-        controllers.forEach(controller => {
+        controllers.forEach((controller) => {
             const methods = Object.getOwnPropertyNames(controller.constructor.prototype);
 
-            methods.forEach(method => {
+            methods.forEach((method) => {
 
-                const controllerOptions = <ControllerOptions> Reflect.getMetadata(ROUTE_CONTROLLER, controller);
-                const methodOptions = <MethodOptions> Reflect.getMetadata(ROUTE_METHOD, controller, method);
+                const controllerOptions = Reflect.getMetadata(ROUTE_CONTROLLER, controller) as ControllerOptions;
+                const methodOptions = Reflect.getMetadata(ROUTE_METHOD, controller, method) as MethodOptions;
 
                 if (!methodOptions) {
                     return;
                 }
 
-                const paramsOptions = <ParamOptions[]>Reflect.getMetadata(ROUTE_PARAMS, controller, method);
+                const paramsOptions = Reflect.getMetadata(ROUTE_PARAMS, controller, method) as ParamOptions[];
                 const url = ServerUtil.buildUrl(controllerOptions, methodOptions);
 
                 callback({
-                    controller: controller,
-                    controllerOptions: controllerOptions,
-                    method: method,
-                    methodOptions: methodOptions,
-                    paramsOptions: paramsOptions,
-                    url: url
+                    controller,
+                    controllerOptions,
+                    method,
+                    methodOptions,
+                    paramsOptions,
+                    url,
                 });
             });
         });

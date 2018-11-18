@@ -4,6 +4,6 @@ export interface SwaggerMethodParameterConf {
     description?: string;
     required?: boolean;
     schema?: {
-        type?: 'integer' | 'string'
+        type?: 'integer' | 'string',
     };
 }

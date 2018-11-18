@@ -1,12 +1,12 @@
 import {FastifyInstance, FastifyReply, FastifyRequest} from 'fastify';
-import * as http2 from 'http2';
 import * as http from 'http';
+import * as http2 from 'http2';
 
 export const Types = {
     Controller: 'Controller',
     Logger: 'Logger',
     Healthcheck: 'Healthcheck',
-    MongoService: 'MongoService'
+    MongoService: 'MongoService',
 
 };
 

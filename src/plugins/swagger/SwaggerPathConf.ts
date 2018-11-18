@@ -1,4 +1,4 @@
-import {SwaggerMethodConf} from "./SwaggerMethodConf";
+import {SwaggerMethodConf} from './SwaggerMethodConf';
 
 export interface SwaggerPathConf {
     get?: SwaggerMethodConf;

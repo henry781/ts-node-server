@@ -1,7 +1,7 @@
-import {Reply, Request} from '../../Types';
-import {Container} from 'inversify';
 import {FastifyInstance} from 'fastify';
+import {Container} from 'inversify';
 import {ExploredMethod, ServerUtil} from '../../core/ServerUtil';
+import {Reply, Request} from '../../Types';
 
 /**
  * Wireup plugin
@@ -16,11 +16,11 @@ export function wireupPlugin(instance: FastifyInstance, opts: { container: Conta
     logger.info('initializing wireup...');
 
     ServerUtil.exploreMethods(opts.container,
-        (m:ExploredMethod) => {
+        (m: ExploredMethod) => {
 
             const handler = (request: Request, reply: Reply) => {
 
-                const args = m.paramsOptions.map(param => {
+                const args = m.paramsOptions.map((param) => {
 
                     switch (param.type) {
                         case 'query':
@@ -41,11 +41,10 @@ export function wireupPlugin(instance: FastifyInstance, opts: { container: Conta
                 return m.controller[m.method].apply(m.controller, args);
             };
 
-
             instance.route({
                 method: m.methodOptions.method,
                 url: m.url,
-                handler: handler
+                handler,
             });
             logger.info(`[${m.methodOptions.method}] ${m.url}`);
 

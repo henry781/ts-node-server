@@ -5,6 +5,5 @@ export interface Healthcheck {
     check(): Promise<{
         healthy: true;
         content?: object;
-    }>
+    }>;
 }
-

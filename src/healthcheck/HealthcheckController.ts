@@ -1,8 +1,8 @@
 import {injectable, multiInject} from 'inversify';
-import {controller} from '../../core/controller/controller.decorator';
-import {httpGet} from '../../core/method/http.decorator';
+import {controller} from '../core/controller/controller.decorator';
+import {httpGet} from '../core/method/http.decorator';
+import {Types} from '../Types';
 import {Healthcheck} from './Healthcheck';
-import {Types} from '../../Types';
 
 @injectable()
 @controller('/healtcheck')

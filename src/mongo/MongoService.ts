@@ -1,18 +1,18 @@
 import {inject, injectable} from 'inversify';
-import {Types} from '../../Types';
+import  mixin from 'mixin-deep';
+import {Db, Logger as MongoLogger, MongoClient} from 'mongodb';
 import {Logger} from 'pino';
-import {Db, MongoClient, Logger as MongoLogger} from 'mongodb';
+import {Types} from '../Types';
 import {MongoOptions} from './MongoOptions';
-import * as mixin from 'mixin-deep';
 
 const DEFAULT_MONGO_OPTIONS: MongoOptions = {
-    uri: process.env['MONGO_URL'] || 'mongodb://localhost:27017',
-    dbName: process.env['MONGO_DB'] || 'main',
+    uri: process.env.MONGO_URL || 'mongodb://localhost:27017',
+    dbName: process.env.MONGO_DB || 'main',
     client: {
         reconnectTries: 60,
         reconnectInterval: 1000,
-        useNewUrlParser: true
-    }
+        useNewUrlParser: true,
+    },
 };
 
 @injectable()
@@ -20,12 +20,12 @@ export class MongoService {
 
     private logger: Logger;
 
+    private client: MongoClient;
+    private db: Db;
+
     constructor(@inject(Types.Logger) logger: Logger) {
         this.logger = logger.child({module: 'MongoService'});
     }
-
-    private client: MongoClient;
-    private db: Db;
 
     /**
      * Connect to mongodb

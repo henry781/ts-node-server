@@ -1,12 +1,12 @@
-import {Container} from 'inversify';
 import {ServerOptions as FastifyServerOptions} from 'fastify';
-import {MongoOptions} from "../plugins/mongo/MongoOptions";
+import {Container} from 'inversify';
+import {MongoOptions} from '../mongo/MongoOptions';
 
 export const DEFAULT_LOGGER_OPTIONS = {
     level: 'trace',
     prettyPrint: {
-        forceColor: true
-    }
+        forceColor: true,
+    },
 };
 
 export interface ServerOptions extends FastifyServerOptions {

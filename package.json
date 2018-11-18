@@ -2,9 +2,12 @@
   "name": "ts-node-server",
   "version": "1.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "typings": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist/* && rollup -c",
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "release-patch": "npm run build && npm version patch && npm publish",
     "release": "npm run build && npm version minor && npm publish"
   },
@@ -31,10 +34,13 @@
     "reflect-metadata": "0.1.12",
     "swagger-ui-dist": "3.19.5",
     "tipify": "1.2.8",
-    "url-join": "4.0.0"
+    "url-join": "4.0.0",
+    "pino-pretty": "2.2.3"
   },
   "devDependencies": {
-    "pino-pretty": "2.2.3",
-    "typescript": "3.1.6"
+    "rollup": "^0.67.3",
+    "rollup-plugin-typescript2": "^0.18.0",
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.6"
   }
 }
