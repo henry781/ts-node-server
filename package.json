@@ -4,10 +4,20 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "release-patch": "npm run build && npm version patch && npm publish",
+    "release": "npm run build && npm version minor && npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/henry781/ts-node-server.git"
   },
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/henry781/ts-node-server/issues"
+  },
+  "homepage": "https://github.com/henry781/ts-node-server#readme",
   "dependencies": {
     "@types/mongodb": "^3.1.14",
     "fastify": "1.13.0",
