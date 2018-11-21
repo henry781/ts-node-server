@@ -1,7 +1,8 @@
 import {FastifyInstance} from 'fastify';
 import {Container} from 'inversify';
-import {ExploredMethod, ServerUtil} from '../../core/ServerUtil';
+import {ExploredMethod, CommonUtil} from '../common/CommonUtil';
 import {Reply, Request} from '../../Types';
+import {JsonConverter} from "../../json/JsonConverter";
 
 /**
  * Wireup plugin
@@ -15,7 +16,7 @@ export function wireupPlugin(instance: FastifyInstance, opts: { container: Conta
 
     logger.info('initializing wireup...');
 
-    ServerUtil.exploreMethods(opts.container,
+    CommonUtil.exploreMethods(opts.container,
         (m: ExploredMethod) => {
 
             const handler = (request: Request, reply: Reply) => {
@@ -28,7 +29,7 @@ export function wireupPlugin(instance: FastifyInstance, opts: { container: Conta
                         case 'path':
                             return request.params[param.name];
                         case 'body':
-                            return request.body;
+                            return JsonConverter.deserialize(request.body, param.paramType);
                         case 'httpRequest':
                             return request;
                         case 'httpReply':
@@ -46,7 +47,7 @@ export function wireupPlugin(instance: FastifyInstance, opts: { container: Conta
                 url: m.url,
                 handler,
             });
-            logger.info(`[${m.methodOptions.method}] ${m.url}`);
+            logger.debug(`[${m.methodOptions.method}] ${m.url}`);
 
         });
 

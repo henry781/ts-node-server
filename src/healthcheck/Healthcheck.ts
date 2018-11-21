@@ -1,9 +1,20 @@
+import {HealthcheckResult} from './HealthcheckResult';
+
+/**
+ * Healthchecks should implement this interface
+ */
 export interface Healthcheck {
 
+    /**
+     * Healtcheck name
+     * should be unique
+     * @returns {string}
+     */
     getName(): string;
 
-    check(): Promise<{
-        healthy: true;
-        content?: object;
-    }>;
+    /**
+     * Check method
+     * @returns {Promise<HealthcheckResult>}
+     */
+    check(): Promise<HealthcheckResult>;
 }

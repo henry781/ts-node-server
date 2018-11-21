@@ -3,11 +3,13 @@ import fastifyStatic from 'fastify-static';
 import {Container} from 'inversify';
 import mixin from 'mixin-deep';
 import swaggerUiDist from 'swagger-ui-dist';
-import {ParamOptions} from '../../core/param/ParamOptions';
-import {ExploredMethod, ServerUtil} from '../../core/ServerUtil';
+import {ParamOptions} from '../common/param/ParamOptions';
+import {ExploredMethod, CommonUtil} from '../common/CommonUtil';
 import {Reply, Request} from '../../Types';
-import {SwaggerConf} from './SwaggerConf';
-import {SwaggerMethodParameterConf} from './SwaggerMethodParameterConf';
+import {OpenApiConf} from './models/OpenApiConf';
+import {OpenApiMethodParameter} from './models/OpenApiMethodParameter';
+import {OpenApiSchema} from "./models/OpenApiSchema";
+import {JsonConverterMapper} from "tipify";
 
 const SWAGGER_URL_PATH_PARAM_REGEX = /:(\w+)/g;
 
@@ -72,7 +74,7 @@ function buildSwaggerUrl(url: string) {
     return url.replace(SWAGGER_URL_PATH_PARAM_REGEX, '{$1}');
 }
 
-function buildSwaggerParameterConfiguration(paramOptions: ParamOptions): SwaggerMethodParameterConf {
+function buildSwaggerParameterConfiguration(paramOptions: ParamOptions): OpenApiMethodParameter {
     switch (paramOptions.type) {
         case 'query':
             return {
@@ -95,35 +97,110 @@ function buildSwaggerParameterConfiguration(paramOptions: ParamOptions): Swagger
     }
 }
 
-function buildSwaggerConfigurationForMethod(exploredMethod: ExploredMethod): SwaggerConf {
+function buildSwaggerConfigurationForMethod(exploredMethod: ExploredMethod): OpenApiConf {
 
     const url = buildSwaggerUrl(exploredMethod.url);
     const method = exploredMethod.methodOptions.method.toLowerCase();
     const params = exploredMethod.paramsOptions.map((p) => buildSwaggerParameterConfiguration(p)).filter((p) => p);
 
-    let configuration: SwaggerConf = {
+    let requestBody;
+    let schemas = {};
+    const bodyParam = exploredMethod.paramsOptions.find(p => p.type === 'body');
+    if (bodyParam) {
+
+        schemas = getOpenAPISchema(bodyParam.paramType, schemas);
+
+        requestBody = {
+            description: bodyParam.description,
+            required: true,
+            content: {
+                'application/json': {
+                    schema: {
+                        $ref: `#components/schemas/${bodyParam.paramType.name}`
+                    }
+                }
+            }
+        };
+    }
+
+    let configuration: OpenApiConf = {
         paths: {
             [url]: {
                 [method]: {
                     parameters: params,
-                },
-            },
+                    requestBody: requestBody
+                }
+            }
         },
+        components: {
+            schemas: schemas
+        }
     };
 
     if (exploredMethod.methodOptions.swagger) {
-        const overridenConfiguration: SwaggerConf = {
+        const overridenConfiguration: OpenApiConf = {
             paths: {
                 [url]: {
                     [method]: exploredMethod.methodOptions.swagger,
-                },
-            },
+                }
+            }
         };
 
         configuration = mixin(configuration, overridenConfiguration);
     }
 
     return configuration;
+}
+
+function getOpenAPISchema(type: any, schema?: { [name: string]: OpenApiSchema }): { [name: string]: OpenApiSchema } {
+
+    const mapping = JsonConverterMapper.getMappingForType(type);
+
+    if (!mapping) {
+        return schema;
+    }
+
+    schema = schema || {};
+
+    const objectSchema: OpenApiSchema = {
+        type: 'object',
+        required: [],
+        properties: {}
+    };
+
+    for (const property of mapping.properties) {
+
+        if (property.type === String) {
+            objectSchema.properties[property.serializedName] = {type: 'string'}
+
+        } else if (property.type === Number) {
+            objectSchema.properties[property.serializedName] = {type: 'number'}
+
+        } else if (property.type === Boolean) {
+            objectSchema.properties[property.serializedName] = {type: 'boolean'}
+
+        } else if (Array.isArray(property.type)){
+            schema = getOpenAPISchema(property.type[0], schema);
+            objectSchema.properties[property.serializedName] = {$ref: `#components/schemas/${property.type[0].name}`}
+        }
+    }
+
+    if (!mapping.parent) {
+        schema[mapping.type.name] = objectSchema;
+
+    } else {
+        const parent = mapping.parent.type;
+        schema[mapping.type.name] = {
+            allOf: [
+                {
+                    $ref: `#components/schemas/${parent.name}`
+                },
+                objectSchema
+            ]
+        };
+        getOpenAPISchema(parent, schema);
+    }
+    return schema;
 }
 
 /**
@@ -138,18 +215,18 @@ export function swaggerPlugin(instance: FastifyInstance, opts: { container: Cont
 
     logger.info('initializing swagger...');
 
-    let configuration: SwaggerConf = {
+    let configuration: OpenApiConf = {
         openapi: '3.0.0',
     };
 
-    ServerUtil.exploreMethods(opts.container,
+    CommonUtil.exploreMethods(opts.container,
         (m) => {
             logger.trace(`building configuration for [${m.methodOptions.method}] ${m.url}...`);
             configuration = mixin(configuration, buildSwaggerConfigurationForMethod(m));
         });
 
     /**
-     * Serve index.ts.html
+     * Serve api.ts.html
      */
     instance.get('/docs', (request: Request, reply: Reply) => {
         reply.type('text/html').send(INDEX_HTML_TEMPLATE);

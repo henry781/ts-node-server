@@ -11,8 +11,10 @@ function param(options: ParamOptions) {
 
     return (target: object, propertyKey: string, parameterIndex: number) => {
 
-        const paramTypes = Reflect.getMetadata('design:paramtypes', target, propertyKey);
-        options.paramType = paramTypes[parameterIndex];
+        if (!options.paramType) {
+            const paramTypes = Reflect.getMetadata('design:paramtypes', target, propertyKey);
+            options.paramType = paramTypes[parameterIndex];
+        }
 
         const params = Reflect.getOwnMetadata(ROUTE_PARAMS, target, propertyKey) || [];
         params[parameterIndex] = options;
@@ -80,11 +82,13 @@ export function httpReply() {
 }
 
 /**
- * HttpBody decorator
+ * Body decorator
+ * @param paramType
  * @returns {(target: object, propertyKey: string, parameterIndex: number) => void}
  */
-export function body() {
+export function body(paramType?:any) {
     return param({
         type: 'body',
+        paramType
     });
 }

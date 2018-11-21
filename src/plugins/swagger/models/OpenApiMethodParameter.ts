@@ -1,5 +1,5 @@
-export interface SwaggerMethodParameterConf {
-    in?: 'path' | 'query' | 'path';
+export interface OpenApiMethodParameter {
+    in?: 'path' | 'query' | 'body';
     name?: string;
     description?: string;
     required?: boolean;

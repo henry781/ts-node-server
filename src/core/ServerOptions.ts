@@ -1,6 +1,6 @@
 import {ServerOptions as FastifyServerOptions} from 'fastify';
 import {Container} from 'inversify';
-import {MongoOptions} from '../mongo/MongoOptions';
+import {MongoOptions} from '../mongo/api';
 
 export const DEFAULT_LOGGER_OPTIONS = {
     level: 'trace',
@@ -13,6 +13,6 @@ export interface ServerOptions extends FastifyServerOptions {
     container: Container;
     metrics?: boolean | string;
     swagger?: boolean;
-    healthchecks?: boolean;
+    healthcheck?: boolean;
     mongo?: MongoOptions;
 }

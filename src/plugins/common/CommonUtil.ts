@@ -1,14 +1,11 @@
 import {Container} from 'inversify';
 import 'reflect-metadata';
 import urlJoin from 'url-join';
-import {Types} from '../Types';
-import {Controller} from './controller/Controller';
-import {ROUTE_CONTROLLER} from './controller/controller.decorator';
-import {ControllerOptions} from './controller/ControllerOptions';
-import {ROUTE_METHOD} from './method/http.decorator';
-import {MethodOptions} from './method/MethodOptions';
-import {ROUTE_PARAMS} from './param/param.decorator';
-import {ParamOptions} from './param/ParamOptions';
+import {Types} from '../../Types';
+import {Controller} from './controller/api';
+import {ROUTE_CONTROLLER, ControllerOptions} from './controller/api';
+import {ROUTE_METHOD, MethodOptions} from './method/api';
+import {ROUTE_PARAMS, ParamOptions} from './param/api';
 
 export interface ExploredMethod {
     controller: object;
@@ -19,7 +16,7 @@ export interface ExploredMethod {
     url: string;
 }
 
-export class ServerUtil {
+export class CommonUtil {
 
     public static exploreMethods(
         container: Container,
@@ -40,7 +37,7 @@ export class ServerUtil {
                 }
 
                 const paramsOptions = Reflect.getMetadata(ROUTE_PARAMS, controller, method) as ParamOptions[];
-                const url = ServerUtil.buildUrl(controllerOptions, methodOptions);
+                const url = CommonUtil.buildUrl(controllerOptions, methodOptions);
 
                 callback({
                     controller,

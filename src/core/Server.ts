@@ -1,13 +1,12 @@
 import fastify from 'fastify';
 import fastifyMetrics from 'fastify-metrics';
+import helmet from 'fastify-helmet';
 import {Logger} from 'pino';
-import {HealthcheckController} from '../healthcheck/HealthcheckController';
-import {MongoService} from '../mongo/MongoService';
-import {swaggerPlugin} from '../plugins/swagger/swagger.plugin';
-import {wireupPlugin} from '../plugins/wireup/wireup.plugin';
 import {Instance, Types} from '../Types';
-import {Controller} from './controller/Controller';
+import {Controller, swaggerPlugin, wireupPlugin} from '../plugins/api';
 import {DEFAULT_LOGGER_OPTIONS, ServerOptions} from './ServerOptions';
+import {MongoHealthcheck, MongoService} from '../mongo/api';
+import {Healthcheck, HealthcheckController} from '../healthcheck/api';
 
 export class Server {
 
@@ -34,8 +33,10 @@ export class Server {
 
         options.container.bind<Logger>(Types.Logger).toConstantValue(this._instance.log);
 
-        if (options.healthchecks) {
-            options.container.bind<Controller>(Types.Controller).to(HealthcheckController);
+        this._instance.register(helmet);
+
+        if (options.healthcheck) {
+            options.container.bind<Controller>(Types.Controller).to(HealthcheckController).inSingletonScope();
         }
 
         this._instance.register(wireupPlugin, {container: options.container});
@@ -50,10 +51,14 @@ export class Server {
         }
 
         if (options.mongo) {
-            options.container.bind<MongoService>(Types.MongoService).to(MongoService);
+            options.container.bind<MongoService>(Types.MongoService).to(MongoService).inSingletonScope();
+            options.container.bind<Healthcheck>(Types.Healthcheck).to(MongoHealthcheck).inSingletonScope();
             (options.container.get(Types.MongoService) as MongoService).connect(options.mongo);
-
         }
+
+        this._instance.ready(() => {
+            this._instance.log.info('\n' + this._instance.printRoutes());
+        });
     }
 
     /**

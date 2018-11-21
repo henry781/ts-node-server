@@ -1,8 +1,8 @@
 import {RouteShorthandOptions} from 'fastify';
-import {SwaggerMethodConf} from '../../plugins/swagger/SwaggerMethodConf';
+import {OpenApiMethod} from '../../api';
 
 export interface GenericMethodOptions {
     url?: string;
     options?: RouteShorthandOptions;
-    swagger?: SwaggerMethodConf;
+    swagger?: OpenApiMethod;
 }
