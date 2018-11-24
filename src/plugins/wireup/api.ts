@@ -1,1 +1,1 @@
-export * from './wireup.plugin';
+export * from './Wireup';

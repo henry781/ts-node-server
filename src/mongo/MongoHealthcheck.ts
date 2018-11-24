@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {Types} from '../Types';
 import {MongoIsMasterResult, MongoService} from './MongoService';
-import {HealthcheckResult, Healthcheck} from '../healthcheck/api';
+import {Healthcheck, HealthcheckResult} from '../healthcheck/api';
 
 @injectable()
 export class MongoHealthcheck implements Healthcheck {

@@ -1,11 +1,12 @@
 import {Container} from 'inversify';
 import 'reflect-metadata';
-import * as urlJoin from 'url-join';
+import * as _urlJoin from 'url-join';
 import {Types} from '../../Types';
-import {Controller} from './controller/api';
-import {ROUTE_CONTROLLER, ControllerOptions} from './controller/api';
-import {ROUTE_METHOD, MethodOptions} from './method/api';
-import {ROUTE_PARAMS, ParamOptions} from './param/api';
+import {Controller, ControllerOptions, ROUTE_CONTROLLER} from './controller/api';
+import {MethodOptions, ROUTE_METHOD} from './method/api';
+import {ParamOptions, ROUTE_PARAMS} from './param/api';
+
+const urlJoin = _urlJoin;
 
 export interface WireupEndpoint {
     controller: object;

@@ -6,7 +6,7 @@
   "module": "dist/bundle.es.js",
   "typings": "dist/api.d.ts",
   "scripts": {
-    "test": "cross-env TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' && ./node_modules/.bin/mocha --require ts-node/register --exit \"src/**/*.test.ts\"",
+    "test": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\"} ./node_modules/.bin/mocha --require ts-node/register/transpile-only --exit \"src/**/*.test.ts\"",
     "build": "rm -rf dist/* && rollup -c",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "release-patch": "npm run build && npm version patch && npm publish",

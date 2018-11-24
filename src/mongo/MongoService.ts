@@ -3,7 +3,8 @@ import mixin from 'mixin-deep';
 import {
     CollectionInsertOneOptions,
     Db,
-    FindOneOptions, InsertOneWriteOpResult,
+    FindOneOptions,
+    InsertOneWriteOpResult,
     Logger as MongoLogger,
     MongoClient,
     MongoError

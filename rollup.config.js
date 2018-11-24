@@ -20,6 +20,7 @@ export default {
     plugins: [
         typescript({
             typescript: require('typescript'),
+            exclude: ["**/*.test.ts"]
         }),
     ]
 }

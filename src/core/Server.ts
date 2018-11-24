@@ -1,12 +1,14 @@
-import fastify from 'fastify';
+import * as _fastify from 'fastify';
 import fastifyMetrics from 'fastify-metrics';
-import helmet from 'fastify-helmet';
+import * as helmet from 'fastify-helmet';
 import {Logger} from 'pino';
 import {Instance, Types} from '../Types';
-import {Controller, swaggerPlugin, wireupPlugin} from '../plugins/api';
+import {Controller, SwaggerGenerator, Wireup} from '../plugins/api';
 import {DEFAULT_LOGGER_OPTIONS, ServerOptions} from './ServerOptions';
 import {MongoHealthcheck, MongoService} from '../mongo/api';
 import {Healthcheck, HealthcheckController} from '../healthcheck/api';
+
+const fastify = _fastify;
 
 export class Server {
 
@@ -39,10 +41,10 @@ export class Server {
             options.container.bind<Controller>(Types.Controller).to(HealthcheckController).inSingletonScope();
         }
 
-        this._instance.register(wireupPlugin, {container: options.container});
+        this._instance.register(Wireup.getPlugin, {container: options.container});
 
         if (options.swagger) {
-            this._instance.register(swaggerPlugin, {container: options.container});
+            this._instance.register(SwaggerGenerator.getPlugin, {container: options.container});
         }
 
         if (options.metrics) {

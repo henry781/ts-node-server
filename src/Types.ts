@@ -4,10 +4,9 @@ import * as http2 from 'http2';
 
 export const Types = {
     Controller: 'Controller',
-    Logger: 'Logger',
     Healthcheck: 'Healthcheck',
-    MongoService: 'MongoService',
-
+    Logger: 'Logger',
+    MongoService: 'MongoService'
 };
 
 export type HttpRequest = http.IncomingMessage | http2.Http2ServerRequest;

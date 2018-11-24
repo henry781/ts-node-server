@@ -1,4 +1,4 @@
-import {JsonCustomConverter, jsonCustomConverter, JsonConverterError} from 'tipify';
+import {JsonConverterError, jsonCustomConverter, JsonCustomConverter} from 'tipify';
 import {ObjectId} from 'bson';
 
 @jsonCustomConverter()

@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import {ParamOptions} from './ParamOptions';
 
 export const ROUTE_PARAMS = Symbol('route:params');
