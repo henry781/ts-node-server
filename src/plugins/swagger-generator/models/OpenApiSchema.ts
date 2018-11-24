@@ -1,19 +1,16 @@
 export interface OpenApiSchema {
 
-    type?: 'object' | 'array';
+    type?: 'object' | 'array' | 'string' | 'number' | 'boolean';
 
     required?: string[];
 
+    $ref?: string;
+
     properties?: {
-        [name: string]: {
-            type?: 'string' | 'number' | 'boolean';
-            $ref?: string
-        },
+        [name: string]: OpenApiSchema,
     };
 
     allOf?: Array<{ $ref: string } | OpenApiSchema>;
 
-    items?: {
-        $ref: string;
-    };
+    items?: OpenApiSchema;
 }

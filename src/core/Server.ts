@@ -7,6 +7,7 @@ import {MongoHealthcheck, MongoService} from '../mongo/api';
 import {Controller, SwaggerGenerator, Wireup} from '../plugins/api';
 import {Instance, Types} from '../Types';
 import {DEFAULT_LOGGER_OPTIONS, ServerOptions} from './ServerOptions';
+import {Serializer} from '../plugins/serializer/Serializer';
 
 const fastify = _fastify;
 
@@ -36,6 +37,7 @@ export class Server {
         options.container.bind<Logger>(Types.Logger).toConstantValue(this._instance.log);
 
         this._instance.register(helmet);
+        this._instance.register(Serializer.getPlugin);
 
         if (options.healthcheck) {
             options.container.bind<Controller>(Types.Controller).to(HealthcheckController).inSingletonScope();

@@ -167,16 +167,6 @@ export class SwaggerGenerator {
             case 'body':
                 const paramType = paramOptions.paramType;
 
-                if (!configuration.components) {
-                    configuration.components = {schemas: {}};
-                }
-
-                if (!configuration.components.schemas) {
-                    configuration.components.schemas = {};
-                }
-
-                configuration.components.schemas = SwaggerTipifyUtil.buildOpenAPISchema(paramType, configuration.components.schemas);
-
                 const contentType = 'application/json';
 
                 const requestBody = {
@@ -184,9 +174,7 @@ export class SwaggerGenerator {
                     required: true,
                     content: {
                         [contentType]: {
-                            schema: {
-                                $ref: `#components/schemas/${paramOptions.paramType.name}`,
-                            },
+                            schema: SwaggerTipifyUtil.buildOpenApiSchema(paramType, configuration.components.schemas),
                         },
                     },
                 };
@@ -218,6 +206,9 @@ export class SwaggerGenerator {
                     [method]: endpointConfiguration,
                 },
             },
+            components: {
+                schemas: {}
+            }
         };
 
         endpoint.paramsOptions.forEach((param) => {
