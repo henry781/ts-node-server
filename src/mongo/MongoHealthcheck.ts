@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
+import {Healthcheck, HealthcheckResult} from '../healthcheck/api';
 import {Types} from '../Types';
 import {MongoIsMasterResult, MongoService} from './MongoService';
-import {Healthcheck, HealthcheckResult} from '../healthcheck/api';
 
 @injectable()
 export class MongoHealthcheck implements Healthcheck {
@@ -17,10 +17,10 @@ export class MongoHealthcheck implements Healthcheck {
 
         return this.mongoService.isMaster()
 
-            .catch(err => {
+            .catch((err) => {
                 return {
                     healthy: false,
-                    error: err
+                    error: err,
                 };
             })
 
@@ -28,7 +28,7 @@ export class MongoHealthcheck implements Healthcheck {
                 const healthy = result.ismaster && !result.readOnly;
                 return {
                     healthy,
-                    result
+                    result,
                 };
             });
     }

@@ -1,5 +1,5 @@
 import {OpenApiPath} from './OpenApiPath';
-import {OpenApiSchema} from "./OpenApiSchema";
+import {OpenApiSchema} from './OpenApiSchema';
 
 export interface OpenApiConf {
     openapi?: '3.0.0';

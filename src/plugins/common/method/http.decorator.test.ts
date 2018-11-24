@@ -7,67 +7,67 @@ describe('http', () => {
     class ControllerA {
 
         @http({url: '/b', method: 'GET'})
-        get() {
+        public get() {
         }
 
         @httpGet({url: '/c'})
-        getC() {
+        public getC() {
         }
 
         @httpGet('/d')
-        getD() {
+        public getD() {
         }
 
         @httpGet()
-        getE() {
+        public getE() {
         }
 
         @httpPut({url: '/c'})
-        putC() {
+        public putC() {
         }
 
         @httpPut('/d')
-        putD() {
+        public putD() {
         }
 
         @httpPut()
-        putE() {
+        public putE() {
         }
 
         @httpPatch({url: '/c'})
-        patchC() {
+        public patchC() {
         }
 
         @httpPatch('/d')
-        patchD() {
+        public patchD() {
         }
 
         @httpPatch()
-        patchE() {
+        public patchE() {
         }
 
         @httpPost({url: '/c'})
-        postC() {
+        public postC() {
         }
 
         @httpPost('/d')
-        postD() {
+        public postD() {
         }
 
         @httpPost()
-        postE() {
+        public postE() {
         }
 
         @httpDelete({url: '/c'})
-        deleteC() {
+        public deleteC() {
         }
 
         @httpDelete('/d')
-        deleteD() {
+        public deleteD() {
         }
 
         @httpDelete()
-        deleteE() {
+        public deleteE() {
         }
     }
 
@@ -223,4 +223,3 @@ describe('http', () => {
         });
     });
 });
-

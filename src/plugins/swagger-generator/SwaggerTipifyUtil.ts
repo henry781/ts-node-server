@@ -1,5 +1,5 @@
-import {OpenApiSchema} from "./models/OpenApiSchema";
-import {JsonConverterMapper} from "tipify";
+import {JsonConverterMapper} from 'tipify';
+import {OpenApiSchema} from './models/OpenApiSchema';
 
 export class SwaggerTipifyUtil {
 
@@ -16,23 +16,23 @@ export class SwaggerTipifyUtil {
         const objectSchema: OpenApiSchema = {
             type: 'object',
             required: [],
-            properties: {}
+            properties: {},
         };
 
         for (const property of mapping.properties) {
 
             if (property.type === String) {
-                objectSchema.properties[property.serializedName] = {type: 'string'}
+                objectSchema.properties[property.serializedName] = {type: 'string'};
 
             } else if (property.type === Number) {
-                objectSchema.properties[property.serializedName] = {type: 'number'}
+                objectSchema.properties[property.serializedName] = {type: 'number'};
 
             } else if (property.type === Boolean) {
-                objectSchema.properties[property.serializedName] = {type: 'boolean'}
+                objectSchema.properties[property.serializedName] = {type: 'boolean'};
 
             } else if (Array.isArray(property.type)) {
                 schema = SwaggerTipifyUtil.buildOpenAPISchema(property.type[0], schema);
-                objectSchema.properties[property.serializedName] = {$ref: `#components/schemas/${property.type[0].name}`}
+                objectSchema.properties[property.serializedName] = {$ref: `#components/schemas/${property.type[0].name}`};
             }
         }
 
@@ -44,10 +44,10 @@ export class SwaggerTipifyUtil {
             schema[mapping.type.name] = {
                 allOf: [
                     {
-                        $ref: `#components/schemas/${parent.name}`
+                        $ref: `#components/schemas/${parent.name}`,
                     },
-                    objectSchema
-                ]
+                    objectSchema,
+                ],
             };
             SwaggerTipifyUtil.buildOpenAPISchema(parent, schema);
         }

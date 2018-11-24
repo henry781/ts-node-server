@@ -1,12 +1,12 @@
-import {controller} from './controller/controller.decorator';
-import {httpGet, httpPost} from './method/http.decorator';
-import {body, pathParam, queryParam} from './param/param.decorator';
+import * as chai from 'chai';
 import {Container, injectable} from 'inversify';
 import {Types} from '../../Types';
 import {CommonUtil, WireupEndpoint} from './CommonUtil';
-import * as chai from 'chai';
-import {MethodOptions} from './method/MethodOptions';
+import {controller} from './controller/controller.decorator';
 import {ControllerOptions} from './controller/ControllerOptions';
+import {httpGet, httpPost} from './method/http.decorator';
+import {MethodOptions} from './method/MethodOptions';
+import {body, pathParam, queryParam} from './param/param.decorator';
 
 describe('CommonUtil', () => {
 
@@ -18,11 +18,11 @@ describe('CommonUtil', () => {
         it('should return ""', () => {
 
             const controllerOptions: ControllerOptions = {
-                url: undefined
+                url: undefined,
             };
             const methodOptions: MethodOptions = {
                 url: undefined,
-                method: 'GET'
+                method: 'GET',
             };
 
             const url = CommonUtil.buildUrl(controllerOptions, methodOptions);
@@ -32,11 +32,11 @@ describe('CommonUtil', () => {
         it('should return "/a/b" (case multiple /)', () => {
 
             const controllerOptions: ControllerOptions = {
-                url: '/a/'
+                url: '/a/',
             };
             const methodOptions: MethodOptions = {
                 url: '/b',
-                method: 'GET'
+                method: 'GET',
             };
 
             const url = CommonUtil.buildUrl(controllerOptions, methodOptions);
@@ -46,11 +46,11 @@ describe('CommonUtil', () => {
         it('should return "/b"', () => {
 
             const controllerOptions: ControllerOptions = {
-                url: undefined
+                url: undefined,
             };
             const methodOptions: MethodOptions = {
                 url: '/b',
-                method: 'GET'
+                method: 'GET',
             };
 
             const url = CommonUtil.buildUrl(controllerOptions, methodOptions);
@@ -61,11 +61,11 @@ describe('CommonUtil', () => {
         it('should return "/a"', () => {
 
             const controllerOptions: ControllerOptions = {
-                url: '/a'
+                url: '/a',
             };
             const methodOptions: MethodOptions = {
                 url: undefined,
-                method: 'GET'
+                method: 'GET',
             };
 
             const url = CommonUtil.buildUrl(controllerOptions, methodOptions);
@@ -109,11 +109,11 @@ describe('CommonUtil', () => {
                 controller: controllerA,
                 paramsOptions: [],
                 methodOptions: {
-                    method: 'GET'
+                    method: 'GET',
                 },
                 controllerOptions: {
-                    url: '/a'
-                }
+                    url: '/a',
+                },
             };
 
             const expectedGetEndpoint: WireupEndpoint = {
@@ -124,15 +124,15 @@ describe('CommonUtil', () => {
                     type: 'path',
                     name: 'name',
                     paramType: String,
-                    description: undefined
+                    description: undefined,
                 }],
                 methodOptions: {
                     method: 'GET',
-                    url: ':name'
+                    url: ':name',
                 },
                 controllerOptions: {
-                    url: '/a'
-                }
+                    url: '/a',
+                },
             };
 
             const expectedCreateEndpoint: WireupEndpoint = {
@@ -142,21 +142,21 @@ describe('CommonUtil', () => {
                 paramsOptions: [
                     {
                         paramType: String,
-                        type: 'body'
+                        type: 'body',
                     },
                     {
                         description: undefined,
                         name: 'clone',
                         paramType: String,
-                        type: 'query'
-                    }
+                        type: 'query',
+                    },
                 ],
                 methodOptions: {
-                    method: 'POST'
+                    method: 'POST',
                 },
                 controllerOptions: {
-                    url: '/a'
-                }
+                    url: '/a',
+                },
             };
 
             chai.expect(endpoints).length(3);

@@ -1,6 +1,6 @@
+import * as chai from 'chai';
 import {controller, ROUTE_CONTROLLER} from './controller.decorator';
 import {ControllerOptions} from './ControllerOptions';
-import * as chai from 'chai';
 
 /**
  * Controller decorator

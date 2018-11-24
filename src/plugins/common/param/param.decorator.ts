@@ -87,9 +87,9 @@ export function httpReply() {
  * @param paramType
  * @returns {(target: object, propertyKey: string, parameterIndex: number) => void}
  */
-export function body(paramType?:any) {
+export function body(paramType?: any) {
     return param({
         type: 'body',
-        paramType
+        paramType,
     });
 }

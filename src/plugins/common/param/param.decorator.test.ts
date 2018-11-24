@@ -1,13 +1,13 @@
-import {body, httpReply, httpRequest, pathParam, queryParam, ROUTE_PARAMS} from './param.decorator';
-import {HttpRequest, Reply} from '../../../Types';
-import {ParamOptions} from './ParamOptions';
 import * as chai from 'chai';
+import {HttpRequest, Reply} from '../../../Types';
+import {body, httpReply, httpRequest, pathParam, queryParam, ROUTE_PARAMS} from './param.decorator';
+import {ParamOptions} from './ParamOptions';
 
 describe('param', () => {
 
     class ControllerA {
 
-        post(@body(String) body: String,
+        public post(@body(String) body: String,
              @pathParam('name') name: String,
              @queryParam('limit') limit: number,
              @httpRequest() request: HttpRequest,

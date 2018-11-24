@@ -8,12 +8,12 @@ export interface OpenApiSchema {
         [name: string]: {
             type?: 'string' | 'number' | 'boolean';
             $ref?: string
-        }
-    }
+        },
+    };
 
-    allOf?: ({ $ref: string } | OpenApiSchema)[];
+    allOf?: Array<{ $ref: string } | OpenApiSchema>;
 
     items?: {
         $ref: string;
-    }
+    };
 }

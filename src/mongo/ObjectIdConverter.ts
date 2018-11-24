@@ -1,5 +1,5 @@
-import {JsonConverterError, jsonCustomConverter, JsonCustomConverter} from 'tipify';
 import {ObjectId} from 'bson';
+import {JsonConverterError, jsonCustomConverter, JsonCustomConverter} from 'tipify';
 
 @jsonCustomConverter()
 export class ObjectIdConverter extends JsonCustomConverter<ObjectId> {

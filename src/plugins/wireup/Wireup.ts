@@ -1,8 +1,8 @@
 import {FastifyInstance} from 'fastify';
 import {Container} from 'inversify';
-import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
-import {Reply, Request} from '../../Types';
 import {JsonConverter} from '../../json/JsonConverter';
+import {Reply, Request} from '../../Types';
+import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
 
 /**
  * Wireup plugin
@@ -56,7 +56,7 @@ export class Wireup {
         logger.info('initializing wireup...');
 
         CommonUtil.getAllEndpoints(opts.container).forEach(
-            endpoint => {
+            (endpoint) => {
 
                 instance.route({
                     method: endpoint.methodOptions.method,

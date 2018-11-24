@@ -7,13 +7,13 @@ import {
     InsertOneWriteOpResult,
     Logger as MongoLogger,
     MongoClient,
-    MongoError
+    MongoError,
 } from 'mongodb';
 import {Logger} from 'pino';
-import {Types} from '../Types';
-import {MongoOptions} from './MongoOptions';
 import {JsonConverter} from '../json/JsonConverter';
+import {Types} from '../Types';
 import {MONGO_COLLECTION} from './collection.decorator';
+import {MongoOptions} from './MongoOptions';
 
 const DEFAULT_MONGO_OPTIONS: MongoOptions = {
     uri: process.env.MONGO_URL || 'mongodb://localhost:27017',
@@ -33,6 +33,24 @@ export interface MongoIsMasterResult {
 
 @injectable()
 export class MongoService {
+
+    /**
+     * Get collection for a type
+     * @param type
+     * @returns {string}
+     */
+    public static getCollectionForType(type: any): string {
+        return Reflect.getMetadata(MONGO_COLLECTION, type.prototype);
+    }
+
+    /**
+     *
+     * @param obj
+     * @returns {string}
+     */
+    public static getCollection(obj: any): string {
+        return MongoService.getCollectionForType(obj.constructor);
+    }
 
     private logger: Logger;
 
@@ -102,24 +120,6 @@ export class MongoService {
     }
 
     /**
-     * Get collection for a type
-     * @param type
-     * @returns {string}
-     */
-    public static getCollectionForType(type: any): string {
-        return Reflect.getMetadata(MONGO_COLLECTION, type.prototype);
-    }
-
-    /**
-     *
-     * @param obj
-     * @returns {string}
-     */
-    public static getCollection(obj: any): string {
-        return MongoService.getCollectionForType(obj.constructor);
-    }
-
-    /**
      * Find one document
      * @param type
      * @param {object} query
@@ -132,7 +132,7 @@ export class MongoService {
 
         return this.doAction(
             () => this.db.collection(collection).findOne(query, options))
-            .then(json => JsonConverter.deserialize<T>(json, type));
+            .then((json) => JsonConverter.deserialize<T>(json, type));
     }
 
     /**
@@ -149,7 +149,6 @@ export class MongoService {
         return this.doAction(
             () => this.db.collection(collection).insertOne(json, options));
     }
-
 
     public close() {
         return this.client.close();

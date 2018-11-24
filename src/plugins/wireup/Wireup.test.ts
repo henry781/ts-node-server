@@ -1,21 +1,21 @@
-import {Wireup} from './Wireup';
+import * as chai from 'chai';
+import {FastifyInstance, RouteOptions} from 'fastify';
+import {Container} from 'inversify';
+import * as pino from 'pino';
 import * as sinon from 'sinon';
 import {SinonSandbox} from 'sinon';
-import {Container} from 'inversify';
-import {FastifyInstance, RouteOptions} from 'fastify';
 import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
-import * as pino from 'pino';
-import * as chai from 'chai';
+import {Wireup} from './Wireup';
 
 describe('Wireup', () => {
 
     let sandbox: SinonSandbox;
 
-    beforeEach(function () {
+    beforeEach(function() {
         sandbox = sinon.createSandbox();
     });
 
-    afterEach(function () {
+    afterEach(function() {
         sandbox.restore();
     });
 
@@ -33,11 +33,11 @@ describe('Wireup', () => {
      */
     describe('getPlugin', () => {
 
-        let instance = <FastifyInstance>{
+        const instance = {
             route: (opts: RouteOptions<any, any, any>) => {
             },
-            log: pino()
-        };
+            log: pino(),
+        } as FastifyInstance;
 
         const container = new Container();
         const endpoint: WireupEndpoint = {
@@ -46,9 +46,9 @@ describe('Wireup', () => {
             controllerOptions: {},
             method: 'get',
             methodOptions: {
-                method: 'GET'
+                method: 'GET',
             },
-            paramsOptions: []
+            paramsOptions: [],
         };
 
         it('should do register routes', () => {
@@ -63,13 +63,13 @@ describe('Wireup', () => {
             const next = () => {
             };
 
-            Wireup.getPlugin(instance, {container: container}, next);
+            Wireup.getPlugin(instance, {container}, next);
 
             chai.expect(route.calledOnce).to.be.true;
             chai.expect(route.calledWith({
                 method: 'GET',
                 url: '/a',
-                handler
+                handler,
             })).to.be.true;
         });
 
@@ -81,7 +81,7 @@ describe('Wireup', () => {
             };
             const nextSpy = sandbox.spy(next);
 
-            Wireup.getPlugin(instance, {container: container}, next);
+            Wireup.getPlugin(instance, {container}, next);
 
             chai.expect(nextSpy.calledOnce);
         });

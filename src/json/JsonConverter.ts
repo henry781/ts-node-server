@@ -4,7 +4,6 @@ export class JsonConverter {
 
     public static CONVERTER = new Converter();
 
-
     public static serialize(obj: any): any {
         return this.CONVERTER.serialize(obj);
     }

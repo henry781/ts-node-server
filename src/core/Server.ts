@@ -1,12 +1,12 @@
 import * as _fastify from 'fastify';
-import fastifyMetrics from 'fastify-metrics';
 import * as helmet from 'fastify-helmet';
+import fastifyMetrics from 'fastify-metrics';
 import {Logger} from 'pino';
-import {Instance, Types} from '../Types';
-import {Controller, SwaggerGenerator, Wireup} from '../plugins/api';
-import {DEFAULT_LOGGER_OPTIONS, ServerOptions} from './ServerOptions';
-import {MongoHealthcheck, MongoService} from '../mongo/api';
 import {Healthcheck, HealthcheckController} from '../healthcheck/api';
+import {MongoHealthcheck, MongoService} from '../mongo/api';
+import {Controller, SwaggerGenerator, Wireup} from '../plugins/api';
+import {Instance, Types} from '../Types';
+import {DEFAULT_LOGGER_OPTIONS, ServerOptions} from './ServerOptions';
 
 const fastify = _fastify;
 

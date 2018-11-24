@@ -1,9 +1,9 @@
 import {injectable, multiInject} from 'inversify';
 import {controller} from '../plugins/common/controller/api';
 import {httpGet} from '../plugins/common/method/api';
+import {httpReply} from '../plugins/common/param/api';
 import {Reply, Types} from '../Types';
 import {Healthcheck} from './Healthcheck';
-import {httpReply} from '../plugins/common/param/api';
 
 @injectable()
 @controller('/healthcheck')
@@ -26,19 +26,19 @@ export class HealthcheckController {
 
         const result = {
             healthy: true,
-            checks: {}
+            checks: {},
         };
 
         const checks = Promise.all(
-            this.healthchecks.map(check =>
+            this.healthchecks.map((check) =>
                 check.check()
-                    .catch(err => {
+                    .catch((err) => {
                         result.checks[check.getName()] = {
                             healthy: false,
-                            error: err
+                            error: err,
                         };
                     })
-                    .then(checkResult => {
+                    .then((checkResult) => {
                         result.checks[check.getName()] = checkResult;
 
                     })));

@@ -3,9 +3,9 @@ import fastifyStatic from 'fastify-static';
 import {Container} from 'inversify';
 import mixin from 'mixin-deep';
 import swaggerUiDist from 'swagger-ui-dist';
-import {ParamOptions} from '../common/param/ParamOptions';
-import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
 import {Reply, Request} from '../../Types';
+import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
+import {ParamOptions} from '../common/param/ParamOptions';
 import {OpenApiConf} from './models/OpenApiConf';
 import {OpenApiMethod} from './models/OpenApiMethod';
 import {SwaggerTipifyUtil} from './SwaggerTipifyUtil';
@@ -17,7 +17,7 @@ export class SwaggerGenerator {
      * @type {{openapi: string}}
      */
     public static DEFAULT_OPENAPI_CONFIGURATION: OpenApiConf = {
-        openapi: '3.0.0'
+        openapi: '3.0.0',
     };
 
     /**
@@ -110,7 +110,7 @@ export class SwaggerGenerator {
         let configuration = SwaggerGenerator.DEFAULT_OPENAPI_CONFIGURATION;
 
         CommonUtil.getAllEndpoints(container).forEach(
-            endpoint => {
+            (endpoint) => {
                 configuration = mixin(configuration, SwaggerGenerator.buildConfigurationForEndpoint(endpoint));
             });
 
@@ -144,7 +144,7 @@ export class SwaggerGenerator {
                     name: paramOptions.name,
                     schema: {
                         type: 'string',
-                    }
+                    },
                 });
                 break;
 
@@ -157,7 +157,7 @@ export class SwaggerGenerator {
                     name: paramOptions.name,
                     schema: {
                         type: 'string',
-                    }
+                    },
                 });
                 break;
 
@@ -185,10 +185,10 @@ export class SwaggerGenerator {
                     content: {
                         [contentType]: {
                             schema: {
-                                $ref: `#components/schemas/${paramOptions.paramType.name}`
-                            }
-                        }
-                    }
+                                $ref: `#components/schemas/${paramOptions.paramType.name}`,
+                            },
+                        },
+                    },
                 };
 
                 methodOptions.requestBody = requestBody;
@@ -209,18 +209,18 @@ export class SwaggerGenerator {
         const method = endpoint.methodOptions.method.toLowerCase();
 
         const endpointConfiguration: OpenApiMethod = {
-            parameters: []
+            parameters: [],
         };
 
         let configuration: OpenApiConf = {
             paths: {
                 [url]: {
-                    [method]: endpointConfiguration
-                }
-            }
+                    [method]: endpointConfiguration,
+                },
+            },
         };
 
-        endpoint.paramsOptions.forEach(param => {
+        endpoint.paramsOptions.forEach((param) => {
             configuration = SwaggerGenerator.buildConfigurationForParameter(configuration, endpointConfiguration, param);
         });
 

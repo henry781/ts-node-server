@@ -6,7 +6,7 @@ export const Types = {
     Controller: 'Controller',
     Healthcheck: 'Healthcheck',
     Logger: 'Logger',
-    MongoService: 'MongoService'
+    MongoService: 'MongoService',
 };
 
 export type HttpRequest = http.IncomingMessage | http2.Http2ServerRequest;
