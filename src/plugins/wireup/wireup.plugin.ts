@@ -1,8 +1,8 @@
 import {FastifyInstance} from 'fastify';
 import {Container} from 'inversify';
-import {ExploredMethod, CommonUtil} from '../common/CommonUtil';
+import {CommonUtil} from '../common/CommonUtil';
 import {Reply, Request} from '../../Types';
-import {JsonConverter} from "../../json/JsonConverter";
+import {JsonConverter} from '../../json/JsonConverter';
 
 /**
  * Wireup plugin
@@ -16,12 +16,12 @@ export function wireupPlugin(instance: FastifyInstance, opts: { container: Conta
 
     logger.info('initializing wireup...');
 
-    CommonUtil.exploreMethods(opts.container,
-        (m: ExploredMethod) => {
+    CommonUtil.getAllEndpoints(opts.container).forEach(
+        method => {
 
-            const handler = (request: Request, reply: Reply) => {
+            const handler = async (request: Request, reply: Reply) => {
 
-                const args = m.paramsOptions.map((param) => {
+                const args = method.paramsOptions.map((param) => {
 
                     switch (param.type) {
                         case 'query':
@@ -39,15 +39,15 @@ export function wireupPlugin(instance: FastifyInstance, opts: { container: Conta
                     }
                 });
 
-                return m.controller[m.method].apply(m.controller, args);
+                return method.controller[method.method].apply(method.controller, args);
             };
 
             instance.route({
-                method: m.methodOptions.method,
-                url: m.url,
+                method: method.methodOptions.method,
+                url: method.url,
                 handler,
             });
-            logger.debug(`[${m.methodOptions.method}] ${m.url}`);
+            logger.debug(`[${method.methodOptions.method}] ${method.url}`);
 
         });
 

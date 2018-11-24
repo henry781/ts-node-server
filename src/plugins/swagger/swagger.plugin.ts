@@ -4,7 +4,7 @@ import {Container} from 'inversify';
 import mixin from 'mixin-deep';
 import swaggerUiDist from 'swagger-ui-dist';
 import {ParamOptions} from '../common/param/ParamOptions';
-import {ExploredMethod, CommonUtil} from '../common/CommonUtil';
+import {WireupEndpoint, CommonUtil} from '../common/CommonUtil';
 import {Reply, Request} from '../../Types';
 import {OpenApiConf} from './models/OpenApiConf';
 import {OpenApiMethodParameter} from './models/OpenApiMethodParameter';
@@ -97,7 +97,7 @@ function buildSwaggerParameterConfiguration(paramOptions: ParamOptions): OpenApi
     }
 }
 
-function buildSwaggerConfigurationForMethod(exploredMethod: ExploredMethod): OpenApiConf {
+function buildSwaggerConfigurationForMethod(exploredMethod: WireupEndpoint): OpenApiConf {
 
     const url = buildSwaggerUrl(exploredMethod.url);
     const method = exploredMethod.methodOptions.method.toLowerCase();
@@ -179,7 +179,7 @@ function getOpenAPISchema(type: any, schema?: { [name: string]: OpenApiSchema })
         } else if (property.type === Boolean) {
             objectSchema.properties[property.serializedName] = {type: 'boolean'}
 
-        } else if (Array.isArray(property.type)){
+        } else if (Array.isArray(property.type)) {
             schema = getOpenAPISchema(property.type[0], schema);
             objectSchema.properties[property.serializedName] = {$ref: `#components/schemas/${property.type[0].name}`}
         }
@@ -219,7 +219,7 @@ export function swaggerPlugin(instance: FastifyInstance, opts: { container: Cont
         openapi: '3.0.0',
     };
 
-    CommonUtil.exploreMethods(opts.container,
+    CommonUtil.getAllEndpoints(opts.container).forEach(
         (m) => {
             logger.trace(`building configuration for [${m.methodOptions.method}] ${m.url}...`);
             configuration = mixin(configuration, buildSwaggerConfigurationForMethod(m));

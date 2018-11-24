@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import {ControllerOptions} from './ControllerOptions';
 
 export const ROUTE_CONTROLLER = Symbol('route:controller');

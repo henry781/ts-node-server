@@ -59,6 +59,7 @@ export class Server {
         this._instance.ready(() => {
             this._instance.log.info('\n' + this._instance.printRoutes());
         });
+
     }
 
     /**

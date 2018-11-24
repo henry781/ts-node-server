@@ -1,13 +1,13 @@
 import {Container} from 'inversify';
 import 'reflect-metadata';
-import urlJoin from 'url-join';
+import * as urlJoin from 'url-join';
 import {Types} from '../../Types';
 import {Controller} from './controller/api';
 import {ROUTE_CONTROLLER, ControllerOptions} from './controller/api';
 import {ROUTE_METHOD, MethodOptions} from './method/api';
 import {ROUTE_PARAMS, ParamOptions} from './param/api';
 
-export interface ExploredMethod {
+export interface WireupEndpoint {
     controller: object;
     controllerOptions: ControllerOptions;
     method: string;
@@ -18,9 +18,33 @@ export interface ExploredMethod {
 
 export class CommonUtil {
 
-    public static exploreMethods(
-        container: Container,
-        callback: (exploredMethod: ExploredMethod) => void) {
+    /**
+     * Build url
+     * @param {ControllerOptions} controllerOptions
+     * @param {MethodOptions} methodOptions
+     * @returns {string}
+     */
+    public static buildUrl(controllerOptions: ControllerOptions, methodOptions: MethodOptions): string {
+
+        if (controllerOptions.url && methodOptions.url) {
+            return urlJoin(controllerOptions.url, methodOptions.url);
+        } else if (methodOptions.url) {
+            return methodOptions.url;
+        } else if (controllerOptions.url) {
+            return controllerOptions.url;
+        } else {
+            return '';
+        }
+    }
+
+    /**
+     * Get all endpoints
+     * @param {Container} container
+     * @returns {any[]}
+     */
+    public static getAllEndpoints(container: Container): WireupEndpoint[] {
+
+        const endpoints = [];
 
         const controllers = container.getAll<Controller>(Types.Controller);
 
@@ -36,10 +60,10 @@ export class CommonUtil {
                     return;
                 }
 
-                const paramsOptions = Reflect.getMetadata(ROUTE_PARAMS, controller, method) as ParamOptions[];
+                const paramsOptions = Reflect.getMetadata(ROUTE_PARAMS, controller, method) as ParamOptions[] || [];
                 const url = CommonUtil.buildUrl(controllerOptions, methodOptions);
 
-                callback({
+                endpoints.push({
                     controller,
                     controllerOptions,
                     method,
@@ -49,18 +73,7 @@ export class CommonUtil {
                 });
             });
         });
-    }
 
-    public static buildUrl(controllerOptions: ControllerOptions, methodOptions: MethodOptions): string {
-
-        if (controllerOptions.url && methodOptions.url) {
-            return urlJoin(controllerOptions.url, methodOptions.url);
-        } else if (methodOptions.url) {
-            return methodOptions.url;
-        } else if (controllerOptions.url) {
-            return controllerOptions.url;
-        } else {
-            return '';
-        }
+        return endpoints;
     }
 }

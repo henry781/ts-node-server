@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import {HTTPMethod} from 'fastify';
 import {GenericMethodOptions} from './GenericMethodOptions';
 import {MethodOptions} from './MethodOptions';
