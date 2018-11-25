@@ -1,10 +1,6 @@
-# ts-node-server
+# ts-node-server [WIP]
 
-_WORK IN PROGRESS_
-
-## What is ts-node-server ?
-
-ts-node-server is node framework for quickly developing powerful RESTful web services in Typescript.
+ts-node-server is node framework for developing RESTful web services in Typescript.
 
 It pulls together some of the best node libraries :
 
@@ -18,91 +14,79 @@ It pulls together some of the best node libraries :
 
 * [MongoDB driver](https://github.com/mongodb/node-mongodb-native) : Mongo DB Native NodeJS Driver
 
-## Usage
+## Features
 
-### Server
+### Route decorators
 
-```
-const container = new Container();
-container.bind<Controller>(Types.Controller).to(UserController);
-container.bind<Controller>(Types.Controller).to(PlaneController);
-
-const server = new Server({
-    container: container,
-    metrics: true,
-    swagger: true,
-    healthchecks: false,
-    mongo: {}
-});
-
-server.listen(2000);
-```
-
-### Controllers
+ts-node-server use decorators to build *fastify* routes. 
 
 ```
-@injectable()
 @controller('/v1/users')
 export class UserController {
 
-    /**
-     * Get a user by id
-     * @param {string} name
-     * @param {Reply} reply
-     * @returns {Promise<void>}
-     */
-    @httpGet({
-        url: '/:name',
-        swagger: {
-            summary: 'Get a user by name',
-            tags: ['user'],
-            operationId: 'get',
-            responses: {
-                200: {
-                    description: 'user returned successfully'
-                },
-                404: {
-                    description: 'user cannot be found'
-                }
-            }
-        }
-    })
-    public async get(@pathParam('name')name: string, @httpReply() reply: Reply) {
-
-        const user = await this.callDb().then(() => {
-            if (name === 'henry') {
-                return 'OK';
-            } else {
-                return undefined;
-            }
-        });
-
-        if (user) {
-            reply.send(user);
-        } else {
-            reply.status(404).send();
-        }
+    @httpGet(':name')
+    public async get(@pathParam('name')name: string) {
     }
 
-    /**
-     * Create a user
-     * @param {boolean} clone
-     * @returns {Promise<string>}
-     */
-    @httpPost({
-        swagger: {
-            summary: 'Create a user',
-            tags: ['user'],
-            operationId: 'create',
-            responses: {
-                201: {
-                    description: 'everything is ok'
-                }
-            }
-        }
-    })
+    @httpPost()
     public async create(@queryParam('clone')clone: boolean) {
-        return 'OK';
     }
-...
 ```
+
+### Type validation
+
+ts-node-server use *tipify* to validate, serialize and deserialize. It ensures that no property can be accidentally exposed.
+
+```
+@jsonObject()
+export class StellarSystem {
+
+    @jsonProperty('_id', ObjectIdConverter)
+    private _id?: string;
+
+    @jsonProperty('name', String)
+    private _name?: string;
+
+    @jsonProperty('planets', [Planet])
+    private _planets?: Planet[];
+} 
+```
+
+### Swagger generator
+
+ts-node-server use route decorators and tipify decorators to build a swagger configuration.
+
+### Metrics
+
+ts-node-server imports [fastify-metrics](https://github.com/fastify/fastify-metrics) and exposes all your app metrics at `/metrics`.
+
+### Healthcheck
+
+ts-node-server provides an healthcheck (`/healthcheck`). You can add more checks by extending `Healthcheck` class :
+
+```
+@injectable()
+export class MongoHealthcheck implements Healthcheck {
+
+    constructor() {
+    }
+
+    public getName(): string {
+        return 'mongodb';
+    }
+
+    public check(): Promise<HealthcheckResult> {
+        return {
+            true,
+            'content'
+        };
+    }
+
+}
+```
+
+### Authentication
+
+## Usage
+
+See [ts-node-server-starter](https://github.com/henry781/ts-node-server-starter) for an example.
