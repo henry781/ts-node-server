@@ -3,6 +3,7 @@ import {Container} from 'inversify';
 import {JsonConverter} from '../../json/JsonConverter';
 import {Reply, Request} from '../../Types';
 import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
+import {AuthUtil} from '../../auth/AuthUtil';
 
 /**
  * Wireup plugin
@@ -41,6 +42,49 @@ export class Wireup {
     }
 
     /**
+     * Get authorization handler
+     * @param {Container} container
+     * @param {WireupEndpoint} endpoint
+     * @returns {any}
+     */
+    public static getAuthorizationHandler(container: Container, endpoint: WireupEndpoint) {
+
+        if (!endpoint.methodOptions.auth) {
+            return undefined;
+        }
+
+        function sendUnauthorized(reply: Reply) {
+            reply.status(401).send('Unauthorized');
+        }
+
+        const authDefinitions = AuthUtil.groupByScheme(AuthUtil.getAuthDefinitions(container, endpoint));
+
+        return (request: Request, reply: Reply) => {
+
+            const token = AuthUtil.parseAuthorizationHeader(request);
+
+            if (!token || !token.scheme) {
+                sendUnauthorized(reply);
+                return;
+            }
+
+            const authDefinition = authDefinitions[token.scheme.toLowerCase()];
+
+            if (!authDefinition || !authDefinition.provider) {
+                sendUnauthorized(reply);
+                return;
+            }
+
+            try {
+                authDefinition.provider.authenticate(token, authDefinition.options);
+            } catch (err) {
+                sendUnauthorized(reply);
+                return;
+            }
+        }
+    }
+
+    /**
      * Get wireup plugin
      * @param {fastify.FastifyInstance} instance
      * @param {{container: Container}} opts
@@ -62,6 +106,7 @@ export class Wireup {
                     method: endpoint.methodOptions.method,
                     url: endpoint.url,
                     handler: Wireup.getHandler(endpoint),
+                    beforeHandler: Wireup.getAuthorizationHandler(opts.container, endpoint)
                 });
                 logger.debug(`[${endpoint.methodOptions.method}] ${endpoint.url}`);
             });

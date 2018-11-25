@@ -3,6 +3,7 @@ import * as http from 'http';
 import * as http2 from 'http2';
 
 export const Types = {
+    AuthProvider: 'AuthProvider',
     Controller: 'Controller',
     Healthcheck: 'Healthcheck',
     Logger: 'Logger',

@@ -24,6 +24,7 @@
   "homepage": "https://github.com/henry781/ts-node-server#readme",
   "dependencies": {
     "@types/mongodb": "^3.1.14",
+    "auth-header": "^1.0.0",
     "fastify": "1.13.0",
     "fastify-helmet": "^3.0.0",
     "fastify-metrics": "2.1.1",
@@ -41,6 +42,7 @@
     "url-join": "4.0.0"
   },
   "devDependencies": {
+    "@types/auth-header": "^1.0.0",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
     "@types/sinon": "^5.0.7",

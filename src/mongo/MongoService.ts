@@ -1,5 +1,4 @@
 import {inject, injectable} from 'inversify';
-import mixin from 'mixin-deep';
 import {
     CollectionInsertOneOptions,
     Db,
@@ -14,10 +13,11 @@ import {JsonConverter} from '../json/JsonConverter';
 import {Types} from '../Types';
 import {MONGO_COLLECTION} from './collection.decorator';
 import {MongoOptions} from './MongoOptions';
+import {Environment} from '../Environment';
 
 const DEFAULT_MONGO_OPTIONS: MongoOptions = {
-    uri: process.env.MONGO_URL || 'mongodb://localhost:27017',
-    dbName: process.env.MONGO_DB || 'main',
+    uri: Environment.MONGO_URL,
+    dbName: Environment.MONGO_DB,
     client: {
         reconnectTries: 60,
         reconnectInterval: 1000,
@@ -71,11 +71,9 @@ export class MongoService {
      * @param {MongoOptions} options
      * @returns {Promise<void>}
      */
-    public async connect(options: MongoOptions): Promise<void> {
+    public async connect(options = DEFAULT_MONGO_OPTIONS): Promise<void> {
 
         const logger = this.logger.child({method: 'connect'});
-
-        options = mixin(DEFAULT_MONGO_OPTIONS, options);
 
         MongoLogger.setCurrentLogger((msg, state) => {
             this.logger.debug(msg, state);

@@ -1,3 +1,4 @@
+export * from './auth/api';
 export * from './core/api';
 export * from './error/api';
 export * from './healthcheck/api';

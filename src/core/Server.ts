@@ -8,6 +8,8 @@ import {Controller, SwaggerGenerator, Wireup} from '../plugins/api';
 import {Instance, Types} from '../Types';
 import {DEFAULT_LOGGER_OPTIONS, ServerOptions} from './ServerOptions';
 import {Serializer} from '../plugins/serializer/Serializer';
+import {Environment} from '../Environment';
+import {AuthProvider, BasicAuthProvider, JwtAuthProvider} from '../auth/api';
 
 const fastify = _fastify;
 
@@ -46,7 +48,10 @@ export class Server {
         this._instance.register(Wireup.getPlugin, {container: options.container});
 
         if (options.swagger) {
-            this._instance.register(SwaggerGenerator.getPlugin, {container: options.container});
+            this._instance.register(SwaggerGenerator.getPlugin, {
+                container: options.container,
+                configuration: typeof(options.swagger) === 'boolean' ? undefined : options.swagger
+            });
         }
 
         if (options.metrics) {
@@ -57,7 +62,29 @@ export class Server {
         if (options.mongo) {
             options.container.bind<MongoService>(Types.MongoService).to(MongoService).inSingletonScope();
             options.container.bind<Healthcheck>(Types.Healthcheck).to(MongoHealthcheck).inSingletonScope();
-            (options.container.get(Types.MongoService) as MongoService).connect(options.mongo);
+
+            const service = options.container.get<MongoService>(Types.MongoService);
+            service.connect(typeof(options.mongo) === 'boolean' ? undefined : options.mongo);
+        }
+
+        if (options.auth) {
+
+            if (options.auth.jwt) {
+                const jwtAuthProviderOptions = typeof(options.auth.jwt) === 'boolean' ? undefined : options.auth.jwt;
+                const jwtAuthProvider = new JwtAuthProvider(jwtAuthProviderOptions);
+                options.container.bind<AuthProvider>(Types.AuthProvider)
+                    .toConstantValue(jwtAuthProvider)
+                    .whenTargetNamed('jwt');
+            }
+
+            if (options.auth.basic) {
+                const basicAuthProviderOptions = typeof(options.auth.basic) === 'boolean' ? undefined : options.auth.basic;
+                const basicAuthProvider = new BasicAuthProvider(basicAuthProviderOptions);
+                options.container.bind<AuthProvider>(Types.AuthProvider)
+                    .toConstantValue(basicAuthProvider)
+                    .whenTargetNamed('basic');
+            }
+
         }
 
         this._instance.ready(() => {
@@ -71,7 +98,7 @@ export class Server {
      * @param {number} port
      * @returns {string}
      */
-    public async listen(port: number): Promise<string> {
+    public async listen(port = Environment.PORT): Promise<string> {
         return this._instance.listen(port);
     }
 }

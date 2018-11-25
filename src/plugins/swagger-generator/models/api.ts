@@ -1,3 +1,4 @@
+export * from './OpenApiConf';
 export * from './OpenApiSchema';
 export * from './OpenApiMethod';
 export * from './OpenApiMethodParameter';

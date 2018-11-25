@@ -53,7 +53,7 @@ export function queryParam(name: string, description?: string) {
 }
 
 /**
- * Auth decorator
+ * AuthService decorator
  * @returns {(target: object, propertyKey: string, parameterIndex: number) => void}
  */
 export function auth() {

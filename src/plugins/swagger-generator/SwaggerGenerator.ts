@@ -223,17 +223,24 @@ export class SwaggerGenerator {
     }
 
     /**
-     * Get swagger generator plugin
+     * Get swagge generator plugin
      * @param {fastify.FastifyInstance} instance
-     * @param {{container: Container}} opts
+     * @param {{container: Container; configuration: OpenApiConf}} opts
      * @param {(err?: Error) => void} next
      */
-    public static getPlugin(instance: FastifyInstance, opts: { container: Container }, next: (err?: Error) => void) {
+    public static getPlugin(
+        instance: FastifyInstance,
+        opts: { container: Container, configuration: OpenApiConf },
+        next: (err?: Error) => void) {
 
         const logger = instance.log.child({module: 'swaggerGenerator'});
 
         logger.info('initializing swagger...');
-        const configuration = SwaggerGenerator.buildConfiguration(opts.container);
+        let configuration = SwaggerGenerator.buildConfiguration(opts.container);
+        if (opts.configuration) {
+            configuration = mixin(configuration, opts.configuration);
+        }
+
         const index = SwaggerGenerator.buildIndex();
 
         /**
