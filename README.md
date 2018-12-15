@@ -1,4 +1,5 @@
 # ts-node-server [WIP]
+[![Build Status](https://travis-ci.com/henry781/ts-node-server.svg?branch=master)](https://travis-ci.com/henry781/ts-node-server)
 
 ts-node-server is node framework for developing RESTful web services in Typescript.
 
