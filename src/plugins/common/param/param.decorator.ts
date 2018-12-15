@@ -32,9 +32,9 @@ function param(options: ParamOptions) {
  */
 export function pathParam(name: string, description?: string) {
     return param({
-        type: 'path',
-        name,
         description,
+        name,
+        type: 'path',
     });
 }
 
@@ -46,9 +46,9 @@ export function pathParam(name: string, description?: string) {
  */
 export function queryParam(name: string, description?: string) {
     return param({
-        type: 'query',
-        name,
         description,
+        name,
+        type: 'query',
     });
 }
 
@@ -89,7 +89,7 @@ export function httpReply() {
  */
 export function body(paramType?: any) {
     return param({
-        type: 'body',
         paramType,
+        type: 'body',
     });
 }

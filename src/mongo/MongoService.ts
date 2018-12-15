@@ -10,20 +10,9 @@ import {
 } from 'mongodb';
 import {Logger} from 'pino';
 import {JsonConverter} from '../json/JsonConverter';
-import {Types} from '../Types';
+import {types} from '../types';
 import {MONGO_COLLECTION} from './collection.decorator';
-import {MongoOptions} from './MongoOptions';
-import {Environment} from '../Environment';
-
-const DEFAULT_MONGO_OPTIONS: MongoOptions = {
-    uri: Environment.MONGO_URL,
-    dbName: Environment.MONGO_DB,
-    client: {
-        reconnectTries: 60,
-        reconnectInterval: 1000,
-        useNewUrlParser: true,
-    },
-};
+import {DEFAULT_MONGO_OPTIONS, MongoOptions} from './MongoOptions';
 
 export interface MongoIsMasterResult {
     ismaster: boolean;
@@ -53,7 +42,6 @@ export class MongoService {
     }
 
     private logger: Logger;
-
     private client: MongoClient;
     private db: Db;
     private error: Error;
@@ -62,7 +50,7 @@ export class MongoService {
      * Constructor
      * @param {P.Logger} logger
      */
-    constructor(@inject(Types.Logger) logger: Logger) {
+    constructor(@inject(types.Logger) logger: Logger) {
         this.logger = logger.child({module: 'MongoService'});
     }
 

@@ -3,7 +3,11 @@ import fastifyStatic from 'fastify-static';
 import {Container} from 'inversify';
 import mixin from 'mixin-deep';
 import swaggerUiDist from 'swagger-ui-dist';
-import {Reply, Request} from '../../Types';
+import {AuthProvider} from '../../auth/AuthProvider';
+import {AuthUtil} from '../../auth/AuthUtil';
+import {BasicAuthProvider} from '../../auth/BasicAuthProvider';
+import {JwtAuthProvider} from '../../auth/JwtAuthProvider';
+import {Reply, Request, types} from '../../types';
 import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
 import {ParamOptions} from '../common/param/ParamOptions';
 import {OpenApiConf} from './models/OpenApiConf';
@@ -65,6 +69,7 @@ export class SwaggerGenerator {
         '      const ui = SwaggerUIBundle({\n' +
         '        url: "./docs/swagger.json",\n' +
         '        dom_id: \'#swagger-ui\',\n' +
+        '        oauth2RedirectUrl: window.location.origin + \'/docs/oauth2-redirect.html\',\n' +
         '        deepLinking: true,\n' +
         '        presets: [\n' +
         '          SwaggerUIBundle.presets.apis,\n' +
@@ -109,6 +114,8 @@ export class SwaggerGenerator {
 
         let configuration = SwaggerGenerator.DEFAULT_OPENAPI_CONFIGURATION;
 
+        SwaggerGenerator.buildAuthenticationConfiguration(container, configuration);
+
         CommonUtil.getAllEndpoints(container).forEach(
             (endpoint) => {
                 configuration = mixin(configuration, SwaggerGenerator.buildConfigurationForEndpoint(endpoint));
@@ -117,6 +124,59 @@ export class SwaggerGenerator {
         if (userDefinedConfiguration) {
             configuration = mixin(configuration, userDefinedConfiguration);
         }
+
+        return configuration;
+    }
+
+    /**
+     * Build authentication configuration
+     * @param {Container} container
+     * @param {OpenApiConf} configuration
+     * @returns {OpenApiConf}
+     */
+    public static buildAuthenticationConfiguration(container: Container, configuration?: OpenApiConf): OpenApiConf {
+
+        const authenticationProviders = container.getAll<AuthProvider>(types.AuthProvider);
+
+        authenticationProviders.forEach((provider) => {
+
+            if (provider instanceof JwtAuthProvider) {
+
+                const authConfiguration: OpenApiConf = {
+                    components: {
+                        securitySchemes: {
+                            jwt: {
+                                flows: {
+                                    implicit: {
+                                        authorizationUrl: provider.options.authorizationUrl,
+                                        scopes: {ALL: ''},
+                                    },
+                                },
+                                type: 'oauth2',
+                            },
+                        },
+                    },
+                };
+                configuration = mixin(configuration, authConfiguration);
+
+            } else if (provider instanceof BasicAuthProvider) {
+
+                const authConfiguration: OpenApiConf = {
+                    components: {
+                        securitySchemes: {
+                            basic: {
+                                scheme: 'basic',
+                                type: 'http',
+                            },
+                        },
+                    },
+                };
+                configuration = mixin(configuration, authConfiguration);
+
+            } else {
+                throw new Error('swagger generator cannot implement authentication');
+            }
+        });
 
         return configuration;
     }
@@ -170,13 +230,13 @@ export class SwaggerGenerator {
                 const contentType = 'application/json';
 
                 const requestBody = {
-                    description: paramOptions.description,
-                    required: true,
                     content: {
                         [contentType]: {
                             schema: SwaggerTipifyUtil.buildOpenApiSchema(paramType, configuration.components.schemas),
                         },
                     },
+                    description: paramOptions.description,
+                    required: true,
                 };
 
                 methodOptions.requestBody = requestBody;
@@ -184,6 +244,10 @@ export class SwaggerGenerator {
         }
 
         return configuration;
+    }
+
+    public static buildSecuritySchemes() {
+
     }
 
     /**
@@ -200,15 +264,23 @@ export class SwaggerGenerator {
             parameters: [],
         };
 
+        const auth = endpoint.methodOptions.auth;
+        if (auth) {
+            endpointConfiguration.security = Object.keys(AuthUtil.normalizeAuthOptions(auth))
+                .map((a) => {
+                    return {[a]: ['ALL']};
+                });
+        }
+
         let configuration: OpenApiConf = {
+            components: {
+                schemas: {},
+            },
             paths: {
                 [url]: {
                     [method]: endpointConfiguration,
                 },
             },
-            components: {
-                schemas: {}
-            }
         };
 
         endpoint.paramsOptions.forEach((param) => {
@@ -261,9 +333,9 @@ export class SwaggerGenerator {
          * Serve swagger static assets
          */
         instance.register(fastifyStatic, {
-            root: swaggerUiDist.getAbsoluteFSPath(),
-            prefix: '/docs',
             index: false,
+            prefix: '/docs',
+            root: swaggerUiDist.getAbsoluteFSPath(),
         });
 
         logger.info('swagger initialized');

@@ -5,3 +5,4 @@ export * from './BasicAuthProviderOptions';
 export * from './JwtAuthProvider';
 export * from './JwtAuthProviderOptions';
 export * from './Principal';
+export * from './PrincipalOptions';

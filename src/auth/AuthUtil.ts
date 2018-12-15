@@ -1,12 +1,16 @@
 import {parse, Token} from 'auth-header';
-import {Request, Types} from '../Types';
-import {WireupEndpoint} from '../plugins/common/CommonUtil';
-import {AuthDefinition} from '../plugins/common/method/AuthDefinition';
 import {Container} from 'inversify';
+import {AuthOptions} from '../plugins/common/method/AuthOptions';
+import {Request, types} from '../types';
 import {AuthProvider} from './AuthProvider';
 
 export class AuthUtil {
 
+    /**
+     * Parse authorization header
+     * @param {Request} request
+     * @returns {Token}
+     */
     public static parseAuthorizationHeader(request: Request): Token {
         if (!request.headers.authorization) {
             return undefined;
@@ -14,39 +18,56 @@ export class AuthUtil {
         return parse(request.headers.authorization);
     }
 
-    public static getAuthDefinitions(container: Container, endpoint: WireupEndpoint): AuthDefinition[] {
+    /**
+     * Normalize auth options
+     * @param {string | string[] | {[p: string]: AuthOptions}} authOptions
+     * @returns {AuthOptions[]}
+     */
+    public static normalizeAuthOptions(
+        authOptions: string
+            | string[]
+            | { [providerName: string]: AuthOptions }): AuthOptions[] {
 
-        if (typeof(endpoint.methodOptions.auth) === 'string') {
-            return [{
-                provider: container.getNamed(Types.AuthProvider, endpoint.methodOptions.auth),
-                options: {}
-            }];
+        if (typeof(authOptions) === 'string') {
+            return [{providerName: authOptions}];
 
-        } else if (Array.isArray(endpoint.methodOptions.auth)) {
-            return endpoint.methodOptions.auth.map(a => {
-                return {
-                    provider: container.getNamed<AuthProvider>(Types.AuthProvider, a),
-                    options: {}
-                };
+        } else if (Array.isArray(authOptions)) {
+            return authOptions.map((a) => {
+                return {providerName: a};
             });
-
 
         } else {
-            return Object.keys(endpoint.methodOptions.auth).map(a => {
-                return {
-                    provider: container.getNamed<AuthProvider>(Types.AuthProvider, a),
-                    options: endpoint.methodOptions.auth[a]
-                }
-            });
+            return Object.keys(authOptions)
+                .map((providerName) => {
+                    return {...authOptions, providerName};
+                });
         }
     }
 
-    public static groupByScheme(authDefinitions: AuthDefinition[]): { [scheme: string]: AuthDefinition } {
+    /**
+     * Get auth providers by scheme
+     * @param {Container} container
+     * @param {AuthOptions[]} authOptions
+     * @returns {{[p: string]: {provider: AuthProvider; options: AuthOptions}}}
+     */
+    public static getAuthProvidersByScheme(container: Container, authOptions: AuthOptions[])
+        : {
+        [scheme: string]: {
+            provider: AuthProvider,
+            options: AuthOptions,
+        },
+    } {
 
         const result = {};
 
-        for (let i = authDefinitions.length - 1; i >= 0; i--) {
-            result[authDefinitions[i].provider.getScheme()] = authDefinitions[i];
+        for (const a of authOptions) {
+
+            const authProvider = container.getNamed<AuthProvider>(types.AuthProvider, a.providerName);
+
+            result[authProvider.getScheme()] = {
+                options: a,
+                provider: authProvider,
+            };
         }
 
         return result;

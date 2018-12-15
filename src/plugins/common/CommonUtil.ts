@@ -1,7 +1,7 @@
 import {Container} from 'inversify';
 import 'reflect-metadata';
 import * as _urlJoin from 'url-join';
-import {Types} from '../../Types';
+import {types} from '../../types';
 import {Controller, ControllerOptions, ROUTE_CONTROLLER} from './controller/api';
 import {MethodOptions, ROUTE_METHOD} from './method/api';
 import {ParamOptions, ROUTE_PARAMS} from './param/api';
@@ -47,7 +47,7 @@ export class CommonUtil {
 
         const endpoints = [];
 
-        const controllers = container.getAll<Controller>(Types.Controller);
+        const controllers = container.getAll<Controller>(types.Controller);
 
         controllers.forEach((controller) => {
             const methods = Object.getOwnPropertyNames(controller.constructor.prototype);

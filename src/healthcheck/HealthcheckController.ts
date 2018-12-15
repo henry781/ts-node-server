@@ -2,7 +2,7 @@ import {injectable, multiInject} from 'inversify';
 import {controller} from '../plugins/common/controller/api';
 import {httpGet} from '../plugins/common/method/api';
 import {httpReply} from '../plugins/common/param/api';
-import {Reply, Types} from '../Types';
+import {Reply, types} from '../types';
 import {Healthcheck} from './Healthcheck';
 
 @injectable()
@@ -13,7 +13,7 @@ export class HealthcheckController {
      * Constructor
      * @param {Healthcheck[]} healthchecks
      */
-    constructor(@multiInject(Types.Healthcheck) private  healthchecks: Healthcheck[]) {
+    constructor(@multiInject(types.Healthcheck) private  healthchecks: Healthcheck[]) {
     }
 
     /**
@@ -25,22 +25,25 @@ export class HealthcheckController {
     public async check(@httpReply() reply: Reply) {
 
         const result = {
-            healthy: true,
             checks: {},
+            healthy: true,
         };
 
         const checks = Promise.all(
             this.healthchecks.map((check) =>
                 check.check()
-                    .catch((err) => {
+                    .then((checkResult) => {
                         result.checks[check.getName()] = {
-                            healthy: false,
-                            error: err,
+                            healthy: true,
+                            result: checkResult,
                         };
                     })
-                    .then((checkResult) => {
-                        result.checks[check.getName()] = checkResult;
-
+                    .catch((err) => {
+                        result.healthy = false;
+                        result.checks[check.getName()] = {
+                            error: err.message,
+                            healthy: false,
+                        };
                     })));
 
         await checks;

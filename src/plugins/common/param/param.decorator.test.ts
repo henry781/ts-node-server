@@ -1,5 +1,5 @@
 import * as chai from 'chai';
-import {HttpRequest, Reply} from '../../../Types';
+import {HttpRequest, Reply} from '../../../types';
 import {body, httpReply, httpRequest, pathParam, queryParam, ROUTE_PARAMS} from './param.decorator';
 import {ParamOptions} from './ParamOptions';
 
@@ -7,11 +7,11 @@ describe('param', () => {
 
     class ControllerA {
 
-        public post(@body(String) body: String,
-             @pathParam('name') name: String,
-             @queryParam('limit') limit: number,
-             @httpRequest() request: HttpRequest,
-             @httpReply() reply: Reply) {
+        public post(@body(String) bodyContent: string,
+                    @pathParam('name') name: string,
+                    @queryParam('limit') limit: number,
+                    @httpRequest() request: HttpRequest,
+                    @httpReply() reply: Reply) {
         }
     }
 

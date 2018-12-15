@@ -1,20 +1,29 @@
-import {AuthProvider} from './AuthProvider';
 import {Token} from 'auth-header';
 import * as jwt from 'jsonwebtoken';
+import {AuthOptions} from '../plugins/common/method/AuthOptions';
+import {AuthProvider} from './AuthProvider';
+import {DEFAULT_JWT_AUTH_PROVIDER_OPTIONS, JwtAuthProviderOptions} from './JwtAuthProviderOptions';
 import {Principal} from './Principal';
-import {Environment} from '../Environment';
-import {JwtAuthProviderOptions} from './JwtAuthProviderOptions';
-
-const DEFAULT_JWT_AUTH_PROVIDER_OPTIONS: JwtAuthProviderOptions = {
-    certificate: Environment.AUTH_JWT_CERTIFICATE
-};
 
 /**
  * Jwt authentication provider
  */
 export class JwtAuthProvider extends AuthProvider {
 
-    private _certificate;
+    public get options(): JwtAuthProviderOptions {
+        return this._options;
+    }
+
+    private _options: JwtAuthProviderOptions;
+
+    /**
+     * Constructor
+     * @param {JwtAuthProviderOptions} options
+     */
+    constructor(options: JwtAuthProviderOptions = DEFAULT_JWT_AUTH_PROVIDER_OPTIONS) {
+        super();
+        this._options = options;
+    }
 
     /**
      * Get scheme
@@ -27,20 +36,28 @@ export class JwtAuthProvider extends AuthProvider {
     /**
      * Authenticate
      * @param {Token} token
+     * @param {AuthOptions} options
      * @returns {Principal}
      */
-    public authenticate(token: Token): Principal {
-
-        // TODO : map jwt decoded token to principal
-        return jwt.verify(token, this._certificate);
+    public authenticate(token: Token, options: AuthOptions): Principal {
+        const jwtToken = Array.isArray(token.token) ? token.token[0] : token.token;
+        const decodedToken = jwt.verify(jwtToken, this._options.certificate) as object;
+        return this.provideUser(decodedToken, token);
     }
 
     /**
-     * Constructor
-     * @param {JwtAuthProviderOptions} options
+     * Provide user
+     * @param {object} decodedToken
+     * @param {Token} token
+     * @returns {Principal}
      */
-    constructor(options: JwtAuthProviderOptions = DEFAULT_JWT_AUTH_PROVIDER_OPTIONS) {
-        super();
-        this._certificate = options.certificate;
+    public provideUser(decodedToken: object, token: Token): Principal {
+        return new Principal({
+            // tslint:disable-next-line:no-string-literal
+            email: decodedToken['email'],
+            // tslint:disable-next-line:no-string-literal
+            login: decodedToken['preferred_username'],
+            token,
+        });
     }
 }

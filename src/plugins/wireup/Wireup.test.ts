@@ -11,11 +11,11 @@ describe('Wireup', () => {
 
     let sandbox: SinonSandbox;
 
-    beforeEach(function() {
+    beforeEach(() => {
         sandbox = sinon.createSandbox();
     });
 
-    afterEach(function() {
+    afterEach(() => {
         sandbox.restore();
     });
 
@@ -34,14 +34,13 @@ describe('Wireup', () => {
     describe('getPlugin', () => {
 
         const instance = {
+            log: pino(),
             route: (opts: RouteOptions<any, any, any>) => {
             },
-            log: pino(),
         } as FastifyInstance;
 
         const container = new Container();
         const endpoint: WireupEndpoint = {
-            url: '/a',
             controller: {},
             controllerOptions: {},
             method: 'get',
@@ -49,15 +48,24 @@ describe('Wireup', () => {
                 method: 'GET',
             },
             paramsOptions: [],
+            url: '/a',
         };
 
         it('should do register routes', () => {
 
             const route = sinon.stub(instance, 'route');
+            const getAuthorizationHandler = async () => {
+            };
+
+            const getSerializerHandler = async () => {
+            };
+
             const handler = async () => {
             };
 
             sandbox.stub(CommonUtil, 'getAllEndpoints').withArgs(container).returns([endpoint]);
+            sandbox.stub(Wireup, 'getAuthorizationHandler').withArgs(container, endpoint).returns(getAuthorizationHandler);
+            sandbox.stub(Wireup, 'getSerializerHandler').withArgs().returns(getSerializerHandler);
             sandbox.stub(Wireup, 'getHandler').withArgs(endpoint).returns(handler);
 
             const next = () => {
@@ -67,9 +75,10 @@ describe('Wireup', () => {
 
             chai.expect(route.calledOnce).to.be.true;
             chai.expect(route.calledWith({
+                beforeHandler: [getAuthorizationHandler, getSerializerHandler],
+                handler,
                 method: 'GET',
                 url: '/a',
-                handler,
             })).to.be.true;
         });
 

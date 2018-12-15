@@ -1,36 +1,45 @@
 import {inject, injectable} from 'inversify';
-import {Healthcheck, HealthcheckResult} from '../healthcheck/api';
-import {Types} from '../Types';
+import {Healthcheck} from '../healthcheck/api';
+import {types} from '../types';
 import {MongoIsMasterResult, MongoService} from './MongoService';
 
 @injectable()
 export class MongoHealthcheck implements Healthcheck {
 
-    constructor(@inject(Types.MongoService) private mongoService: MongoService) {
+    /**
+     * Constructor
+     * @param {MongoService} mongoService
+     */
+    constructor(@inject(types.MongoService) private mongoService: MongoService) {
     }
 
+    /**
+     * Get healthcheck name
+     * @returns {string}
+     */
     public getName(): string {
         return 'mongodb';
     }
 
-    public check(): Promise<HealthcheckResult> {
+    /**
+     * Check
+     * @returns {Promise<any>}
+     */
+    public check(): Promise<any> {
 
         return this.mongoService.isMaster()
 
-            .catch((err) => {
-                return {
-                    healthy: false,
-                    error: err,
-                };
-            })
-
             .then((result: MongoIsMasterResult) => {
-                const healthy = result.ismaster && !result.readOnly;
-                return {
-                    healthy,
-                    result,
-                };
+
+                if (!result.ismaster) {
+                    throw new Error('db is not master');
+                }
+
+                if (!result.readOnly) {
+                    throw new Error('db is readonly');
+                }
+
+                return result;
             });
     }
-
 }

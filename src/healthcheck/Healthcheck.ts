@@ -1,5 +1,3 @@
-import {HealthcheckResult} from './HealthcheckResult';
-
 /**
  * Healthchecks should implement this interface
  */
@@ -14,7 +12,7 @@ export interface Healthcheck {
 
     /**
      * Check method
-     * @returns {Promise<HealthcheckResult>}
+     * @returns {Promise<any>}
      */
-    check(): Promise<HealthcheckResult>;
+    check(): Promise<any>;
 }

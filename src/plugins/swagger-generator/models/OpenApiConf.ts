@@ -17,6 +17,7 @@ export interface OpenApiConf {
     paths?: { [name: string]: OpenApiPath };
 
     components?: {
-        schemas: { [name: string]: OpenApiSchema };
+        schemas?: { [name: string]: OpenApiSchema };
+        securitySchemes?: object;
     };
 }

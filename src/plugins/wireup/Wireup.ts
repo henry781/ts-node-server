@@ -1,9 +1,17 @@
+import * as _accepts from 'accepts';
 import {FastifyInstance} from 'fastify';
+import * as _flatstr from 'flatstr';
 import {Container} from 'inversify';
-import {JsonConverter} from '../../json/JsonConverter';
-import {Reply, Request} from '../../Types';
-import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
+import * as _yaml from 'js-yaml';
+import {JsonConverterMapper} from 'tipify';
 import {AuthUtil} from '../../auth/AuthUtil';
+import {JsonConverter} from '../../json/JsonConverter';
+import {Reply, Request} from '../../types';
+import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
+
+const accepts = _accepts;
+const flatstr = _flatstr;
+const yaml = _yaml;
 
 /**
  * Wireup plugin
@@ -32,6 +40,8 @@ export class Wireup {
                         return request;
                     case 'httpReply':
                         return reply;
+                    case 'auth':
+                        return request.user;
                     default:
                         return undefined;
                 }
@@ -49,39 +59,92 @@ export class Wireup {
      */
     public static getAuthorizationHandler(container: Container, endpoint: WireupEndpoint) {
 
-        if (!endpoint.methodOptions.auth) {
-            return undefined;
-        }
-
         function sendUnauthorized(reply: Reply) {
             reply.status(401).send('Unauthorized');
         }
 
-        const authDefinitions = AuthUtil.groupByScheme(AuthUtil.getAuthDefinitions(container, endpoint));
+        if (!endpoint.methodOptions.auth) {
+            return;
+        }
 
-        return (request: Request, reply: Reply) => {
+        const normalizedAuthOptions = AuthUtil.normalizeAuthOptions(endpoint.methodOptions.auth);
+        const providersByScheme = AuthUtil.getAuthProvidersByScheme(container, normalizedAuthOptions);
+
+        return (request: Request, reply: Reply, done) => {
 
             const token = AuthUtil.parseAuthorizationHeader(request);
 
             if (!token || !token.scheme) {
                 sendUnauthorized(reply);
+                done();
                 return;
             }
 
-            const authDefinition = authDefinitions[token.scheme.toLowerCase()];
+            const auth = providersByScheme[token.scheme.toLowerCase()];
 
-            if (!authDefinition || !authDefinition.provider) {
+            if (!auth || !auth.provider) {
                 sendUnauthorized(reply);
+                done();
                 return;
             }
 
             try {
-                authDefinition.provider.authenticate(token, authDefinition.options);
+                request.user = auth.provider.authenticate(token, auth.options);
             } catch (err) {
                 sendUnauthorized(reply);
-                return;
             }
-        }
+            done();
+            return;
+        };
+    }
+
+    public static getJsonSerializer() {
+
+        return (data) => {
+
+            let json = data;
+            const isMapped = data && JsonConverterMapper.getMappingForType(data.constructor);
+            if (isMapped) {
+                json = JsonConverter.serialize(data);
+            }
+
+            return flatstr(JSON.stringify(json));
+        };
+    }
+
+    public static getYamlSerializer() {
+
+        return (data) => {
+
+            let json = data;
+            const isMapped = data && JsonConverterMapper.getMappingForType(data.constructor);
+            if (isMapped) {
+                json = JsonConverter.serialize(data);
+            }
+
+            return flatstr(yaml.safeDump(json));
+        };
+
+    }
+
+    public static getSerializerHandler() {
+
+        return (request: Request, reply: Reply, done) => {
+
+            const accept = accepts(request as any);
+
+            switch (accept.type(['json', 'yaml'])) {
+                case 'json':
+                    reply.header('Content-Type', 'application/json')
+                        .serializer(Wireup.getJsonSerializer());
+                    break;
+                case 'yaml':
+                    reply.header('Content-Type', 'application/x-yaml')
+                        .serializer(Wireup.getYamlSerializer());
+                    break;
+            }
+            done();
+        };
     }
 
     /**
@@ -103,10 +166,13 @@ export class Wireup {
             (endpoint) => {
 
                 instance.route({
+                    beforeHandler: [
+                        Wireup.getAuthorizationHandler(opts.container, endpoint),
+                        Wireup.getSerializerHandler()]
+                        .filter((handler) => handler !== undefined),
+                    handler: Wireup.getHandler(endpoint),
                     method: endpoint.methodOptions.method,
                     url: endpoint.url,
-                    handler: Wireup.getHandler(endpoint),
-                    beforeHandler: Wireup.getAuthorizationHandler(opts.container, endpoint)
                 });
                 logger.debug(`[${endpoint.methodOptions.method}] ${endpoint.url}`);
             });

@@ -8,7 +8,6 @@ export const MONGO_COLLECTION = Symbol('mongo:collection');
 export function collection(name: string) {
 
     return (target: any) => {
-
         Reflect.defineMetadata(MONGO_COLLECTION, name, target.prototype);
     };
 }

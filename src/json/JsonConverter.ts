@@ -16,7 +16,6 @@ export class JsonConverter {
 
             let error = err;
             while (error) {
-                console.log(error);
                 error = error.parent;
             }
 

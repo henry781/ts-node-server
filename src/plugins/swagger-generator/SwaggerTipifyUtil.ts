@@ -16,20 +16,20 @@ export class SwaggerTipifyUtil {
 
         } else if (Array.isArray(type)) {
             return {
+                items: SwaggerTipifyUtil.buildOpenApiSchema(type[0], schemas),
                 type: 'array',
-                items: SwaggerTipifyUtil.buildOpenApiSchema(type[0], schemas)
             };
 
         } else {
 
             const mapping = JsonConverterMapper.getMappingForType(type);
 
-            if(mapping) {
+            if (mapping) {
 
                 const schema: OpenApiSchema = {
-                    type: 'object',
-                    required: [],
                     properties: {},
+                    required: [],
+                    type: 'object',
                 };
 
                 for (const property of mapping.properties) {
@@ -47,7 +47,7 @@ export class SwaggerTipifyUtil {
                                 $ref: `#components/schemas/${parent.name}`,
                             },
                             schema,
-                        ]
+                        ],
                     };
                     SwaggerTipifyUtil.buildOpenApiSchema(parent, schemas);
                 }
