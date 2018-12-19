@@ -28,7 +28,7 @@ describe('MongoHealthcheck', () => {
             mongoService.isMaster.resolves({
                 ismaster: false,
                 ok: 0,
-                readOnly: true,
+                readOnly: false,
             });
 
             return mongoHealthcheck.check()
@@ -41,7 +41,7 @@ describe('MongoHealthcheck', () => {
             mongoService.isMaster.resolves({
                 ismaster: true,
                 ok: 0,
-                readOnly: false,
+                readOnly: true,
             });
 
             return mongoHealthcheck.check()
@@ -54,7 +54,7 @@ describe('MongoHealthcheck', () => {
             mongoService.isMaster.resolves({
                 ismaster: true,
                 ok: 1,
-                readOnly: true,
+                readOnly: false,
             });
 
             return mongoHealthcheck.check()
@@ -62,7 +62,7 @@ describe('MongoHealthcheck', () => {
                     {
                         ismaster: true,
                         ok: 1,
-                        readOnly: true,
+                        readOnly: false,
                     }))
                 .catch(() => chai.expect.fail());
         });

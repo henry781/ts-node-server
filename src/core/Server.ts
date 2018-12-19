@@ -8,7 +8,8 @@ import {MongoHealthcheck, MongoService} from '../mongo/api';
 import {Controller, SwaggerGenerator, Wireup} from '../plugins/api';
 import {Instance, types} from '../types';
 import {environment} from './environment';
-import {DEFAULT_LOGGER_OPTIONS, ServerOptions} from './ServerOptions';
+import {loggerService} from './loggerService';
+import {ServerOptions} from './ServerOptions';
 
 const fastify = _fastify;
 
@@ -47,9 +48,7 @@ export class Server {
      */
     public buildInstance(options: ServerOptions) {
 
-        if (!options.logger) {
-            options.logger = DEFAULT_LOGGER_OPTIONS;
-        }
+        options.logger = loggerService;
 
         this._instance = fastify(options);
         this._instance.register(helmet);

@@ -7,22 +7,15 @@ import {AuthProvider} from '../../auth/AuthProvider';
 import {AuthUtil} from '../../auth/AuthUtil';
 import {BasicAuthProvider} from '../../auth/BasicAuthProvider';
 import {JwtAuthProvider} from '../../auth/JwtAuthProvider';
+import {loggerService} from '../../core/loggerService';
 import {Reply, Request, types} from '../../types';
 import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
 import {ParamOptions} from '../common/param/ParamOptions';
-import {OpenApiConf} from './models/OpenApiConf';
+import {OPENAPI_DEFAULT_CONFIGURATION, OpenApiConf} from './models/OpenApiConf';
 import {OpenApiMethod} from './models/OpenApiMethod';
 import {SwaggerTipifyUtil} from './SwaggerTipifyUtil';
 
 export class SwaggerGenerator {
-
-    /**
-     * Open API default configuration
-     * @type {{openapi: string}}
-     */
-    public static DEFAULT_OPENAPI_CONFIGURATION: OpenApiConf = {
-        openapi: '3.0.0',
-    };
 
     /**
      * Index.html template
@@ -87,14 +80,6 @@ export class SwaggerGenerator {
         '</html>\n';
 
     /**
-     * Build index.html
-     * @returns {string}
-     */
-    public static buildIndex(): string {
-        return SwaggerGenerator.INDEX_HTML_TEMPLATE;
-    }
-
-    /**
      * Translate url
      * /user/:name -> /user/{name}
      * @param {string} url
@@ -112,7 +97,9 @@ export class SwaggerGenerator {
      */
     public static buildConfiguration(container: Container, userDefinedConfiguration?: OpenApiConf): OpenApiConf {
 
-        let configuration = SwaggerGenerator.DEFAULT_OPENAPI_CONFIGURATION;
+        const logger = SwaggerGenerator.logger.child({method: 'buildConfiguration'});
+
+        let configuration = OPENAPI_DEFAULT_CONFIGURATION;
 
         SwaggerGenerator.buildAuthenticationConfiguration(container, configuration);
 
@@ -124,6 +111,8 @@ export class SwaggerGenerator {
         if (userDefinedConfiguration) {
             configuration = mixin(configuration, userDefinedConfiguration);
         }
+
+        logger.debug('open api configuration built');
 
         return configuration;
     }
@@ -149,7 +138,7 @@ export class SwaggerGenerator {
                                 flows: {
                                     implicit: {
                                         authorizationUrl: provider.options.authorizationUrl,
-                                        scopes: {ALL: ''},
+                                        scopes: {},
                                     },
                                 },
                                 type: 'oauth2',
@@ -246,16 +235,14 @@ export class SwaggerGenerator {
         return configuration;
     }
 
-    public static buildSecuritySchemes() {
-
-    }
-
     /**
      * build open API configuration for an endpoint
      * @param {WireupEndpoint} endpoint
      * @returns {OpenApiConf}
      */
     public static buildConfigurationForEndpoint(endpoint: WireupEndpoint): OpenApiConf {
+
+        const logger = SwaggerGenerator.logger.child({method: 'buildConfigurationForEndpoint'});
 
         const url = SwaggerGenerator.translateUrl(endpoint.url);
         const method = endpoint.methodOptions.method.toLowerCase();
@@ -266,9 +253,12 @@ export class SwaggerGenerator {
 
         const auth = endpoint.methodOptions.auth;
         if (auth) {
-            endpointConfiguration.security = Object.keys(AuthUtil.normalizeAuthOptions(auth))
+            logger.trace('authentication enabled');
+
+            endpointConfiguration.security = AuthUtil.normalizeAuthOptions(auth)
                 .map((a) => {
-                    return {[a]: ['ALL']};
+                    logger.trace(`authentication <${a.providerName}> enabled`);
+                    return {[a.providerName]: []};
                 });
         }
 
@@ -288,7 +278,28 @@ export class SwaggerGenerator {
         });
 
         if (endpoint.methodOptions.swagger) {
+            logger.trace('merging endpoint configuration with user defined configuration');
             configuration.paths[url][method] = mixin(configuration.paths[url][method], endpoint.methodOptions.swagger);
+        }
+
+        if (!configuration.paths[url][method].responses) {
+            logger.trace('adding default responses');
+            configuration.paths[url][method].responses = {
+                200: {
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                            },
+                        },
+                        'application/x-yaml': {
+                            schema: {
+                                type: 'object',
+                            },
+                        },
+                    },
+                },
+            };
         }
 
         return configuration;
@@ -305,7 +316,7 @@ export class SwaggerGenerator {
         opts: { container: Container, configuration: OpenApiConf },
         next: (err?: Error) => void) {
 
-        const logger = instance.log.child({module: 'swaggerGenerator'});
+        const logger = SwaggerGenerator.logger.child({method: 'getPlugin'});
 
         logger.info('initializing swagger...');
         let configuration = SwaggerGenerator.buildConfiguration(opts.container);
@@ -313,7 +324,7 @@ export class SwaggerGenerator {
             configuration = mixin(configuration, opts.configuration);
         }
 
-        const index = SwaggerGenerator.buildIndex();
+        const index = SwaggerGenerator.INDEX_HTML_TEMPLATE;
 
         /**
          * Serve api.ts.html
@@ -341,4 +352,6 @@ export class SwaggerGenerator {
         logger.info('swagger initialized');
         next();
     }
+
+    private static logger = loggerService.child({module: 'SwaggerGenerator'});
 }

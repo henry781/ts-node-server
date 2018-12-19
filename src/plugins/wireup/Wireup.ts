@@ -3,8 +3,8 @@ import {FastifyInstance} from 'fastify';
 import * as _flatstr from 'flatstr';
 import {Container} from 'inversify';
 import * as _yaml from 'js-yaml';
-import {JsonConverterMapper} from 'tipify';
 import {AuthUtil} from '../../auth/AuthUtil';
+import {loggerService} from '../../core/loggerService';
 import {JsonConverter} from '../../json/JsonConverter';
 import {Reply, Request} from '../../types';
 import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
@@ -101,13 +101,7 @@ export class Wireup {
     public static getJsonSerializer() {
 
         return (data) => {
-
-            let json = data;
-            const isMapped = data && JsonConverterMapper.getMappingForType(data.constructor);
-            if (isMapped) {
-                json = JsonConverter.serialize(data);
-            }
-
+            const json = JsonConverter.safeSerialize(data);
             return flatstr(JSON.stringify(json));
         };
     }
@@ -115,13 +109,7 @@ export class Wireup {
     public static getYamlSerializer() {
 
         return (data) => {
-
-            let json = data;
-            const isMapped = data && JsonConverterMapper.getMappingForType(data.constructor);
-            if (isMapped) {
-                json = JsonConverter.serialize(data);
-            }
-
+            const json = JsonConverter.safeSerialize(data);
             return flatstr(yaml.safeDump(json));
         };
 
@@ -133,12 +121,12 @@ export class Wireup {
 
             const accept = accepts(request as any);
 
-            switch (accept.type(['json', 'yaml'])) {
+            switch (accept.type(['json', 'application/x-yaml'])) {
                 case 'json':
                     reply.header('Content-Type', 'application/json')
                         .serializer(Wireup.getJsonSerializer());
                     break;
-                case 'yaml':
+                case 'application/x-yaml':
                     reply.header('Content-Type', 'application/x-yaml')
                         .serializer(Wireup.getYamlSerializer());
                     break;
@@ -158,7 +146,7 @@ export class Wireup {
         opts: { container: Container },
         next: (err?: Error) => void) {
 
-        const logger = instance.log.child({module: 'wireupPlugin'});
+        const logger = Wireup.logger.child({method: 'getPlugin'});
 
         logger.info('initializing wireup...');
 
@@ -180,4 +168,6 @@ export class Wireup {
         logger.info('wireup initialized');
         next();
     }
+
+    private static logger = loggerService.child({module: 'Wireup'});
 }

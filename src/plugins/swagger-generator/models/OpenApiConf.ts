@@ -1,6 +1,10 @@
 import {OpenApiPath} from './OpenApiPath';
 import {OpenApiSchema} from './OpenApiSchema';
 
+export const OPENAPI_DEFAULT_CONFIGURATION: OpenApiConf = {
+    openapi: '3.0.0',
+};
+
 export interface OpenApiConf {
     openapi?: '3.0.0';
 

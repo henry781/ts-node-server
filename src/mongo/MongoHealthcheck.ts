@@ -30,12 +30,11 @@ export class MongoHealthcheck implements Healthcheck {
         return this.mongoService.isMaster()
 
             .then((result: MongoIsMasterResult) => {
-
                 if (!result.ismaster) {
                     throw new Error('db is not master');
                 }
 
-                if (!result.readOnly) {
+                if (result.readOnly) {
                     throw new Error('db is readonly');
                 }
 

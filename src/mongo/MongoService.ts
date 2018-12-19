@@ -2,11 +2,13 @@ import {inject, injectable} from 'inversify';
 import {
     CollectionInsertOneOptions,
     Db,
+    DeleteWriteOpResultObject,
     FindOneOptions,
     InsertOneWriteOpResult,
     Logger as MongoLogger,
     MongoClient,
     MongoError,
+    UpdateWriteOpResult,
 } from 'mongodb';
 import {Logger} from 'pino';
 import {JsonConverter} from '../json/JsonConverter';
@@ -134,6 +136,50 @@ export class MongoService {
 
         return this.doAction(
             () => this.db.collection(collection).insertOne(json, options));
+    }
+
+    /**
+     * Find
+     * @param type
+     * @param {object} query
+     * @returns {Promise<T[]>}
+     */
+    public find<T>(type: any, query: object = {}): Promise<T[]> {
+
+        const collection = MongoService.getCollectionForType(type);
+
+        return this.doAction(
+            () => this.db.collection(collection).find(query).toArray())
+            .then((json) => JsonConverter.deserialize<T[]>(json, [type]));
+    }
+
+    /**
+     * Delete one
+     * @param type
+     * @param {object} query
+     * @returns {Promise<DeleteWriteOpResultObject>}
+     */
+    public deleteOne(type: any, query: object = {}): Promise<DeleteWriteOpResultObject> {
+
+        const collection = MongoService.getCollectionForType(type);
+
+        return this.doAction(
+            () => this.db.collection(collection).deleteOne(query));
+    }
+
+    /**
+     * Update one
+     * @param type
+     * @param {object} query
+     * @param {object} update
+     * @returns {Promise<UpdateWriteOpResult>}
+     */
+    public updateOne(type: any, query: object = {}, update: object = {}): Promise<UpdateWriteOpResult> {
+
+        const collection = MongoService.getCollectionForType(type);
+
+        return this.doAction(
+            () => this.db.collection(collection).updateOne(query, update));
     }
 
     public close() {

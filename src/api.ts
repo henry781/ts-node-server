@@ -6,4 +6,5 @@ export * from './healthcheck/api';
 export * from './json/api';
 export * from './mongo/api';
 export * from './plugins/api';
+export * from './test/api';
 export * from './types';
