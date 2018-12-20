@@ -125,7 +125,8 @@ export class SwaggerGenerator {
      */
     public static buildAuthenticationConfiguration(container: Container, configuration?: OpenApiConf): OpenApiConf {
 
-        const authenticationProviders = container.getAll<AuthProvider>(types.AuthProvider);
+        const authenticationProviders = container.isBound(types.AuthProvider)
+            ? container.getAll<AuthProvider>(types.AuthProvider) : [];
 
         authenticationProviders.forEach((provider) => {
 

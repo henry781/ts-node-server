@@ -1,4 +1,4 @@
-import {injectable, multiInject} from 'inversify';
+import {injectable, multiInject, optional} from 'inversify';
 import {controller} from '../plugins/common/controller/api';
 import {httpGet} from '../plugins/common/method/api';
 import {httpReply} from '../plugins/common/param/api';
@@ -13,7 +13,7 @@ export class HealthcheckController {
      * Constructor
      * @param {Healthcheck[]} healthchecks
      */
-    constructor(@multiInject(types.Healthcheck) private  healthchecks: Healthcheck[]) {
+    constructor(@multiInject(types.Healthcheck) @optional() private  healthchecks: Healthcheck[] = []) {
     }
 
     /**

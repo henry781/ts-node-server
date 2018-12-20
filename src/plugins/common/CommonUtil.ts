@@ -47,7 +47,8 @@ export class CommonUtil {
 
         const endpoints = [];
 
-        const controllers = container.getAll<Controller>(types.Controller);
+        const controllers = container.isBound(types.Controller)
+            ? container.getAll<Controller>(types.Controller) : [];
 
         controllers.forEach((controller) => {
             const methods = Object.getOwnPropertyNames(controller.constructor.prototype);
