@@ -1,4 +1,2 @@
 export abstract class GenericClient {
-
-
 }

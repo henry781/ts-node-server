@@ -28,7 +28,7 @@ export class AuthUtil {
             | string[]
             | { [providerName: string]: AuthOptions }): AuthOptions[] {
 
-        if (typeof(authOptions) === 'string') {
+        if (typeof (authOptions) === 'string') {
             return [{providerName: authOptions}];
 
         } else if (Array.isArray(authOptions)) {
