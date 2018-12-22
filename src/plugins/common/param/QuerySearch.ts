@@ -36,7 +36,10 @@ export class QuerySearch {
             }
         }
 
-        return new QuerySearch(filter, sort);
+        const offset = request.query.offset ? parseInt(request.query.offset, 10) : undefined;
+        const limit = request.query.limit ? parseInt(request.query.limit, 10) : undefined;
+
+        return new QuerySearch(filter, sort, offset, limit);
     }
 
     /**
@@ -100,23 +103,53 @@ export class QuerySearch {
     }
 
     private _filter: object;
-    private _sort: object;
 
     public get filter(): object {
         return this._filter;
     }
 
+    private _sort: object;
+
     public get sort(): object {
         return this._sort;
+    }
+
+    private _offset: number;
+
+    public get offset(): number {
+        return this._offset;
+    }
+
+    public set offset(value: number) {
+        this._offset = value;
+    }
+
+    private _limit: number;
+
+    public get limit(): number {
+        return this._limit;
+    }
+
+    public set limit(value: number) {
+        this._limit = value;
     }
 
     /**
      * Constructor
      * @param filter
      * @param sort
+     * @param offset
+     * @param limit
      */
-    constructor(filter: object = {}, sort: object = {}) {
+    constructor(
+        filter: object = {},
+        sort: object = {},
+        offset?: number,
+        limit?: number) {
+
         this._filter = filter;
         this._sort = sort;
+        this._offset = offset;
+        this._limit = limit;
     }
 }

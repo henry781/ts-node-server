@@ -12,6 +12,7 @@ import {
 } from 'mongodb';
 import {Logger} from 'pino';
 import {JsonConverter} from '../json/JsonConverter';
+import {QuerySearch} from '../plugins/common/param/QuerySearch';
 import {types} from '../types';
 import {MONGO_COLLECTION} from './collection.decorator';
 import {DEFAULT_MONGO_OPTIONS, MongoOptions} from './MongoOptions';
@@ -139,18 +140,44 @@ export class MongoService {
     }
 
     /**
-     * Find
+     * Find documents
      * @param type
-     * @param {object} query
-     * @returns {Promise<T[]>}
+     * @param query
+     * @param sort
+     * @param limit
+     * @param offset
      */
-    public find<T>(type: any, query: object = {}): Promise<T[]> {
+    public find<T>(type: any, query: object = {}, sort: object = {}, limit?: number, offset?: number): Promise<T[]> {
 
         const collection = MongoService.getCollectionForType(type);
 
         return this.doAction(
-            () => this.db.collection(collection).find(query).toArray())
+            () => {
+                const cursor = this.db.collection(collection)
+                    .find(query)
+                    .sort(sort);
+
+                if (limit !== undefined) {
+                    cursor.limit(limit);
+                }
+
+                if (offset !== undefined) {
+                    cursor.skip(offset);
+                }
+
+                return cursor.toArray();
+            })
             .then((json) => JsonConverter.deserialize<T[]>(json, [type]));
+    }
+
+    /**
+     * Search documents
+     * @param type
+     * @param search
+     */
+    public search<T>(type: any, search: QuerySearch): Promise<T[]> {
+
+        return this.find<T>(type, search.filter, search.sort, search.limit, search.offset);
     }
 
     /**
