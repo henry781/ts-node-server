@@ -32,6 +32,8 @@ describe('JwtAuthProvider', () => {
         it('should throw an error when verify throw an error', () => {
 
             const provider = new JwtAuthProvider({
+                application: 'test',
+                authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
                 certificate: 'CERT',
             });
             const token: Token = {
@@ -51,6 +53,8 @@ describe('JwtAuthProvider', () => {
         it('should not throw an error when everything is ok', () => {
 
             const provider = new JwtAuthProvider({
+                application: 'test',
+                authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
                 certificate: 'CERT',
             });
             const token: Token = {
@@ -69,6 +73,8 @@ describe('JwtAuthProvider', () => {
         it('should return authenticated user', () => {
 
             const provider = new JwtAuthProvider({
+                application: 'test',
+                authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
                 certificate: 'CERT',
             });
             const token: Token = {

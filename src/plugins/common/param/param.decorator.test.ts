@@ -1,7 +1,8 @@
 import * as chai from 'chai';
 import {HttpRequest, Reply} from '../../../types';
-import {body, httpReply, httpRequest, pathParam, queryParam, ROUTE_PARAMS} from './param.decorator';
+import {body, httpReply, httpRequest, pathParam, queryParam, querySearch, ROUTE_PARAMS} from './param.decorator';
 import {ParamOptions} from './ParamOptions';
+import {QuerySearch} from './QuerySearch';
 
 describe('param', () => {
 
@@ -11,7 +12,8 @@ describe('param', () => {
                     @pathParam('name') name: string,
                     @queryParam('limit') limit: number,
                     @httpRequest() request: HttpRequest,
-                    @httpReply() reply: Reply) {
+                    @httpReply() reply: Reply,
+                    @querySearch() search: QuerySearch) {
         }
     }
 
@@ -55,6 +57,19 @@ describe('param', () => {
             chai.expect(paramOptions.name).equal('limit');
             chai.expect(paramOptions.type).equal('query');
             chai.expect(paramOptions.paramType).equal(Number);
+        });
+    });
+
+    /**
+     * QuerySearch decorator
+     */
+    describe('querySearch', () => {
+
+        it('should define metadata', () => {
+            const paramOptions = Reflect.getMetadata(ROUTE_PARAMS, controllerA, 'post')[5] as ParamOptions;
+            chai.expect(paramOptions).not.undefined;
+            chai.expect(paramOptions.type).equal('search');
+            chai.expect(paramOptions.paramType).equal(QuerySearch);
         });
     });
 

@@ -53,6 +53,15 @@ export function queryParam(name: string, description?: string) {
 }
 
 /**
+ * QuerySearch decorator
+ */
+export function querySearch() {
+    return param({
+        type: 'search',
+    });
+}
+
+/**
  * AuthService decorator
  * @returns {(target: object, propertyKey: string, parameterIndex: number) => void}
  */

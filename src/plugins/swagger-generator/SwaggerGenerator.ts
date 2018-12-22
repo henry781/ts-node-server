@@ -199,6 +199,36 @@ export class SwaggerGenerator {
                 break;
 
             /**
+             * Query search
+             */
+            case 'search':
+                methodOptions.parameters.push({
+                        description: 'Filter by entering {field}[eq]={value}',
+                        explode: true,
+                        in: 'query',
+                        name: 'filter',
+                        schema: {
+                            items: {
+                                type: 'string',
+                            },
+                            type: 'array',
+                        },
+                    },
+                    {
+                        description: 'Sort by entering {field}={ASC|DESC}',
+                        explode: true,
+                        in: 'query',
+                        name: 'sort',
+                        schema: {
+                            items: {
+                                type: 'string',
+                            },
+                            type: 'array',
+                        },
+                    });
+                break;
+
+            /**
              * Path param
              */
             case 'path':

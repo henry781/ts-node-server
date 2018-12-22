@@ -3,7 +3,9 @@ export interface OpenApiMethodParameter {
     name?: string;
     description?: string;
     required?: boolean;
+    explode?: boolean;
     schema?: {
-        type?: 'integer' | 'string',
+        type?: 'integer' | 'string' | 'array',
+        items?: { type?: string },
     };
 }

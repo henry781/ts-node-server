@@ -52,11 +52,25 @@ export class JwtAuthProvider extends AuthProvider {
      * @returns {Principal}
      */
     public provideUser(decodedToken: object, token: Token): Principal {
+
+        // tslint:disable-next-line:no-string-literal
+        const resourceAccess = decodedToken['resource_access'];
+
+        const roles = resourceAccess && resourceAccess[this._options.application]
+        && resourceAccess[this._options.application].roles
+            ? resourceAccess[this._options.application].roles
+            : [];
+
         return new Principal({
             // tslint:disable-next-line:no-string-literal
             email: decodedToken['email'],
             // tslint:disable-next-line:no-string-literal
+            firstname: decodedToken['given_name'],
+            // tslint:disable-next-line:no-string-literal
+            lastname: decodedToken['family_name'],
+            // tslint:disable-next-line:no-string-literal
             login: decodedToken['preferred_username'],
+            roles,
             token,
         });
     }

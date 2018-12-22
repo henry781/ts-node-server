@@ -98,10 +98,11 @@ describe('BasicAuthProvider', () => {
 
         it('should return authenticated user', () => {
 
+            const userOptions = {
+                password: 'pass',
+            };
             const provider = new BasicAuthProvider({
-                user1: {
-                    password: 'pass',
-                },
+                user1: userOptions,
             });
             const token: Token = {
                 params: undefined,
@@ -113,7 +114,7 @@ describe('BasicAuthProvider', () => {
                 login: 'user1',
             });
             sandbox.stub(provider, 'provideUser')
-                .withArgs('user1', token)
+                .withArgs('user1', userOptions, token)
                 .returns(user);
 
             const actualUser = provider.authenticate(token, {});

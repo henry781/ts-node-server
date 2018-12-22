@@ -1,4 +1,5 @@
 import {environment} from '../core/environment';
+import {BasicAuthUserOptions} from './BasicAuthUserOptions';
 
 export const DEFAULT_BASIC_AUTH_PROVIDER_OPTIONS: BasicAuthProviderOptions = {
     [environment.AUTH_BASIC_LOGIN]: {
@@ -7,8 +8,5 @@ export const DEFAULT_BASIC_AUTH_PROVIDER_OPTIONS: BasicAuthProviderOptions = {
 };
 
 export interface BasicAuthProviderOptions {
-    [login: string]: {
-        password: string;
-        roles?: string[];
-    };
+    [login: string]: BasicAuthUserOptions;
 }

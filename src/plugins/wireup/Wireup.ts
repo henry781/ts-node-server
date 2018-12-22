@@ -8,6 +8,7 @@ import {loggerService} from '../../core/loggerService';
 import {JsonConverter} from '../../json/JsonConverter';
 import {Reply, Request} from '../../types';
 import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
+import {QuerySearch} from '../common/param/QuerySearch';
 
 const accepts = _accepts;
 const flatstr = _flatstr;
@@ -31,11 +32,22 @@ export class Wireup {
 
                 switch (param.type) {
                     case 'query':
-                        return request.query[param.name];
+                        if (param.paramType === Boolean) {
+                            return request.query[param.name] === 'true';
+
+                        }
+                        if (param.paramType === Number) {
+                            return parseInt(request.query[param.name], 10);
+
+                        } else {
+                            return request.query[param.name];
+                        }
                     case 'path':
                         return request.params[param.name];
                     case 'body':
                         return JsonConverter.deserialize(request.body, param.paramType);
+                    case 'search':
+                        return QuerySearch.fromRequest(request);
                     case 'httpRequest':
                         return request;
                     case 'httpReply':
