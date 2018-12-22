@@ -1,6 +1,6 @@
 {
   "name": "ts-node-server",
-  "version": "1.1.10",
+  "version": "1.1.11",
   "description": "",
   "main": "dist/bundle.js",
   "module": "dist/bundle.es.js",
