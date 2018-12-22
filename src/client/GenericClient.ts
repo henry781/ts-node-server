@@ -1,4 +1,4 @@
-import {inject} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {Logger} from 'pino';
 import * as _request from 'request';
 import {CoreOptions} from 'request';
@@ -9,6 +9,7 @@ import {RequestOptions} from './RequestOptions';
 
 const request = _request;
 
+@injectable()
 export abstract class GenericClient {
 
     protected logger: Logger;
