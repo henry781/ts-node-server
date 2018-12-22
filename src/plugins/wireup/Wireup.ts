@@ -71,8 +71,9 @@ export class Wireup {
      */
     public static getAuthorizationHandler(container: Container, endpoint: WireupEndpoint) {
 
-        function sendUnauthorized(reply: Reply) {
-            reply.status(401).send('Unauthorized');
+        function sendUnauthorized(reply: Reply, reason: Error | string) {
+            const body = {reason};
+            reply.status(401).send(body);
         }
 
         if (!endpoint.methodOptions.auth) {
@@ -87,7 +88,7 @@ export class Wireup {
             const token = AuthUtil.parseAuthorizationHeader(request);
 
             if (!token || !token.scheme) {
-                sendUnauthorized(reply);
+                sendUnauthorized(reply, 'Authorization header is undefined or invalid');
                 done();
                 return;
             }
@@ -95,7 +96,7 @@ export class Wireup {
             const auth = providersByScheme[token.scheme.toLowerCase()];
 
             if (!auth || !auth.provider) {
-                sendUnauthorized(reply);
+                sendUnauthorized(reply, 'Authorization provider is undefined');
                 done();
                 return;
             }
@@ -103,7 +104,7 @@ export class Wireup {
             try {
                 request.user = auth.provider.authenticate(token, auth.options);
             } catch (err) {
-                sendUnauthorized(reply);
+                sendUnauthorized(reply, err);
             }
             done();
             return;
