@@ -5,7 +5,15 @@ export class Principal {
 
     private _login: string;
 
+    public get login(): string {
+        return this._login;
+    }
+
     private _email: string;
+
+    public get email(): string {
+        return this._email;
+    }
 
     private _token: Token;
 
@@ -15,9 +23,21 @@ export class Principal {
 
     private _firstname: string;
 
+    public get firstname(): string {
+        return this._firstname;
+    }
+
     private _lastname: string;
 
+    public get lastname(): string {
+        return this._lastname;
+    }
+
     private _roles: string[];
+
+    public get roles(): string[] {
+        return this._roles;
+    }
 
     constructor(options?: PrincipalOptions) {
         if (options) {
