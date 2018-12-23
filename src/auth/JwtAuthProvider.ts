@@ -15,6 +15,7 @@ export class JwtAuthProvider extends AuthProvider {
     }
 
     private _options: JwtAuthProviderOptions;
+    private _certificate: string;
 
     /**
      * Constructor
@@ -23,6 +24,7 @@ export class JwtAuthProvider extends AuthProvider {
     constructor(options: JwtAuthProviderOptions = DEFAULT_JWT_AUTH_PROVIDER_OPTIONS) {
         super();
         this._options = options;
+        this._certificate = '-----BEGIN CERTIFICATE-----\n' + this._options.certificate + '\n-----END CERTIFICATE-----';
     }
 
     /**
@@ -41,7 +43,7 @@ export class JwtAuthProvider extends AuthProvider {
      */
     public authenticate(token: Token, options: AuthOptions): Principal {
         const jwtToken = Array.isArray(token.token) ? token.token[0] : token.token;
-        const decodedToken = jwt.verify(jwtToken, this._options.certificate) as object;
+        const decodedToken = jwt.verify(jwtToken, this._certificate) as object;
         return this.provideUser(decodedToken, token);
     }
 

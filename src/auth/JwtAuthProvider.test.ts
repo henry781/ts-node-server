@@ -43,7 +43,7 @@ describe('JwtAuthProvider', () => {
             };
 
             sandbox.stub(jwt, 'verify')
-                .withArgs('1234567890', 'CERT')
+                .withArgs('1234567890', '-----BEGIN CERTIFICATE-----\nCERT\n-----END CERTIFICATE-----')
                 .throws(new Error('Token expired'));
 
             chai.expect(() => provider.authenticate(token, {}))
@@ -64,7 +64,7 @@ describe('JwtAuthProvider', () => {
             };
 
             sandbox.stub(jwt, 'verify')
-                .withArgs('1234567890', 'CERT')
+                .withArgs('1234567890', '-----BEGIN CERTIFICATE-----\nCERT\n-----END CERTIFICATE-----')
                 .returns({} as any);
 
             provider.authenticate(token, {});
@@ -87,7 +87,7 @@ describe('JwtAuthProvider', () => {
             };
 
             sandbox.stub(jwt, 'verify')
-                .withArgs('1234567890', 'CERT')
+                .withArgs('1234567890', '-----BEGIN CERTIFICATE-----\nCERT\n-----END CERTIFICATE-----')
                 .returns(decodedToken as any);
 
             const user = new Principal({
