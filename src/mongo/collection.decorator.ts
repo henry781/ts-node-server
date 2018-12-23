@@ -1,4 +1,4 @@
-export const MONGO_COLLECTION = Symbol('mongo:collection');
+export const MONGO_COLLECTION = 'mongo:collection';
 
 /**
  * Collection decorator
