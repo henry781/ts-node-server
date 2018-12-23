@@ -59,7 +59,13 @@ export class Wireup {
                 }
             });
 
-            return endpoint.controller[endpoint.method].apply(endpoint.controller, args);
+            return endpoint.controller[endpoint.method].apply(endpoint.controller, args)
+                .then((result) => {
+                    if (result === undefined) {
+                        reply.status(204);
+                    }
+                    return result;
+                });
         };
     }
 
