@@ -9,9 +9,15 @@ export interface OpenApiConf {
     openapi?: '3.0.0';
 
     info?: {
-        version: string,
-        title: string,
-        license: { [name: string]: string },
+        contact?: {
+            name?: string,
+            email?: string,
+            url?: string,
+        },
+        description?: string,
+        version?: string,
+        title?: string,
+        license?: { [name: string]: string },
     };
 
     servers?: Array<{

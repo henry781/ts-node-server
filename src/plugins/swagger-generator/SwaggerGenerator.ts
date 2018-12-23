@@ -65,13 +65,10 @@ export class SwaggerGenerator {
         '        oauth2RedirectUrl: window.location.origin + \'/docs/oauth2-redirect.html\',\n' +
         '        deepLinking: true,\n' +
         '        presets: [\n' +
-        '          SwaggerUIBundle.presets.apis,\n' +
-        '          SwaggerUIStandalonePreset\n' +
+        '          SwaggerUIBundle.presets.apis\n' +
         '        ],\n' +
         '        plugins: [\n' +
-        '          SwaggerUIBundle.plugins.DownloadUrl\n' +
-        '        ],\n' +
-        '        layout: "StandaloneLayout"\n' +
+        '        ]\n' +
         '      })\n' +
         '      window.ui = ui\n' +
         '    }\n' +
@@ -297,8 +294,6 @@ export class SwaggerGenerator {
                     return {[a.providerName]: []};
                 });
         }
-
-        endpointConfiguration.operationId = endpoint.controller.constructor.name + '_' + endpoint.method;
 
         let configuration: OpenApiConf = {
             components: {
