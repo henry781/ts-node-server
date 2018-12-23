@@ -278,9 +278,14 @@ export class SwaggerGenerator {
         const url = SwaggerGenerator.translateUrl(endpoint.url);
         const method = endpoint.methodOptions.method.toLowerCase();
 
-        const endpointConfiguration: OpenApiMethod = {
+        let endpointConfiguration: OpenApiMethod = {
             parameters: [],
         };
+
+        if (endpoint.controllerOptions.swagger) {
+            logger.trace('merging endpoint configuration with user defined configuration (controller)');
+            endpointConfiguration = mixin(endpointConfiguration, endpoint.controllerOptions.swagger);
+        }
 
         const auth = endpoint.methodOptions.auth;
         if (auth) {
@@ -292,6 +297,8 @@ export class SwaggerGenerator {
                     return {[a.providerName]: []};
                 });
         }
+
+        endpointConfiguration.operationId = endpoint.controller.constructor.name + '_' + endpoint.method;
 
         let configuration: OpenApiConf = {
             components: {
