@@ -112,6 +112,11 @@ export class Wireup {
             } catch (err) {
                 sendUnauthorized(reply, err);
             }
+
+            if (auth.options.role && !request.user.hasRole(auth.options.role)) {
+                sendUnauthorized(reply, `User should have a role <${auth.options.role}>`);
+            }
+
             done();
             return;
         };

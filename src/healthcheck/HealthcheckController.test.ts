@@ -35,7 +35,7 @@ describe('HealthcheckController', () => {
     container.bind(types.Healthcheck).toConstantValue(healthcheck1);
     container.bind(types.Healthcheck).toConstantValue(healthcheck2);
 
-    const server = new ControllerTest(container);
+    const test = new ControllerTest(container);
 
     /**
      * Check
@@ -48,7 +48,7 @@ describe('HealthcheckController', () => {
 
             healthcheck2.check.resolves('ok2');
 
-            return chai.request(server.server)
+            return chai.request(test.server)
                 .get('/healthcheck')
                 .send()
                 .then((res) => {
@@ -76,7 +76,7 @@ describe('HealthcheckController', () => {
 
             healthcheck2.check.rejects(new Error('error'));
 
-            return chai.request(server.server)
+            return chai.request(test.server)
                 .get('/healthcheck')
                 .send()
                 .then((res) => {

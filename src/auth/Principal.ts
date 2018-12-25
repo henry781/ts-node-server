@@ -50,7 +50,16 @@ export class Principal {
         }
     }
 
-    public hasRole(role: string): boolean {
-        return this._roles && this._roles.indexOf(role) !== -1;
+    public hasRole(role: string | string[]): boolean {
+
+        if (!this._roles) {
+            return false;
+        }
+
+        if (Array.isArray(role)) {
+            return this._roles.some((r) => role.indexOf(r) !== -1);
+        } else {
+            return this._roles.indexOf(role) !== -1;
+        }
     }
 }
