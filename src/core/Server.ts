@@ -107,6 +107,6 @@ export class Server {
      * @returns {string}
      */
     public async listen(port = environment.PORT): Promise<string> {
-        return this._instance.listen(port);
+        return this._instance.listen(port, '0.0.0.0');
     }
 }
