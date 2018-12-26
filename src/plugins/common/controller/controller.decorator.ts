@@ -1,3 +1,4 @@
+import {decorate, injectable} from 'inversify';
 import 'reflect-metadata';
 import {ControllerOptions} from './ControllerOptions';
 
@@ -12,10 +13,12 @@ export function controller(options?: string | ControllerOptions) {
 
     return (target: any) => {
 
+        decorate(injectable, target);
+
         if (!options) {
             options = {};
 
-        } else if (typeof(options) === 'string') {
+        } else if (typeof (options) === 'string') {
             options = {
                 url: options as string,
             };

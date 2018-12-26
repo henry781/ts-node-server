@@ -199,7 +199,22 @@ export class SwaggerGenerator {
              * Query search
              */
             case 'search':
-                methodOptions.parameters.push({
+                methodOptions.parameters.push(
+                    {
+                        in: 'query',
+                        name: 'offset',
+                        schema: {
+                            type: 'integer',
+                        },
+                    },
+                    {
+                        in: 'query',
+                        name: 'limit',
+                        schema: {
+                            type: 'integer',
+                        },
+                    },
+                    {
                         description: 'Filter by entering {field}[eq]={value}',
                         explode: true,
                         in: 'query',
