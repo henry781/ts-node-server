@@ -8,6 +8,7 @@ import {
     Logger as MongoLogger,
     MongoClient,
     MongoError,
+    ReplaceWriteOpResult,
     UpdateWriteOpResult,
 } from 'mongodb';
 import {Logger} from 'pino';
@@ -192,6 +193,21 @@ export class MongoService {
 
         return this.doAction(
             () => this.db.collection(collection).deleteOne(query));
+    }
+
+    /**
+     * Replace one
+     * @param type
+     * @param query
+     * @param obj
+     */
+    public replaceOne(type: any, query: object = {}, obj: object = {}): Promise<ReplaceWriteOpResult> {
+
+        const collection = MongoService.getCollectionForType(type);
+        const document = JsonConverter.serialize(obj);
+
+        return this.doAction(
+            () => this.db.collection(collection).replaceOne(query, document));
     }
 
     /**
