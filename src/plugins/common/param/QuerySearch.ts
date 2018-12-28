@@ -54,8 +54,10 @@ export class QuerySearch {
         const exec = /(.+)\[(.+)\]/g.exec(filterName);
 
         if (!exec) {
-            throw new QuerySearchError('filter is not valid');
+            filter[filterName] = filterValue;
+            return filter;
         }
+
         const [, filterField, filterOperator] = exec;
 
         switch (filterOperator) {

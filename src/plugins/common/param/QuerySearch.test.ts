@@ -157,6 +157,17 @@ describe('QuerySearch', () => {
      */
     describe('parseFilter', () => {
 
+        it('should parse default', () => {
+
+            const queryFilter = 'name=test';
+            let filter = {};
+
+            filter = QuerySearch.parseFilter(filter, queryFilter);
+            chai.expect(filter).deep.equal({
+                name: 'test',
+            });
+        });
+
         it('should parse [eq]', () => {
 
             const queryFilter = 'name[eq]=test';
@@ -177,21 +188,6 @@ describe('QuerySearch', () => {
             chai.expect(filter).deep.equal({
                 name: {$eq: ''},
             });
-        });
-
-        it('should throw an error when filter field is not set', () => {
-
-            const queryFilter = 'a';
-
-            chai.expect(() => QuerySearch.parseFilter({}, queryFilter))
-                .to.throw('filter is not valid');
-        });
-
-        it('should throw an error when operator is not set', () => {
-
-            const queryFilter = 'name=test';
-            chai.expect(() => QuerySearch.parseFilter({}, queryFilter))
-                .to.throw('filter is not valid');
         });
 
         it('should throw an error when operator is unknown', () => {
