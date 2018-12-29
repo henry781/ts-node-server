@@ -1,6 +1,6 @@
 import {inspect} from 'util';
 
-export class WebApplicationError extends Error {
+export class WebServiceError extends Error {
 
     private _status: number;
 
@@ -31,7 +31,7 @@ export class WebApplicationError extends Error {
             fullStack += '\n\ncaused by:\n\n';
             fullStack += err.stack || err.message;
 
-            err = (err as WebApplicationError).cause;
+            err = (err as WebServiceError).cause;
         }
     }
 }

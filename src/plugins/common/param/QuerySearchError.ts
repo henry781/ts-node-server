@@ -1,6 +1,6 @@
-import {WebApplicationError} from '../../../error/WebApplicationError';
+import {WebServiceError} from '../../../error/WebServiceError';
 
-export class QuerySearchError extends WebApplicationError {
+export class QuerySearchError extends WebServiceError {
 
     constructor(message: string) {
         super(message, 400);

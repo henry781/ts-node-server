@@ -1,1 +1,1 @@
-export * from './WebApplicationError';
+export * from './WebServiceError';

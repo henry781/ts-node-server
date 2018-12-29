@@ -12,5 +12,5 @@ export interface RequestOptions<T> {
     deserializer?: boolean | converter;
     body?: any;
     expectedStatus?: number;
-    deserializeType?: T;
+    deserializeType?: any;
 }
