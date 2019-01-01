@@ -1,5 +1,6 @@
 import {inject, injectable} from 'inversify';
 import {
+    CollectionAggregationOptions,
     CollectionInsertOneOptions,
     Db,
     DeleteWriteOpResultObject,
@@ -169,6 +170,30 @@ export class MongoService {
                 return cursor.toArray();
             })
             .then((json) => JsonConverter.deserialize<T[]>(json, [type]));
+    }
+
+    /**
+     * Aggregate documents
+     * @param type
+     * @param pipeline
+     * @param options
+     * @param outputType
+     */
+    public aggregate<T>(type: any,
+                        pipeline?: object[],
+                        options?: CollectionAggregationOptions,
+                        outputType = type): Promise<T[]> {
+
+        const collection = MongoService.getCollectionForType(type);
+
+        return this.doAction(
+            () => {
+                const cursor = this.db.collection(collection)
+                    .aggregate(pipeline, options);
+
+                return cursor.toArray();
+            })
+            .then((json) => outputType ? JsonConverter.deserialize<T[]>(json, [type]) : json);
     }
 
     /**
