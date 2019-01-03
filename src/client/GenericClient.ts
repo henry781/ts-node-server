@@ -128,6 +128,7 @@ export abstract class GenericClient {
                     if (response.statusCode !== options.expectedStatus) {
                         const msg = `expecting status <${options.expectedStatus}> calling <${uri}>, got <${response.statusCode}>`;
                         logger.error(msg);
+                        logger.debug('got body', body);
                         const error = new WebServiceError(msg, 500);
                         reject(error);
 
