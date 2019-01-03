@@ -78,7 +78,6 @@ describe('CommonUtil', () => {
      */
     describe('getAllEndpoints', () => {
 
-        @injectable()
         @controller('/a')
         class ControllerA {
 
