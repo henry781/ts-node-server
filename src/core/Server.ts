@@ -1,4 +1,5 @@
 import * as _fastify from 'fastify';
+import * as fastifyCompress from 'fastify-compress';
 import * as helmet from 'fastify-helmet';
 import fastifyMetrics from 'fastify-metrics';
 import {Logger} from 'pino';
@@ -54,6 +55,8 @@ export class Server {
         this._instance.register(helmet);
 
         options.container.bind<Logger>(types.Logger).toConstantValue(this._instance.log);
+
+        this._instance.register(fastifyCompress);
 
         if (options.healthcheck !== false) {
             options.container.bind<Controller>(types.Controller).to(HealthcheckController).inSingletonScope();
