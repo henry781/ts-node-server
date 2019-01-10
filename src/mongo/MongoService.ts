@@ -193,7 +193,7 @@ export class MongoService {
 
                 return cursor.toArray();
             })
-            .then((json) => outputType ? JsonConverter.deserialize<T[]>(json, [type]) : json);
+            .then((json) => outputType ? JsonConverter.deserialize<T[]>(json, [outputType]) : json);
     }
 
     /**
