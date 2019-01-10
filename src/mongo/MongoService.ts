@@ -8,7 +8,7 @@ import {
     InsertOneWriteOpResult,
     Logger as MongoLogger,
     MongoClient,
-    MongoError,
+    MongoError, ReplaceOneOptions,
     ReplaceWriteOpResult,
     UpdateWriteOpResult,
 } from 'mongodb';
@@ -225,14 +225,15 @@ export class MongoService {
      * @param type
      * @param query
      * @param obj
+     * @param options
      */
-    public replaceOne(type: any, query: object = {}, obj: object = {}): Promise<ReplaceWriteOpResult> {
+    public replaceOne(type: any, query: object = {}, obj: object = {}, options?: ReplaceOneOptions): Promise<ReplaceWriteOpResult> {
 
         const collection = MongoService.getCollectionForType(type);
         const document = JsonConverter.serialize(obj);
 
         return this.doAction(
-            () => this.db.collection(collection).replaceOne(query, document));
+            () => this.db.collection(collection).replaceOne(query, document, options));
     }
 
     /**
