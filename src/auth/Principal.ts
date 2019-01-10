@@ -1,14 +1,18 @@
 import {Token} from 'auth-header';
+import {jsonObject, jsonProperty} from 'tipify';
 import {PrincipalOptions} from './PrincipalOptions';
 
+@jsonObject()
 export class Principal {
 
+    @jsonProperty('login')
     private _login: string;
 
     public get login(): string {
         return this._login;
     }
 
+    @jsonProperty('email')
     private _email: string;
 
     public get email(): string {
@@ -21,18 +25,21 @@ export class Principal {
         return this._token;
     }
 
+    @jsonProperty('firstname')
     private _firstname: string;
 
     public get firstname(): string {
         return this._firstname;
     }
 
+    @jsonProperty('lastname')
     private _lastname: string;
 
     public get lastname(): string {
         return this._lastname;
     }
 
+    @jsonProperty('roles', [String])
     private _roles: string[];
 
     public get roles(): string[] {
