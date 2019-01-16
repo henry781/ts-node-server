@@ -1,11 +1,10 @@
-import {injectable, multiInject, optional} from 'inversify';
+import {multiInject, optional} from 'inversify';
 import {controller} from '../plugins/common/controller/api';
 import {httpGet} from '../plugins/common/method/api';
 import {httpReply} from '../plugins/common/param/api';
 import {Reply, types} from '../types';
 import {Healthcheck} from './Healthcheck';
 
-@injectable()
 @controller('/healthcheck')
 export class HealthcheckController {
 

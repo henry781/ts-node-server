@@ -13,7 +13,7 @@ export function controller(options?: string | ControllerOptions) {
 
     return (target: any) => {
 
-        decorate(injectable, target);
+        decorate(injectable(), target);
 
         if (!options) {
             options = {};
