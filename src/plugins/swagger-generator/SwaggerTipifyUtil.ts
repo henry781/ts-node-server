@@ -26,30 +26,33 @@ export class SwaggerTipifyUtil {
 
             if (mapping) {
 
-                const schema: OpenApiSchema = {
-                    properties: {},
-                    required: [],
-                    type: 'object',
-                };
+                if (!schemas[type.name]) {
 
-                for (const property of mapping.properties) {
-                    schema.properties[property.serializedName] = SwaggerTipifyUtil.buildOpenApiSchema(property.type, schemas);
-                }
-
-                if (!mapping.parent) {
-                    schemas[mapping.type.name] = schema;
-
-                } else {
-                    const parent = mapping.parent.type;
-                    schema[mapping.type.name] = {
-                        allOf: [
-                            {
-                                $ref: `#components/schemas/${parent.name}`,
-                            },
-                            schema,
-                        ],
+                    const schema: OpenApiSchema = {
+                        properties: {},
+                        required: [],
+                        type: 'object',
                     };
-                    SwaggerTipifyUtil.buildOpenApiSchema(parent, schemas);
+
+                    for (const property of mapping.properties) {
+                        schema.properties[property.serializedName] = SwaggerTipifyUtil.buildOpenApiSchema(property.type, schemas);
+                    }
+
+                    if (!mapping.parent) {
+                        schemas[mapping.type.name] = schema;
+
+                    } else {
+                        const parent = mapping.parent.type;
+                        schema[mapping.type.name] = {
+                            allOf: [
+                                {
+                                    $ref: `#components/schemas/${parent.name}`,
+                                },
+                                schema,
+                            ],
+                        };
+                        SwaggerTipifyUtil.buildOpenApiSchema(parent, schemas);
+                    }
                 }
 
                 return {$ref: `#components/schemas/${type.name}`};
