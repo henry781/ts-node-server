@@ -247,6 +247,7 @@ export class SwaggerGenerator {
                 methodOptions.parameters.push({
                     in: 'path',
                     name: paramOptions.name,
+                    required: true,
                     schema: {
                         type: 'string',
                     },
@@ -346,6 +347,7 @@ export class SwaggerGenerator {
                             },
                         },
                     },
+                    description: '',
                 },
             };
         }

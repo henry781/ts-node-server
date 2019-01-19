@@ -26,36 +26,35 @@ export class SwaggerTipifyUtil {
 
             if (mapping) {
 
-                if (!schemas[type.name]) {
+                if (!schemas[mapping.type.name]) {
 
                     const schema: OpenApiSchema = {
                         properties: {},
-                        required: [],
                         type: 'object',
                     };
-
-                    for (const property of mapping.properties) {
-                        schema.properties[property.serializedName] = SwaggerTipifyUtil.buildOpenApiSchema(property.type, schemas);
-                    }
 
                     if (!mapping.parent) {
                         schemas[mapping.type.name] = schema;
 
                     } else {
                         const parent = mapping.parent.type;
-                        schema[mapping.type.name] = {
+                        schemas[mapping.type.name] = {
                             allOf: [
                                 {
-                                    $ref: `#components/schemas/${parent.name}`,
+                                    $ref: `#/components/schemas/${parent.name}`,
                                 },
                                 schema,
                             ],
                         };
                         SwaggerTipifyUtil.buildOpenApiSchema(parent, schemas);
                     }
+
+                    for (const property of mapping.properties) {
+                        schema.properties[property.serializedName] = SwaggerTipifyUtil.buildOpenApiSchema(property.type, schemas);
+                    }
                 }
 
-                return {$ref: `#components/schemas/${type.name}`};
+                return {$ref: `#/components/schemas/${type.name}`};
 
             } else {
                 return {type: 'object'};
