@@ -61,7 +61,7 @@ export class Wireup {
 
             return endpoint.controller[endpoint.method].apply(endpoint.controller, args)
                 .then((result) => {
-                    if (result === undefined) {
+                    if (!reply.sent && result === undefined) {
                         reply.status(204);
                     }
                     return result;
