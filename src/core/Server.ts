@@ -38,7 +38,7 @@ export class Server {
         this.buildInstance(options);
 
         this._instance.ready(() => {
-            this._instance.log.info('\n' + this._instance.printRoutes());
+            this._instance.log.info('server started');
         });
 
     }
