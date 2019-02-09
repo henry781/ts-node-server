@@ -37,7 +37,7 @@ export class JsonConverter {
     public static deserialize<T>(json: any, type: any): T {
 
         try {
-            return this.CONVERTER.deserialize<T>(json, type);
+            return this.CONVERTER.deserialize<T>(json, type, {tryParse: true});
         } catch (err) {
 
             let error = err;

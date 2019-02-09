@@ -33,15 +33,7 @@ export class Wireup {
                 switch (param.type) {
                     case 'query':
                         const value = request.query[param.name];
-                        if (param.paramType === Boolean) {
-                            return value === 'true';
-
-                        } else if (param.paramType === Number && value !== undefined) {
-                            return parseInt(value, 10);
-
-                        } else {
-                            return value;
-                        }
+                        return JsonConverter.deserialize(value, param.paramType);
                     case 'path':
                         return request.params[param.name];
                     case 'body':
