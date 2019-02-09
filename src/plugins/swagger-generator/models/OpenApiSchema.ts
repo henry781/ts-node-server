@@ -1,6 +1,6 @@
 export interface OpenApiSchema {
 
-    type?: 'object' | 'array' | 'string' | 'number' | 'boolean';
+    type?: 'object' | 'array' | 'string' | 'number' | 'integer' | 'boolean';
 
     required?: string[];
 

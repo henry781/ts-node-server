@@ -189,9 +189,7 @@ export class SwaggerGenerator {
                 methodOptions.parameters.push({
                     in: 'query',
                     name: paramOptions.name,
-                    schema: {
-                        type: 'string',
-                    },
+                    schema: SwaggerTipifyUtil.buildOpenApiSchema(paramOptions.paramType, configuration.components.schemas),
                 });
                 break;
 
@@ -248,9 +246,7 @@ export class SwaggerGenerator {
                     in: 'path',
                     name: paramOptions.name,
                     required: true,
-                    schema: {
-                        type: 'string',
-                    },
+                    schema: SwaggerTipifyUtil.buildOpenApiSchema(paramOptions.paramType, configuration.components.schemas),
                 });
                 break;
 
