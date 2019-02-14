@@ -9,7 +9,7 @@ import {
     Logger as MongoLogger,
     MongoClient,
     MongoError, ReplaceOneOptions,
-    ReplaceWriteOpResult,
+    ReplaceWriteOpResult, UpdateOneOptions,
     UpdateWriteOpResult,
 } from 'mongodb';
 import {Logger} from 'pino';
@@ -243,12 +243,12 @@ export class MongoService {
      * @param {object} update
      * @returns {Promise<UpdateWriteOpResult>}
      */
-    public updateOne(type: any, query: object = {}, update: object = {}): Promise<UpdateWriteOpResult> {
+    public updateOne(type: any, query: object = {}, update: object = {}, options?: UpdateOneOptions): Promise<UpdateWriteOpResult> {
 
         const collection = MongoService.getCollectionForType(type);
 
         return this.doAction(
-            () => this.db.collection(collection).updateOne(query, update));
+            () => this.db.collection(collection).updateOne(query, update, options));
     }
 
     public close() {
