@@ -3,6 +3,7 @@ import * as fastifyCompress from 'fastify-compress';
 import * as helmet from 'fastify-helmet';
 import fastifyMetrics from 'fastify-metrics';
 import {Logger} from 'pino';
+import {AdminController} from '../admin/AdminController';
 import {AuthProvider, BasicAuthProvider, JwtAuthProvider} from '../auth/api';
 import {Healthcheck, HealthcheckController} from '../healthcheck/api';
 import {MongoHealthcheck, MongoService} from '../mongo/api';
@@ -62,10 +63,15 @@ export class Server {
             options.container.bind<Controller>(types.Controller).to(HealthcheckController).inSingletonScope();
         }
 
+        if (options.admin) {
+            const adminController = new AdminController(typeof options.admin === 'boolean' ? undefined : options.admin);
+            options.container.bind<Controller>(types.Controller).toConstantValue(adminController);
+        }
+
         this._instance.register(Wireup.getPlugin, {container: options.container});
 
         if (options.metrics !== false) {
-            const endpoint = typeof(options.metrics) === 'string' ? options.metrics : '/metrics';
+            const endpoint = typeof (options.metrics) === 'string' ? options.metrics : '/metrics';
             this._instance.register(fastifyMetrics, {endpoint});
         }
 
@@ -74,13 +80,13 @@ export class Server {
             options.container.bind<Healthcheck>(types.Healthcheck).to(MongoHealthcheck).inSingletonScope();
 
             const service = options.container.get<MongoService>(types.MongoService);
-            service.connect(typeof(options.mongo) === 'boolean' ? undefined : options.mongo);
+            service.connect(typeof (options.mongo) === 'boolean' ? undefined : options.mongo);
         }
 
         if (options.auth) {
 
             if (options.auth.jwt) {
-                const jwtAuthProviderOptions = typeof(options.auth.jwt) === 'boolean' ? undefined : options.auth.jwt;
+                const jwtAuthProviderOptions = typeof (options.auth.jwt) === 'boolean' ? undefined : options.auth.jwt;
                 const jwtAuthProvider = new JwtAuthProvider(jwtAuthProviderOptions);
                 options.container.bind<AuthProvider>(types.AuthProvider)
                     .toConstantValue(jwtAuthProvider)
@@ -88,7 +94,7 @@ export class Server {
             }
 
             if (options.auth.basic) {
-                const basicAuthProviderOptions = typeof(options.auth.basic) === 'boolean' ? undefined : options.auth.basic;
+                const basicAuthProviderOptions = typeof (options.auth.basic) === 'boolean' ? undefined : options.auth.basic;
                 const basicAuthProvider = new BasicAuthProvider(basicAuthProviderOptions);
                 options.container.bind<AuthProvider>(types.AuthProvider)
                     .toConstantValue(basicAuthProvider)
@@ -98,7 +104,7 @@ export class Server {
 
         if (options.swagger !== false) {
             this._instance.register(SwaggerGenerator.getPlugin, {
-                configuration: typeof(options.swagger) === 'boolean' ? undefined : options.swagger,
+                configuration: typeof (options.swagger) === 'boolean' ? undefined : options.swagger,
                 container: options.container,
             });
         }
