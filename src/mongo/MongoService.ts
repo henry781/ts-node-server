@@ -1,15 +1,19 @@
 import {inject, injectable} from 'inversify';
 import {
     CollectionAggregationOptions,
+    CollectionInsertManyOptions,
     CollectionInsertOneOptions,
     Db,
     DeleteWriteOpResultObject,
     FindOneOptions,
     InsertOneWriteOpResult,
+    InsertWriteOpResult,
     Logger as MongoLogger,
     MongoClient,
-    MongoError, ReplaceOneOptions,
+    MongoError,
+    ReplaceOneOptions,
     ReplaceWriteOpResult,
+    UpdateOneOptions,
     UpdateWriteOpResult,
 } from 'mongodb';
 import {Logger} from 'pino';
@@ -142,6 +146,21 @@ export class MongoService {
     }
 
     /**
+     * Insert many
+     * @param obj
+     * @param {CollectionInsertManyOptions} options
+     * @returns {Promise<InsertWriteOpResult>}
+     */
+    public insertMany(obj: any, options?: CollectionInsertManyOptions): Promise<InsertWriteOpResult> {
+
+        const json = JsonConverter.serialize(obj);
+        const collection = MongoService.getCollection(obj);
+
+        return this.doAction(
+            () => this.db.collection(collection).insertMany(json, options));
+    }
+
+    /**
      * Find documents
      * @param type
      * @param query
@@ -241,14 +260,15 @@ export class MongoService {
      * @param type
      * @param {object} query
      * @param {object} update
+     * @param {UpdateOneOptions} options
      * @returns {Promise<UpdateWriteOpResult>}
      */
-    public updateOne(type: any, query: object = {}, update: object = {}): Promise<UpdateWriteOpResult> {
+    public updateOne(type: any, query: object = {}, update: object = {}, options: UpdateOneOptions): Promise<UpdateWriteOpResult> {
 
         const collection = MongoService.getCollectionForType(type);
 
         return this.doAction(
-            () => this.db.collection(collection).updateOne(query, update));
+            () => this.db.collection(collection).updateOne(query, update, options));
     }
 
     public close() {
