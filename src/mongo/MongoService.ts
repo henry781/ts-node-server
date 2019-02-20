@@ -10,6 +10,7 @@ import {
     InsertWriteOpResult,
     Logger as MongoLogger,
     MongoClient,
+    MongoCountPreferences,
     MongoError,
     ReplaceOneOptions,
     ReplaceWriteOpResult,
@@ -263,12 +264,27 @@ export class MongoService {
      * @param {UpdateOneOptions} options
      * @returns {Promise<UpdateWriteOpResult>}
      */
-    public updateOne(type: any, query: object = {}, update: object = {}, options: UpdateOneOptions): Promise<UpdateWriteOpResult> {
+    public updateOne(type: any, query: object = {}, update: object = {}, options?: UpdateOneOptions): Promise<UpdateWriteOpResult> {
 
         const collection = MongoService.getCollectionForType(type);
 
         return this.doAction(
             () => this.db.collection(collection).updateOne(query, update, options));
+    }
+
+    /**
+     * Count documents
+     * @param type
+     * @param {object} query
+     * @param {MongoCountPreferences} options
+     * @returns {Promise<number>}
+     */
+    public count(type: any, query: object = {}, options ?: MongoCountPreferences): Promise<number> {
+
+        const collection = MongoService.getCollectionForType(type);
+
+        return this.doAction(
+            () => this.db.collection(collection).count(query, options));
     }
 
     public close() {
