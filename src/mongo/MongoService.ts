@@ -14,6 +14,7 @@ import {
     MongoError,
     ReplaceOneOptions,
     ReplaceWriteOpResult,
+    UpdateManyOptions,
     UpdateOneOptions,
     UpdateWriteOpResult,
 } from 'mongodb';
@@ -271,6 +272,23 @@ export class MongoService {
         return this.doAction(
             () => this.db.collection(collection).updateOne(query, update, options));
     }
+
+    /**
+     * Update many
+     * @param type
+     * @param {object} query
+     * @param {object} update
+     * @param {UpdateManyOptions} options
+     * @returns {Promise<UpdateWriteOpResult>}
+     */
+    public updateMany(type: any, query: object = {}, update: object = {}, options?: UpdateManyOptions): Promise<UpdateWriteOpResult> {
+
+        const collection = MongoService.getCollectionForType(type);
+
+        return this.doAction(
+            () => this.db.collection(collection).updateMany(query, update, options));
+    }
+
 
     /**
      * Count documents
