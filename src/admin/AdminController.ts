@@ -3,7 +3,7 @@ import {decorate} from 'inversify';
 import {Logger} from 'pino';
 import {loggerService} from '../core/loggerService';
 import {WebServiceError} from '../error/WebServiceError';
-import {controller, httpPut, pathParam} from '../plugins/common/api';
+import {controller, httpPut, pathParam, queryParam} from '../plugins/common/api';
 import {AdminOptions} from './AdminOptions';
 
 @controller('/admin')
@@ -63,11 +63,11 @@ export class AdminController {
     /**
      * Enable debug
      */
-    public async enableInspector() {
+    public async enableInspector(@queryParam('port') port: number) {
 
         const logger = this.logger.child({method: 'enableInspector'});
 
-        inspector.open();
+        inspector.open(port ? port : undefined);
 
         logger.info('inspector enabled');
         return {

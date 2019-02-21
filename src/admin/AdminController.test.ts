@@ -7,6 +7,7 @@ import {ControllerTest} from '../test/ControllerTest';
 import {types} from '../types';
 import {AdminController} from './AdminController';
 
+// tslint:disable-next-line:no-var-requires
 const chaiHttp = require('chai-http');
 
 chai.use(chaiHttp);
