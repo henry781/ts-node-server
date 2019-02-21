@@ -289,7 +289,6 @@ export class MongoService {
             () => this.db.collection(collection).updateMany(query, update, options));
     }
 
-
     /**
      * Count documents
      * @param type
@@ -302,7 +301,7 @@ export class MongoService {
         const collection = MongoService.getCollectionForType(type);
 
         return this.doAction(
-            () => this.db.collection(collection).count(query, options));
+            () => this.db.collection(collection).countDocuments(query, options));
     }
 
     public close() {
