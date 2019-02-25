@@ -257,7 +257,7 @@ describe('QuerySearch', () => {
             const filter = {};
 
             chai.expect(() => QuerySearch.parseFilter(filter, queryFilter))
-                .to.throw(QuerySearchError, '</monitoring/oups> is not a valid for parameter <name>');
+                .to.throw(QuerySearchError, '</monitoring/oups> is not a valid regex for parameter <name>');
         });
 
         it('should throw an error when operator is unknown', () => {

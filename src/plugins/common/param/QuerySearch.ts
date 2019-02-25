@@ -81,7 +81,7 @@ export class QuerySearch {
                     };
                     return filter;
                 } catch (err) {
-                    throw new QuerySearchError(`<${filterValue}> is not a valid for parameter <${filterField}>`);
+                    throw new QuerySearchError(`<${filterValue}> is not a valid regex for parameter <${filterField}>`);
                 }
             }
 
