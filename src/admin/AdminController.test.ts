@@ -6,6 +6,7 @@ import {loggerService} from '../core/loggerService';
 import {ControllerTest} from '../test/ControllerTest';
 import {types} from '../types';
 import {AdminController} from './AdminController';
+import {AdminOptions} from './AdminOptions';
 
 // tslint:disable-next-line:no-var-requires
 const chaiHttp = require('chai-http');
@@ -17,7 +18,8 @@ describe('AdminController', () => {
     const sandbox = sinon.createSandbox();
     const container = new Container();
 
-    const adminController = new AdminController();
+    const options: AdminOptions = {auth: undefined};
+    const adminController = new AdminController(options);
     container.bind(types.Controller).toConstantValue(adminController);
 
     const test = new ControllerTest(container);

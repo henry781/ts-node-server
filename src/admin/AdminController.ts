@@ -38,7 +38,7 @@ export class AdminController {
     /**
      * Constructor
      */
-    constructor(options?: AdminOptions) {
+    constructor(private options: AdminOptions) {
         this.logger = loggerService.child({module: 'AdminController'});
         AdminController.decorateMethods(options);
     }
@@ -67,7 +67,10 @@ export class AdminController {
 
         const logger = this.logger.child({method: 'enableInspector'});
 
-        inspector.open(port ? port : undefined);
+        const inspectorPort = port ? port :
+            this.options.inspectorPort ? this.options.inspectorPort : undefined;
+
+        inspector.open(inspectorPort);
 
         logger.info('inspector enabled');
         return {
