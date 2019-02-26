@@ -69,6 +69,22 @@ export class QuerySearch {
                 return filter;
             }
 
+            case 'regex': {
+                const regexParts = /\/(.*)\/(.*)/.exec(filterValue);
+                if (!regexParts) {
+                    throw new QuerySearchError(`cannot parse regex <${filterValue}> for parameter <${filterField}>`);
+                }
+
+                try {
+                    filter[filterField] = {
+                        $regex: new RegExp(regexParts[1], regexParts[2]),
+                    };
+                    return filter;
+                } catch (err) {
+                    throw new QuerySearchError(`<${filterValue}> is not a valid regex for parameter <${filterField}>`);
+                }
+            }
+
             default:
                 throw new QuerySearchError(`filter operator <${filterOperator}> is unknown`);
         }

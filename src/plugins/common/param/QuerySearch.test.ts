@@ -1,6 +1,7 @@
 import * as chai from 'chai';
 import * as sinon from 'sinon';
 import {QuerySearch} from './QuerySearch';
+import {QuerySearchError} from './QuerySearchError';
 
 describe('QuerySearch', () => {
 
@@ -61,6 +62,35 @@ describe('QuerySearch', () => {
             const search = QuerySearch.fromRequest(request);
             chai.expect(search.filter).deep.equal({
                 name: {$eq: '10'},
+            });
+        });
+
+        it('should return filter (regex)', () => {
+
+            const request = {
+                body: undefined,
+                headers: undefined,
+                hostname: undefined,
+                id: undefined,
+                ip: undefined,
+                log: undefined,
+                params: undefined,
+                query: {
+                    filter: 'name[regex]=/^monitoring/i',
+                },
+                raw: undefined,
+                req: undefined,
+            };
+
+            sandbox.stub(QuerySearch, 'parseFilter')
+                .withArgs({}, 'name[regex]=/^monitoring/i')
+                .returns({
+                    name: {$regex: /^monitoring/i},
+                });
+
+            const search = QuerySearch.fromRequest(request);
+            chai.expect(search.filter).deep.equal({
+                name: {$regex: /^monitoring/i},
             });
         });
 
@@ -188,6 +218,46 @@ describe('QuerySearch', () => {
             chai.expect(filter).deep.equal({
                 name: {$eq: ''},
             });
+        });
+
+        it('should parse [regex]', () => {
+
+            const queryFilter = 'name[regex]=/^monitoring/i';
+            let filter = {};
+
+            filter = QuerySearch.parseFilter(filter, queryFilter);
+            chai.expect(filter).deep.equal({
+                name: {$regex: /^monitoring/i},
+            });
+        });
+
+        it('should parse [regex] (no modifier)', () => {
+
+            const queryFilter = 'name[regex]=/^monitoring/';
+            let filter = {};
+
+            filter = QuerySearch.parseFilter(filter, queryFilter);
+            chai.expect(filter).deep.equal({
+                name: {$regex: /^monitoring/},
+            });
+        });
+
+        it('should throw an error when cannot parse [regex]', () => {
+
+            const queryFilter = 'name[regex]=monitoring/i';
+            const filter = {};
+
+            chai.expect(() => QuerySearch.parseFilter(filter, queryFilter))
+                .to.throw(QuerySearchError, 'cannot parse regex <monitoring/i> for parameter <name>');
+        });
+
+        it('should throw an error when regex is not valid [regex]', () => {
+
+            const queryFilter = 'name[regex]=/monitoring/oups';
+            const filter = {};
+
+            chai.expect(() => QuerySearch.parseFilter(filter, queryFilter))
+                .to.throw(QuerySearchError, '</monitoring/oups> is not a valid regex for parameter <name>');
         });
 
         it('should throw an error when operator is unknown', () => {
