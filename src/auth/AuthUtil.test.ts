@@ -79,21 +79,21 @@ describe('AuthUtil', () => {
             ]);
         });
 
-        it('should normalize authOptions', () => {
-            it('should normalize authOptions (string[])', () => {
-                const input = {
-                    jwt: {
-                        role: ['admin'],
-                    },
-                };
-                const result = AuthUtil.normalizeAuthOptions(input);
-                chai.expect(result).deep.equal([
-                    {
-                        providerName: 'jwt',
-                        roles: ['admin'],
-                    },
-                ]);
-            });
+        it('should normalize authOptions (string[])', () => {
+            const input = {
+                jwt: {
+                    role: ['admin'],
+                },
+            };
+            const result = AuthUtil.normalizeAuthOptions(input);
+
+
+            chai.expect(result).deep.equal([
+                {
+                    providerName: 'jwt',
+                    role: ['admin'],
+                },
+            ]);
         });
     });
 
@@ -110,7 +110,12 @@ describe('AuthUtil', () => {
                 .withArgs(types.AuthProvider, 'jwt')
                 .returns(jwtAuthProvider);
 
-            const authOptions = [{providerName: 'jwt'}];
+            const authOptions = [
+                {
+                    providerName: 'jwt',
+                    role: ['admin'],
+                },
+            ];
 
             const providersByScheme = AuthUtil.getAuthProvidersByScheme(container, authOptions);
 

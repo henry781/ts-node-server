@@ -37,10 +37,12 @@ export class AuthUtil {
             });
 
         } else {
+
             return Object.keys(authOptions)
                 .map((providerName) => {
-                    return {...authOptions, providerName};
+                    return {...authOptions[providerName], providerName};
                 });
+
         }
     }
 
