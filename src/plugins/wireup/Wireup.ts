@@ -1,3 +1,4 @@
+import {QuerySearch} from '@henry781/querysearch';
 import * as _accepts from 'accepts';
 import {FastifyInstance} from 'fastify';
 import * as _flatstr from 'flatstr';
@@ -5,10 +6,10 @@ import {Container} from 'inversify';
 import * as _yaml from 'js-yaml';
 import {AuthUtil} from '../../auth/AuthUtil';
 import {loggerService} from '../../core/loggerService';
+import {WebServiceError} from '../../error/WebServiceError';
 import {JsonConverter} from '../../json/JsonConverter';
 import {Reply, Request} from '../../types';
 import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
-import {QuerySearch} from '../common/param/QuerySearch';
 
 const accepts = _accepts;
 const flatstr = _flatstr;
@@ -39,7 +40,11 @@ export class Wireup {
                     case 'body':
                         return JsonConverter.deserialize(request.body, param.paramType);
                     case 'search':
-                        return QuerySearch.fromRequest(request);
+                        try {
+                            return QuerySearch.fromQueryParams(request.query);
+                        } catch (err) {
+                            throw new WebServiceError(err.message, 400);
+                        }
                     case 'httpRequest':
                         return request;
                     case 'httpReply':
