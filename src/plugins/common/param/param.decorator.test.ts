@@ -1,8 +1,8 @@
+import {QuerySearch} from '@henry781/querysearch';
 import * as chai from 'chai';
 import {HttpRequest, Reply} from '../../../types';
 import {body, httpReply, httpRequest, pathParam, queryParam, querySearch, ROUTE_PARAMS} from './param.decorator';
 import {ParamOptions} from './ParamOptions';
-import {QuerySearch} from './QuerySearch';
 
 describe('param', () => {
 

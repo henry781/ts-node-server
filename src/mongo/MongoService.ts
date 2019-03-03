@@ -1,3 +1,4 @@
+import {QuerySearch} from '@henry781/querysearch';
 import {inject, injectable} from 'inversify';
 import {
     CollectionAggregationOptions,
@@ -20,7 +21,6 @@ import {
 } from 'mongodb';
 import {Logger} from 'pino';
 import {JsonConverter} from '../json/JsonConverter';
-import {QuerySearch} from '../plugins/common/param/QuerySearch';
 import {types} from '../types';
 import {MONGO_COLLECTION} from './collection.decorator';
 import {DEFAULT_MONGO_OPTIONS, MongoOptions} from './MongoOptions';

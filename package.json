@@ -39,7 +39,7 @@
     "fastify-helmet": "^3.0.0",
     "fastify-metrics": "2.1.1",
     "fastify-static": "0.14.0",
-    "@henry781/querysearch": "^0.1.1",
+    "@henry781/querysearch": "^0.1.2",
     "flatstr": "^1.0.8",
     "js-yaml": "^3.12.0",
     "jsonwebtoken": "8.4.0",
