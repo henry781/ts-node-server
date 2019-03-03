@@ -1,3 +1,5 @@
+import * as authHeader from 'auth-header';
+import {TokenOptions} from 'auth-header';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'pino';
 import * as _request from 'request';
@@ -92,11 +94,11 @@ export abstract class GenericClient {
         }
 
         if (options.token) {
-            logger.debug('setting authorization header');
+            logger.debug('setting authorization header from given token');
             httpOptions.headers.Authorization = options.token;
         } else if (options.principal && options.principal.token) {
-            logger.debug('setting authorization header');
-            httpOptions.headers.Authorization = 'Bearer ' + options.principal.token.token;
+            logger.debug('setting authorization header from give principal');
+            httpOptions.headers.Authorization = authHeader.format(options.principal.token as TokenOptions);
         }
 
         if (options.body) {
