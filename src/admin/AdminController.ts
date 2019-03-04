@@ -70,7 +70,7 @@ export class AdminController {
         const inspectorPort = port ? port :
             this.options.inspectorPort ? this.options.inspectorPort : undefined;
 
-        inspector.open(inspectorPort);
+        inspector.open(inspectorPort, this.options.inspectorHost);
 
         logger.info('inspector enabled');
         return {
