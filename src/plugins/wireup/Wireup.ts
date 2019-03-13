@@ -88,7 +88,15 @@ export class Wireup {
 
         return (request: Request, reply: Reply, done) => {
 
-            const token = AuthUtil.parseAuthorizationHeader(request);
+            let token;
+
+            try {
+                token = AuthUtil.parseAuthorizationHeader(request);
+            } catch (err) {
+                sendUnauthorized(reply, err);
+                done();
+                return;
+            }
 
             if (!token || !token.scheme) {
                 sendUnauthorized(reply, 'Authorization header is undefined or invalid');
