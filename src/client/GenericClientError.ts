@@ -11,7 +11,7 @@ export class GenericClientError extends WebServiceError {
 
     private _body: any;
 
-    public get body(): Error {
+    public get body(): any {
         return this._body;
     }
 
