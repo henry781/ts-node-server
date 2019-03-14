@@ -4,9 +4,9 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'pino';
 import * as _request from 'request';
 import {CoreOptions} from 'request';
-import {WebServiceError} from '../error/WebServiceError';
 import {JsonConverter} from '../json/JsonConverter';
 import {types} from '../types';
+import {GenericClientError} from './GenericClientError';
 import {RequestOptions} from './RequestOptions';
 
 const request = _request;
@@ -121,7 +121,7 @@ export abstract class GenericClient {
 
                 if (err) {
                     logger.error(`error calling <${uri}> :`, err);
-                    const error = new WebServiceError(`error calling <${uri}>`, 500, err);
+                    const error = new GenericClientError(`error calling <${uri}>`, 500, err, response, body);
                     reject(error);
 
                 } else {
@@ -131,7 +131,7 @@ export abstract class GenericClient {
                         const msg = `expecting status <${options.expectedStatus}> calling <${uri}>, got <${response.statusCode}>`;
                         logger.error(msg);
                         logger.debug('got body', body);
-                        const error = new WebServiceError(msg, 500);
+                        const error = new GenericClientError(msg, 500, undefined, response, body);
                         reject(error);
 
                     } else {
