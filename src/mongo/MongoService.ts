@@ -149,14 +149,15 @@ export class MongoService {
 
     /**
      * Insert many
+     * @param type
      * @param obj
      * @param {CollectionInsertManyOptions} options
      * @returns {Promise<InsertWriteOpResult>}
      */
-    public insertMany(obj: any, options?: CollectionInsertManyOptions): Promise<InsertWriteOpResult> {
+    public insertMany(type: any, obj: any, options?: CollectionInsertManyOptions): Promise<InsertWriteOpResult> {
 
         const json = JsonConverter.serialize(obj);
-        const collection = MongoService.getCollection(obj);
+        const collection = MongoService.getCollection(type);
 
         return this.doAction(
             () => this.db.collection(collection).insertMany(json, options));
