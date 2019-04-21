@@ -243,6 +243,19 @@ export class MongoService {
     }
 
     /**
+     * Delete many
+     * @param type
+     * @param query
+     */
+    public deleteMany(type: any, query: object = {}): Promise<DeleteWriteOpResultObject> {
+
+        const collection = MongoService.getCollectionForType(type);
+
+        return this.doAction(
+            () => this.db.collection(collection).deleteMany(query));
+    }
+
+    /**
      * Replace one
      * @param type
      * @param query
