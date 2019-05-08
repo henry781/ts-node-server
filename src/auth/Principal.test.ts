@@ -6,15 +6,6 @@ describe('Principal', () => {
 
     const sandbox = sinon.createSandbox();
 
-    const principal = new Principal({
-        email: 'test@a.fr',
-        firstname: 'Bobby',
-        lastname: 'Bob',
-        login: '15aa15',
-        roles: ['Developper', 'StagiereCafé'],
-        token: {token: 'okfopsdfsdfsd5f4sd6f4sd65f', scheme: 'bearer', params: undefined},
-    });
-
     beforeEach(() => {
         sandbox.restore();
     });
@@ -23,6 +14,15 @@ describe('Principal', () => {
      * hasRole
      */
     describe('hasRole', () => {
+
+        const principal = new Principal({
+            email: 'test@a.fr',
+            firstname: 'Bobby',
+            lastname: 'Bob',
+            login: '15aa15',
+            roles: ['Developer', 'ProductOwner'],
+            token: {token: 'okfopsdfsdfsd5f4sd6f4sd65f', scheme: 'bearer', params: undefined},
+        });
 
         it('should return false', () => {
             chai.expect(principal.hasRole('admin')).to.be.false;
@@ -33,11 +33,33 @@ describe('Principal', () => {
         });
 
         it('should return true', () => {
-            chai.expect(principal.hasRole('Developper')).to.be.true;
+            chai.expect(principal.hasRole('Developer')).to.be.true;
         });
 
         it('roles array,  should return true', () => {
-            chai.expect(principal.hasRole(['admin', 'Developper'])).to.be.true;
+            chai.expect(principal.hasRole(['admin', 'Developer'])).to.be.true;
+        });
+    });
+
+    /**
+     * Constructor
+     */
+    describe('constructor', () => {
+
+        describe('when password is set', () => {
+
+            it('should build Basic token', () => {
+
+                const principal = new Principal({
+                    login: 'myLogin',
+                    password: 'myPassword',
+                });
+
+                chai.expect(principal.token).not.undefined;
+                chai.expect(principal.token.scheme).equal('Basic');
+                chai.expect(principal.token.params).deep.equal({});
+                chai.expect(principal.token.token).equal('bXlMb2dpbjpteVBhc3N3b3Jk');
+            });
         });
     });
 });
