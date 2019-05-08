@@ -1,27 +1,24 @@
 import * as authHeader from 'auth-header';
 import {TokenOptions} from 'auth-header';
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import {Logger} from 'pino';
 import * as _request from 'request';
 import {CoreOptions} from 'request';
+import {Principal} from '../auth/Principal';
+import {getLogger, getReqId} from '../core/loggerService';
 import {JsonConverter} from '../json/JsonConverter';
-import {types} from '../types';
 import {GenericClientError} from './GenericClientError';
-import {RequestOptions} from './RequestOptions';
 
-const request = _request;
 
 @injectable()
 export abstract class GenericClient {
 
-    protected logger: Logger;
+    protected request = _request;
 
     /**
      * Constructor
-     * @param logger
      */
-    constructor(@inject(types.Logger)logger: Logger) {
-        this.logger = logger.child({module: 'GenericClient'});
+    constructor() {
     }
 
     /**
@@ -70,22 +67,24 @@ export abstract class GenericClient {
     }
 
     /**
-     * Http request
-     * @param uri
+     * Build HttpOptions
      * @param options
      * @param method
      */
-    protected http<T>(uri: string, options: RequestOptions<T>, method: string): Promise<T> {
+    protected buildHttpOptions<T>(options: RequestOptions<T>, method: string): CoreOptions {
 
-        const logger = this.logger.child({method: 'http'});
-
-        logger.debug(`requesting <${uri}>`);
+        const logger = getLogger(this, 'buildHttpOptions');
 
         const httpOptions: CoreOptions = {
             headers: {},
             json: true,
             method,
         };
+
+        const reqId = getReqId();
+        if (reqId) {
+            httpOptions.headers['request-id'] = reqId;
+        }
 
         if (options.httpOptions) {
             logger.debug('override httpOptions');
@@ -116,8 +115,24 @@ export abstract class GenericClient {
             }
         }
 
+        return httpOptions;
+    }
+
+    /**
+     * Http request
+     * @param uri
+     * @param options
+     * @param method
+     */
+    protected http<T>(uri: string, options: RequestOptions<T>, method: string): Promise<T> {
+
+        const logger = getLogger(this, 'http');
+
+        logger.debug(`requesting <${uri}>`);
+        const httpOptions = this.buildHttpOptions(options, method);
+
         return new Promise((resolve, reject) => {
-            request(uri, httpOptions, (err, response, body) => {
+            this.request(uri, httpOptions, (err, response, body) => {
 
                 if (err) {
                     logger.error(`error calling <${uri}> :`, err);
@@ -153,4 +168,18 @@ export abstract class GenericClient {
             });
         });
     }
+}
+
+type converter = (obj: any) => any;
+
+export interface RequestOptions<T> {
+
+    principal?: Principal;
+    token?: string;
+    httpOptions?: CoreOptions;
+    serializer?: boolean | converter;
+    deserializer?: boolean | converter;
+    body?: any;
+    expectedStatus?: number;
+    deserializeType?: any;
 }

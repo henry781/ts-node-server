@@ -23,6 +23,7 @@ describe('AuthUtil', () => {
                 hostname: undefined,
                 id: undefined,
                 ip: undefined,
+                ips: undefined,
                 log: undefined,
                 params: undefined,
                 query: undefined,
@@ -44,6 +45,7 @@ describe('AuthUtil', () => {
                 hostname: undefined,
                 id: undefined,
                 ip: undefined,
+                ips: undefined,
                 log: undefined,
                 params: undefined,
                 query: undefined,
@@ -86,7 +88,6 @@ describe('AuthUtil', () => {
                 },
             };
             const result = AuthUtil.normalizeAuthOptions(input);
-
 
             chai.expect(result).deep.equal([
                 {
