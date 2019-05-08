@@ -9,7 +9,6 @@ import {getLogger, getReqId} from '../core/loggerService';
 import {JsonConverter} from '../json/JsonConverter';
 import {GenericClientError} from './GenericClientError';
 
-
 @injectable()
 export abstract class GenericClient {
 
@@ -73,7 +72,7 @@ export abstract class GenericClient {
      */
     protected buildHttpOptions<T>(options: RequestOptions<T>, method: string): CoreOptions {
 
-        const logger = getLogger(this, 'buildHttpOptions');
+        const logger = getLogger('buildHttpOptions', this);
 
         const httpOptions: CoreOptions = {
             headers: {},
@@ -126,7 +125,7 @@ export abstract class GenericClient {
      */
     protected http<T>(uri: string, options: RequestOptions<T>, method: string): Promise<T> {
 
-        const logger = getLogger(this, 'http');
+        const logger = getLogger('http', this);
 
         logger.debug(`requesting <${uri}>`);
         const httpOptions = this.buildHttpOptions(options, method);
