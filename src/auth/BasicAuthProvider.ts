@@ -1,8 +1,7 @@
 import {Token} from 'auth-header';
+import {environment} from '../core/environment';
 import {AuthOptions} from '../plugins/common/method/AuthOptions';
 import {AuthProvider} from './AuthProvider';
-import {BasicAuthProviderOptions, DEFAULT_BASIC_AUTH_PROVIDER_OPTIONS} from './BasicAuthProviderOptions';
-import {BasicAuthUserOptions} from './BasicAuthUserOptions';
 import {Principal} from './Principal';
 
 /**
@@ -33,7 +32,7 @@ export class BasicAuthProvider extends AuthProvider {
      */
     public authenticate(token: Token, options: AuthOptions): Principal {
 
-        const decoded = new Buffer(token.token.toString(), 'base64')
+        const decoded = Buffer.from(token.token.toString(), 'base64')
             .toString('ascii');
 
         const separatorPosition = decoded.indexOf(':');
@@ -73,4 +72,22 @@ export class BasicAuthProvider extends AuthProvider {
     public getScheme(): string {
         return 'basic';
     }
+}
+
+export const DEFAULT_BASIC_AUTH_PROVIDER_OPTIONS: BasicAuthProviderOptions = {
+    [environment.AUTH_BASIC_LOGIN]: {
+        password: environment.AUTH_BASIC_PASSWORD,
+    },
+};
+
+export interface BasicAuthProviderOptions {
+    [login: string]: BasicAuthUserOptions;
+}
+
+export interface BasicAuthUserOptions {
+    password: string;
+    firstname?: string;
+    lastname?: string;
+    email?: string;
+    roles?: string[];
 }
