@@ -36,7 +36,7 @@ export class UserController {
 
 ### Type validation
 
-ts-node-server use *tipify* to validate, serialize and deserialize. It ensures that no property can be accidentally exposed.
+ts-node-server use *[tipify](https://github.com/henry781/tipify)* to validate, serialize and deserialize. It ensures that no property can be accidentally exposed.
 
 ```
 @jsonObject()
@@ -45,7 +45,7 @@ export class StellarSystem {
     @jsonProperty('_id', ObjectIdConverter)
     private _id?: string;
 
-    @jsonProperty('name', String)
+    @jsonProperty('name')
     private _name?: string;
 
     @jsonProperty('planets', [Planet])
@@ -82,11 +82,105 @@ export class MongoHealthcheck implements Healthcheck {
             'content'
         };
     }
-
 }
 ```
 
 ### Authentication
+
+#### Basic authentication
+
+```
+const server = new Server({
+    container: container,
+    auth: {
+        basic: {
+            'demo': {
+                password: 'password',
+                roles: ['admin']
+            }
+        }
+    }
+});
+```
+
+#### JWT authentication
+
+```
+const server = new Server({
+    container: container,
+    auth: {
+        jwt: {
+            authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
+            certificate: '-----BEGIN CERTIFICATE-----\n' +
+                '.......CONTENT.......\n' +
+                '-----END CERTIFICATE-----',
+            application: 'test'
+        }
+    }
+});
+```
+
+#### Protect a route
+
+Protect a route using auth options:
+```
+@httpGet({ url: '/:name', auth: ['jwt', 'basic'] })
+public async get(@pathParam('name')name: string) {
+    ...
+}
+```
+
+Allow only a list of roles to access to a route:
+```
+@httpGet({ url: '/:name', auth: { jwt: { role: ['admin'] } })
+public async get(@pathParam('name')name: string) {
+    ...
+}
+```
+
+#### Get connected user
+```
+@httpGet({ url: '/:name', auth: 'jwt')
+public async get(@pathParam('name')name: string, @auth()user: Principal {
+    const logger = getLogger('get', this);
+    logger.info('my name is', user.firstname, user.lastname, 'and my login is', user.login);
+    ...
+}
+```
+
+### Generic client
+
+ts-node-service provides GenericClient which is wrapper around *request*.
+GenericClient features:
+* Serialization / Deserialization with *tipify*
+* Error management and expected status
+* Authorization header format form a token or principal
+* Add *request-id* header to the request
+
+```
+export class UserClient extends GenericClient {
+
+    public getUser(name: string) {
+        const options : RequestOptions<User> = {
+            expectedStatus: 200,
+            principal: principal,
+            deserializeType: User
+        };
+        return this.get<User>('http://localhost/api/users/' + name, options);
+    }
+}
+```
+
+### Logging
+
+#### Get request logger
+
+With fastify a logger is created for every request, it allows to add a request id to every log.
+To access to this logger:
+```
+const logger = getLogger();
+logger.info('hello');
+```
 
 ## Usage
 
