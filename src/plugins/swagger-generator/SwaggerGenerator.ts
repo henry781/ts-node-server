@@ -1,5 +1,5 @@
 import {FastifyInstance} from 'fastify';
-import fastifyStatic from 'fastify-static';
+import * as fastifyStatic from 'fastify-static';
 import {Container} from 'inversify';
 import mixin from 'mixin-deep';
 import swaggerUiDist from 'swagger-ui-dist';
@@ -390,7 +390,7 @@ export class SwaggerGenerator {
          * Serve swagger static assets
          */
         instance.register(fastifyStatic, {
-            index: false,
+            index: [], // was false before
             prefix: '/docs',
             root: swaggerUiDist.getAbsoluteFSPath(),
         });

@@ -1,5 +1,6 @@
 import {QuerySearch} from '@henry781/querysearch';
 import * as _accepts from 'accepts';
+import {getNamespace} from 'cls-hooked';
 import {FastifyInstance} from 'fastify';
 import * as _flatstr from 'flatstr';
 import {Container} from 'inversify';
@@ -114,6 +115,7 @@ export class Wireup {
 
             try {
                 request.user = auth.provider.authenticate(token, auth.options);
+                request.log.info({login: request.user.login}, 'authenticated successfully');
             } catch (err) {
                 sendUnauthorized(reply, err);
             }
@@ -183,12 +185,12 @@ export class Wireup {
             (endpoint) => {
 
                 instance.route({
-                    beforeHandler: [
+                    handler: Wireup.getHandler(endpoint),
+                    method: endpoint.methodOptions.method,
+                    preHandler: [
                         Wireup.getAuthorizationHandler(opts.container, endpoint),
                         Wireup.getSerializerHandler()]
                         .filter((handler) => handler !== undefined),
-                    handler: Wireup.getHandler(endpoint),
-                    method: endpoint.methodOptions.method,
                     url: endpoint.url,
                 });
                 logger.debug(`[${endpoint.methodOptions.method}] ${endpoint.url}`);

@@ -27,18 +27,23 @@ export class MongoHealthcheck implements Healthcheck {
      */
     public check(): Promise<any> {
 
-        return this.mongoService.isMaster()
+        try {
+            return this.mongoService.isMaster()
 
-            .then((result: MongoIsMasterResult) => {
-                if (!result.ismaster) {
-                    throw new Error('db is not master');
-                }
+                .then((result: MongoIsMasterResult) => {
+                    if (!result.ismaster) {
+                        throw new Error('db is not master');
+                    }
 
-                if (result.readOnly) {
-                    throw new Error('db is readonly');
-                }
+                    if (result.readOnly) {
+                        throw new Error('db is readonly');
+                    }
 
-                return result;
-            });
+                    return result;
+                });
+
+        } catch (err) {
+            return Promise.reject(err);
+        }
     }
 }

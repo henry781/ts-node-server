@@ -16,4 +16,5 @@ export interface ServerOptions extends FastifyServerOptions {
         jwt?: boolean | JwtAuthProviderOptions,
         basic?: boolean | BasicAuthProviderOptions,
     };
+    genReqId?: (request: Request) => string;
 }

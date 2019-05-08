@@ -1,11 +1,13 @@
 import * as _fastify from 'fastify';
 import * as fastifyCompress from 'fastify-compress';
 import * as helmet from 'fastify-helmet';
-import fastifyMetrics from 'fastify-metrics';
+import * as fastifyMetrics from 'fastify-metrics';
 import {Logger} from 'pino';
+import * as shortid from 'shortid';
 import {AdminController} from '../admin/AdminController';
 import {AuthProvider, BasicAuthProvider, JwtAuthProvider} from '../auth/api';
 import {Healthcheck, HealthcheckController} from '../healthcheck/api';
+import {loggerContextMiddleware} from '../middlewares/api';
 import {MongoHealthcheck, MongoService} from '../mongo/api';
 import {Controller, SwaggerGenerator, Wireup} from '../plugins/api';
 import {Instance, types} from '../types';
@@ -41,7 +43,6 @@ export class Server {
         this._instance.ready(() => {
             this._instance.log.info('server started');
         });
-
     }
 
     /**
@@ -50,10 +51,13 @@ export class Server {
      */
     public buildInstance(options: ServerOptions) {
 
-        options.logger = loggerService;
+        options.logger = options.logger || loggerService;
+        options.genReqId = options.genReqId || ((req) => req.headers['request-id'] || shortid.generate());
 
         this._instance = fastify(options);
         this._instance.register(helmet);
+
+        this._instance.use(loggerContextMiddleware);
 
         options.container.bind<Logger>(types.Logger).toConstantValue(this._instance.log);
 

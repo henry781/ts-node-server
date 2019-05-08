@@ -9,8 +9,9 @@
     "test": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\"} ./node_modules/.bin/mocha --require ts-node/register/transpile-only --exit \"src/**/*.test.ts\"",
     "build": "rm -rf dist/* && rollup -c",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
-    "release-patch": "npm run build && npm version patch && npm publish",
-    "release": "npm run build && npm version minor && npm publish"
+    "release-patch": "npm run build && npm run test && npm run lint && npm version patch && npm publish",
+    "release": "npm run build && npm run test && npm run lint && npm version minor && npm publish",
+    "release-major": "npm run build && npm run test && npm run lint && npm version major && npm publish"
   },
   "repository": {
     "type": "git",
@@ -49,6 +50,7 @@
     "pino-pretty": "2.6.0",
     "reflect-metadata": "0.1.13",
     "request": "^2.88.0",
+    "shortid": "^2.2.14",
     "swagger-ui-dist": "3.19.5",
     "url-join": "4.0.0"
   },
