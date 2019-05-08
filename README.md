@@ -160,7 +160,7 @@ GenericClient features:
 ```
 export class UserClient extends GenericClient {
 
-    public getUser(name: string) {
+    public getUser(name: string) : Promise<User> {
         const options : RequestOptions<User> = {
             expectedStatus: 200,
             principal: principal,
