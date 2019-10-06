@@ -45,7 +45,7 @@
     "flatstr": "^1.0.9",
     "js-yaml": "^3.13.1",
     "jsonwebtoken": "8.5.1",
-    "mixin-deep": "2.0.0",
+    "mixin-deep": "^2.0.1",
     "pino": "5.12.2",
     "pino-pretty": "2.6.0",
     "reflect-metadata": "0.1.13",
@@ -55,25 +55,25 @@
     "url-join": "4.0.0"
   },
   "devDependencies": {
+    "@henry781/querysearch": "0.2.0",
     "@types/chai": "^4.1.7",
     "@types/chai-http": "^3.0.5",
     "@types/mocha": "^5.2.5",
+    "@types/mongodb": "^3.1.14",
     "@types/request": "^2.48.1",
     "@types/sinon": "^5.0.7",
-    "@types/mongodb": "^3.1.14",
     "chai": "^4.2.0",
     "chai-http": "^4.2.0",
     "cross-env": "^5.2.0",
+    "inversify": "5.0.1",
     "mocha": "^5.2.0",
+    "mongodb": "3.2.1",
     "rollup": "^0.67.3",
-    "rollup-plugin-typescript2": "^0.18.0",
+    "rollup-plugin-typescript2": "^0.24.3",
     "sinon": "^7.1.1",
+    "tipify": "2.0.0",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
-    "typescript": "^3.1.6",
-    "inversify": "5.0.1",
-    "tipify": "2.0.0",
-    "mongodb": "3.2.1",
-    "@henry781/querysearch": "0.2.0"
+    "typescript": "^3.1.6"
   }
 }
