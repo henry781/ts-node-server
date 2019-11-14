@@ -80,7 +80,7 @@ export class MongoService {
 
         try {
             this.client = await MongoClient.connect(options.uri, options.client);
-            this.db = this.client.db(options.dbName);
+            this._db = this.client.db(options.dbName);
             logger.info('connected to mongodb successfully');
         } catch (err) {
             logger.error('failed to connect to mongodb', err);
@@ -98,7 +98,7 @@ export class MongoService {
         if (this.error) {
             throw this.error;
 
-        } else if (!this.client || !this.db) {
+        } else if (!this.client || !this._db) {
             throw new MongoError('database is not ready');
 
         } else {
@@ -113,7 +113,7 @@ export class MongoService {
     public isMaster(): Promise<MongoIsMasterResult> {
 
         return this.doAction(
-            () => this.db.command({isMaster: 1}));
+            () => this._db.command({isMaster: 1}));
     }
 
     /**
@@ -128,7 +128,7 @@ export class MongoService {
         const collection = MongoService.getCollectionForType(type);
 
         return this.doAction(
-            () => this.db.collection(collection).findOne(query, options))
+            () => this._db.collection(collection).findOne(query, options))
             .then((json) => JsonConverter.deserialize<T>(json, type));
     }
 
@@ -138,13 +138,13 @@ export class MongoService {
      * @param {CollectionInsertOneOptions} options
      * @returns {Promise<InsertOneWriteOpResult>}
      */
-    public insertOne(obj: any, options?: CollectionInsertOneOptions): Promise<InsertOneWriteOpResult> {
+    public insertOne(obj: any, options?: CollectionInsertOneOptions): Promise<InsertOneWriteOpResult<any>> {
 
         const json = JsonConverter.serialize(obj);
         const collection = MongoService.getCollection(obj);
 
         return this.doAction(
-            () => this.db.collection(collection).insertOne(json, options));
+            () => this._db.collection(collection).insertOne(json, options));
     }
 
     /**
@@ -154,13 +154,13 @@ export class MongoService {
      * @param {CollectionInsertManyOptions} options
      * @returns {Promise<InsertWriteOpResult>}
      */
-    public insertMany(type: any, obj: any, options?: CollectionInsertManyOptions): Promise<InsertWriteOpResult> {
+    public insertMany(type: any, obj: any, options?: CollectionInsertManyOptions): Promise<InsertWriteOpResult<any>> {
 
         const json = JsonConverter.serialize(obj);
         const collection = MongoService.getCollectionForType(type);
 
         return this.doAction(
-            () => this.db.collection(collection).insertMany(json, options));
+            () => this._db.collection(collection).insertMany(json, options));
     }
 
     /**
@@ -177,7 +177,7 @@ export class MongoService {
 
         return this.doAction(
             () => {
-                const cursor = this.db.collection(collection)
+                const cursor = this._db.collection(collection)
                     .find(query)
                     .sort(sort);
 
@@ -210,7 +210,7 @@ export class MongoService {
 
         return this.doAction(
             () => {
-                const cursor = this.db.collection(collection)
+                const cursor = this._db.collection(collection)
                     .aggregate(pipeline, options);
 
                 return cursor.toArray();
@@ -239,7 +239,7 @@ export class MongoService {
         const collection = MongoService.getCollectionForType(type);
 
         return this.doAction(
-            () => this.db.collection(collection).deleteOne(query));
+            () => this._db.collection(collection).deleteOne(query));
     }
 
     /**
@@ -252,7 +252,7 @@ export class MongoService {
         const collection = MongoService.getCollectionForType(type);
 
         return this.doAction(
-            () => this.db.collection(collection).deleteMany(query));
+            () => this._db.collection(collection).deleteMany(query));
     }
 
     /**
@@ -268,7 +268,7 @@ export class MongoService {
         const document = JsonConverter.serialize(obj);
 
         return this.doAction(
-            () => this.db.collection(collection).replaceOne(query, document, options));
+            () => this._db.collection(collection).replaceOne(query, document, options));
     }
 
     /**
@@ -284,7 +284,7 @@ export class MongoService {
         const collection = MongoService.getCollectionForType(type);
 
         return this.doAction(
-            () => this.db.collection(collection).updateOne(query, update, options));
+            () => this._db.collection(collection).updateOne(query, update, options));
     }
 
     /**
@@ -300,7 +300,7 @@ export class MongoService {
         const collection = MongoService.getCollectionForType(type);
 
         return this.doAction(
-            () => this.db.collection(collection).updateMany(query, update, options));
+            () => this._db.collection(collection).updateMany(query, update, options));
     }
 
     /**
@@ -315,7 +315,7 @@ export class MongoService {
         const collection = MongoService.getCollectionForType(type);
 
         return this.doAction(
-            () => this.db.collection(collection).countDocuments(query, options));
+            () => this._db.collection(collection).countDocuments(query, options));
     }
 
     public close() {
