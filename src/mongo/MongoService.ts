@@ -54,8 +54,13 @@ export class MongoService {
 
     private logger: Logger;
     private client: MongoClient;
-    private db: Db;
     private error: Error;
+
+    private _db: Db;
+
+    get db(): Db {
+        return this._db;
+    }
 
     /**
      * Constructor
