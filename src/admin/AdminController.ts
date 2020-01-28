@@ -1,10 +1,9 @@
 import * as inspector from 'inspector';
 import {decorate} from 'inversify';
 import {Logger} from 'pino';
-import {loggerService} from '../core/loggerService';
-import {WebServiceError} from '../error/WebServiceError';
-import {controller, httpPut, pathParam, queryParam} from '../plugins/common/api';
-import {AdminOptions} from './AdminOptions';
+import {loggerService} from '../logger/loggerService';
+import {WebServiceError} from '../core/WebServiceError';
+import {AuthOptions, controller, httpPut, pathParam, queryParam} from '../plugins/common/api';
 
 @controller('/admin')
 export class AdminController {
@@ -88,4 +87,10 @@ export class AdminController {
         inspector.close();
         logger.info('inspector disabled');
     }
+}
+
+export interface AdminOptions {
+    auth: string | string[] | { [provider: string]: AuthOptions };
+    inspectorPort?: number;
+    inspectorHost?: string;
 }
