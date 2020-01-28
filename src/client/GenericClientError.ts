@@ -1,5 +1,5 @@
 import {Response} from 'request';
-import {WebServiceError} from '../error/WebServiceError';
+import {WebServiceError} from '../core/WebServiceError';
 
 export class GenericClientError extends WebServiceError {
 

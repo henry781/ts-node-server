@@ -1,12 +1,11 @@
 import * as authHeader from 'auth-header';
 import {TokenOptions} from 'auth-header';
 import {injectable} from 'inversify';
-import {Logger} from 'pino';
 import * as _request from 'request';
 import {CoreOptions} from 'request';
 import {Principal} from '../auth/Principal';
-import {getLogger, getReqId} from '../core/loggerService';
-import {JsonConverter} from '../json/JsonConverter';
+import {jsonConverter} from '../core/jsonConverter';
+import {getLogger, getReqId} from '../logger/loggerService';
 import {GenericClientError} from './GenericClientError';
 
 @injectable()
@@ -110,7 +109,7 @@ export abstract class GenericClient {
                 httpOptions.body = options.serializer(options.body);
 
             } else {
-                httpOptions.body = JsonConverter.safeSerialize(options.body);
+                httpOptions.body = jsonConverter.serialize(options.body, undefined, {unsafe: true});
             }
         }
 
@@ -157,7 +156,7 @@ export abstract class GenericClient {
                             resolve(options.deserializer(body));
 
                         } else if (options.deserializeType) {
-                            resolve(JsonConverter.deserialize(body, options.deserializeType));
+                            resolve(jsonConverter.deserialize(body, options.deserializeType));
 
                         } else {
                             resolve();

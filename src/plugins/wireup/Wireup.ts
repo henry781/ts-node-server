@@ -1,14 +1,13 @@
 import {QuerySearch} from '@henry781/querysearch';
 import * as _accepts from 'accepts';
-import {getNamespace} from 'cls-hooked';
 import {FastifyInstance} from 'fastify';
 import * as _flatstr from 'flatstr';
 import {Container} from 'inversify';
 import * as _yaml from 'js-yaml';
 import {AuthUtil} from '../../auth/AuthUtil';
-import {loggerService} from '../../core/loggerService';
-import {WebServiceError} from '../../error/WebServiceError';
-import {JsonConverter} from '../../json/JsonConverter';
+import {jsonConverter} from '../../core/jsonConverter';
+import {loggerService} from '../../logger/loggerService';
+import {WebServiceError} from '../../core/WebServiceError';
 import {Reply, Request} from '../../types';
 import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
 
@@ -35,11 +34,11 @@ export class Wireup {
                 switch (param.type) {
                     case 'query':
                         const value = request.query[param.name];
-                        return JsonConverter.deserialize(value, param.paramType);
+                        return jsonConverter.deserialize(value, param.paramType);
                     case 'path':
                         return request.params[param.name];
                     case 'body':
-                        return JsonConverter.deserialize(request.body, param.paramType);
+                        return jsonConverter.deserialize(request.body, param.paramType);
                     case 'search':
                         try {
                             return QuerySearch.fromQueryParams(request.query);
@@ -132,7 +131,7 @@ export class Wireup {
     public static getJsonSerializer() {
 
         return (data) => {
-            const json = JsonConverter.safeSerialize(data);
+            const json = jsonConverter.serialize(data, undefined, {unsafe: true});
             return flatstr(JSON.stringify(json));
         };
     }
@@ -140,7 +139,7 @@ export class Wireup {
     public static getYamlSerializer() {
 
         return (data) => {
-            const json = JsonConverter.safeSerialize(data);
+            const json = jsonConverter.serialize(data, undefined, {unsafe: true});
             return flatstr(yaml.safeDump(json));
         };
 

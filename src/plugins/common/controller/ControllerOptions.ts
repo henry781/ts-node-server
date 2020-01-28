@@ -1,4 +1,4 @@
-import {OpenApiMethod} from '../../api';
+import {OpenApiMethod} from '../../swagger-generator/models/OpenApiMethod';
 
 /**
  * Controller options

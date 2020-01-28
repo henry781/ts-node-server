@@ -1,19 +1,23 @@
+import * as _merge from 'deepmerge';
 import {FastifyInstance} from 'fastify';
 import * as fastifyStatic from 'fastify-static';
 import {Container} from 'inversify';
-import mixin from 'mixin-deep';
+import * as path from 'path';
 import swaggerUiDist from 'swagger-ui-dist';
 import {AuthProvider} from '../../auth/AuthProvider';
 import {AuthUtil} from '../../auth/AuthUtil';
 import {BasicAuthProvider} from '../../auth/BasicAuthProvider';
 import {JwtAuthProvider} from '../../auth/JwtAuthProvider';
-import {loggerService} from '../../core/loggerService';
+import {environment} from '../../core/environment';
+import {loggerService} from '../../logger/loggerService';
 import {Reply, Request, types} from '../../types';
 import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
 import {ParamOptions} from '../common/param/ParamOptions';
 import {OPENAPI_DEFAULT_CONFIGURATION, OpenApiConf} from './models/OpenApiConf';
 import {OpenApiMethod} from './models/OpenApiMethod';
 import {SwaggerTipifyUtil} from './SwaggerTipifyUtil';
+
+const merge = _merge;
 
 export class SwaggerGenerator {
 
@@ -98,15 +102,15 @@ export class SwaggerGenerator {
 
         let configuration = OPENAPI_DEFAULT_CONFIGURATION;
 
-        SwaggerGenerator.buildAuthenticationConfiguration(container, configuration);
+        configuration = SwaggerGenerator.buildAuthenticationConfiguration(container, configuration);
 
         CommonUtil.getAllEndpoints(container).forEach(
             (endpoint) => {
-                configuration = mixin(configuration, SwaggerGenerator.buildConfigurationForEndpoint(endpoint));
+                configuration = merge(configuration, SwaggerGenerator.buildConfigurationForEndpoint(endpoint));
             });
 
         if (userDefinedConfiguration) {
-            configuration = mixin(configuration, userDefinedConfiguration);
+            configuration = merge(configuration, userDefinedConfiguration);
         }
 
         logger.debug('open api configuration built');
@@ -144,7 +148,7 @@ export class SwaggerGenerator {
                         },
                     },
                 };
-                configuration = mixin(configuration, authConfiguration);
+                configuration = merge(configuration, authConfiguration);
 
             } else if (provider instanceof BasicAuthProvider) {
 
@@ -158,7 +162,7 @@ export class SwaggerGenerator {
                         },
                     },
                 };
-                configuration = mixin(configuration, authConfiguration);
+                configuration = merge(configuration, authConfiguration);
 
             } else {
                 throw new Error('swagger generator cannot implement authentication');
@@ -293,7 +297,7 @@ export class SwaggerGenerator {
 
         if (endpoint.controllerOptions.swagger) {
             logger.trace('merging endpoint configuration with user defined configuration (controller)');
-            endpointConfiguration = mixin(endpointConfiguration, endpoint.controllerOptions.swagger);
+            endpointConfiguration = merge(endpointConfiguration, endpoint.controllerOptions.swagger);
         }
 
         const auth = endpoint.methodOptions.auth;
@@ -324,7 +328,7 @@ export class SwaggerGenerator {
 
         if (endpoint.methodOptions.swagger) {
             logger.trace('merging endpoint configuration with user defined configuration');
-            configuration.paths[url][method] = mixin(configuration.paths[url][method], endpoint.methodOptions.swagger);
+            configuration.paths[url][method] = merge(configuration.paths[url][method], endpoint.methodOptions.swagger);
         }
 
         if (!configuration.paths[url][method].responses) {
@@ -367,7 +371,7 @@ export class SwaggerGenerator {
         logger.info('initializing swagger...');
         let configuration = SwaggerGenerator.buildConfiguration(opts.container);
         if (opts.configuration) {
-            configuration = mixin(configuration, opts.configuration);
+            configuration = merge(configuration, opts.configuration);
         }
 
         const index = SwaggerGenerator.INDEX_HTML_TEMPLATE;
@@ -392,7 +396,9 @@ export class SwaggerGenerator {
         instance.register(fastifyStatic, {
             index: [], // was false before
             prefix: '/docs',
-            root: swaggerUiDist.getAbsoluteFSPath(),
+            root: environment.SWAGGER_PATH
+                ? path.join(__dirname, environment.SWAGGER_PATH)
+                : swaggerUiDist.getAbsoluteFSPath(),
         });
 
         logger.info('swagger initialized');

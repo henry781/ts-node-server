@@ -1,5 +1,5 @@
 import {Token} from 'auth-header';
-import {jsonObject, jsonProperty} from 'tipify';
+import {arrayOf, jsonObject, jsonProperty} from 'tipify';
 
 @jsonObject()
 export class Principal {
@@ -38,7 +38,7 @@ export class Principal {
         return this._lastname;
     }
 
-    @jsonProperty('roles', [String])
+    @jsonProperty('roles', arrayOf(String))
     private _roles: string[];
 
     public get roles(): string[] {
