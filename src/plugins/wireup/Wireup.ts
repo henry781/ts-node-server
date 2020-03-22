@@ -76,7 +76,7 @@ export class Wireup {
      */
     public static getAuthorizationHandler(container: Container, endpoint: WireupEndpoint) {
 
-        function sendUnauthorized(reply: Reply, reason: Error | string | { [key: string]: Error }) {
+        function sendUnauthorized(reply: Reply, reason: Error | string | { [key: string]: string }) {
             const body = {reason};
             reply.status(401).send(body);
         }
@@ -101,14 +101,14 @@ export class Wireup {
 
             let user: Principal;
             let options: AuthOptions;
-            const errors: { [providerName: string]: Error } = {};
+            const errors: { [providerName: string]: string } = {};
             for (const a of authProviders) {
                 try {
                     user = await a.provider.authenticate(request, token, a.options);
                     options = a.options;
                     break;
                 } catch (err) {
-                    errors[a.options.providerName] = err;
+                    errors[a.options.providerName] = err.message;
                     request.log.warn('Cannot authenticate using authenticator', a.options.providerName);
                 }
             }
@@ -117,6 +117,8 @@ export class Wireup {
                 if (options.role && !request.user.hasRole(options.role)) {
                     sendUnauthorized(reply, `User should have role <${options.role}>`);
                 }
+                request.user = user;
+                request.log.info({login: request.user.login}, 'authenticated successfully');
 
             } else {
                 sendUnauthorized(reply, errors);
