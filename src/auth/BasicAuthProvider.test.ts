@@ -1,6 +1,7 @@
 import {Token} from 'auth-header';
 import * as chai from 'chai';
 import * as sinon from 'sinon';
+import {Request} from '../types';
 import {BasicAuthProvider} from './BasicAuthProvider';
 import {Principal} from './Principal';
 
@@ -13,22 +14,48 @@ describe('BasicAuthProvider', () => {
     });
 
     /**
-     * Get scheme
-     */
-    describe('getScheme', () => {
-
-        it('should return basic', () => {
-            const provider = new BasicAuthProvider();
-            chai.expect(provider.getScheme()).equal('basic');
-        });
-    });
-
-    /**
      * Authenticate
      */
     describe('authenticate', () => {
 
-        it('should throw an error when user is not defined', () => {
+        it('should throw an error when token is not defined', async () => {
+
+            const provider = new BasicAuthProvider({
+                user1: {
+                    password: 'pass',
+                },
+            });
+
+            try {
+                await provider.authenticate({} as Request, undefined, {});
+                chai.expect.fail();
+            } catch (err) {
+                chai.expect(err.message).equal('Basic auth: authorization scheme should be \'basic\'');
+            }
+        });
+
+        it('should throw an error when token scheme is not basic', async () => {
+
+            const provider = new BasicAuthProvider({
+                user1: {
+                    password: 'pass',
+                },
+            });
+            const token: Token = {
+                params: undefined,
+                scheme: 'bearer',
+                token: 'dGVzdDpkZW1v',
+            };
+
+            try {
+                await provider.authenticate({} as Request, token, {});
+                chai.expect.fail();
+            } catch (err) {
+                chai.expect(err.message).equal('Basic auth: authorization scheme should be \'basic\'');
+            }
+        });
+
+        it('should throw an error when user is not defined', async () => {
 
             const provider = new BasicAuthProvider({
                 user1: {
@@ -41,11 +68,15 @@ describe('BasicAuthProvider', () => {
                 token: 'dGVzdDpkZW1v',
             };
 
-            chai.expect(() => provider.authenticate(token, {}))
-                .to.throw('bad credentials');
+            try {
+                await provider.authenticate({} as Request, token, {});
+                chai.expect.fail();
+            } catch (err) {
+                chai.expect(err.message).equal('Basic auth: bad credentials');
+            }
         });
 
-        it('should throw an error when password is not ok', () => {
+        it('should throw an error when password is not ok', async () => {
 
             const provider = new BasicAuthProvider({
                 user1: {
@@ -58,11 +89,15 @@ describe('BasicAuthProvider', () => {
                 token: 'dXNlcjE6aW52YWxpZA==',
             };
 
-            chai.expect(() => provider.authenticate(token, {}))
-                .to.throw('bad credentials');
+            try {
+                await provider.authenticate({} as Request, token, {});
+                chai.expect.fail();
+            } catch (err) {
+                chai.expect(err.message).equal('Basic auth: bad credentials');
+            }
         });
 
-        it('should throw an error when token is invalid', () => {
+        it('should throw an error when token is invalid', async () => {
 
             const provider = new BasicAuthProvider({
                 user1: {
@@ -75,12 +110,15 @@ describe('BasicAuthProvider', () => {
                 token: 'dXNlcjFhbGlk',
             };
 
-            chai.expect(() => provider.authenticate(token, {}))
-                .to.throw('bad credentials');
-
+            try {
+                await provider.authenticate({} as Request, token, {});
+                chai.expect.fail();
+            } catch (err) {
+                chai.expect(err.message).equal('Basic auth: bad credentials');
+            }
         });
 
-        it('should not throw an error when everything is ok', () => {
+        it('should not throw an error when everything is ok', async () => {
 
             const provider = new BasicAuthProvider({
                 user1: {
@@ -93,10 +131,10 @@ describe('BasicAuthProvider', () => {
                 token: 'dXNlcjE6cGFzcw==',
             };
 
-            provider.authenticate(token, {});
+            await provider.authenticate({} as Request, token, {});
         });
 
-        it('should return authenticated user', () => {
+        it('should return authenticated user', async () => {
 
             const userOptions = {
                 password: 'pass',
@@ -117,7 +155,7 @@ describe('BasicAuthProvider', () => {
                 .withArgs('user1', userOptions, token)
                 .returns(user);
 
-            const actualUser = provider.authenticate(token, {});
+            const actualUser = await provider.authenticate({} as Request, token, {});
             chai.expect(actualUser).equal(user);
         });
     });

@@ -5,11 +5,13 @@ import * as _flatstr from 'flatstr';
 import {Container} from 'inversify';
 import * as _yaml from 'js-yaml';
 import {AuthUtil} from '../../auth/AuthUtil';
+import {Principal} from '../../auth/Principal';
 import {jsonConverter} from '../../core/jsonConverter';
-import {loggerService} from '../../logger/loggerService';
 import {WebServiceError} from '../../core/WebServiceError';
+import {loggerService} from '../../logger/loggerService';
 import {Reply, Request} from '../../types';
 import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
+import {AuthOptions} from '../common/method/AuthOptions';
 
 const accepts = _accepts;
 const flatstr = _flatstr;
@@ -74,7 +76,7 @@ export class Wireup {
      */
     public static getAuthorizationHandler(container: Container, endpoint: WireupEndpoint) {
 
-        function sendUnauthorized(reply: Reply, reason: Error | string) {
+        function sendUnauthorized(reply: Reply, reason: Error | string | { [key: string]: Error }) {
             const body = {reason};
             reply.status(401).send(body);
         }
@@ -83,13 +85,12 @@ export class Wireup {
             return;
         }
 
-        const normalizedAuthOptions = AuthUtil.normalizeAuthOptions(endpoint.methodOptions.auth);
-        const providersByScheme = AuthUtil.getAuthProvidersByScheme(container, normalizedAuthOptions);
+        const authOptions = AuthUtil.normalizeAuthOptions(endpoint.methodOptions.auth);
+        const authProviders = AuthUtil.getAuthProviders(container, authOptions);
 
-        return (request: Request, reply: Reply, done) => {
+        return async (request: Request, reply: Reply, done) => {
 
             let token;
-
             try {
                 token = AuthUtil.parseAuthorizationHeader(request);
             } catch (err) {
@@ -98,29 +99,27 @@ export class Wireup {
                 return;
             }
 
-            if (!token || !token.scheme) {
-                sendUnauthorized(reply, 'Authorization header is undefined or invalid');
-                done();
-                return;
+            let user: Principal;
+            let options: AuthOptions;
+            const errors: { [providerName: string]: Error } = {};
+            for (const a of authProviders) {
+                try {
+                    user = await a.provider.authenticate(request, token, a.options);
+                    options = a.options;
+                    break;
+                } catch (err) {
+                    errors[a.options.providerName] = err;
+                    request.log.warn('Cannot authenticate using authenticator', a.options.providerName);
+                }
             }
 
-            const auth = providersByScheme[token.scheme.toLowerCase()];
+            if (user) {
+                if (options.role && !request.user.hasRole(options.role)) {
+                    sendUnauthorized(reply, `User should have role <${options.role}>`);
+                }
 
-            if (!auth || !auth.provider) {
-                sendUnauthorized(reply, 'Authorization provider is undefined');
-                done();
-                return;
-            }
-
-            try {
-                request.user = auth.provider.authenticate(token, auth.options);
-                request.log.info({login: request.user.login}, 'authenticated successfully');
-            } catch (err) {
-                sendUnauthorized(reply, err);
-            }
-
-            if (auth.options.role && !request.user.hasRole(auth.options.role)) {
-                sendUnauthorized(reply, `User should have a role <${auth.options.role}>`);
+            } else {
+                sendUnauthorized(reply, errors);
             }
 
             done();
@@ -186,8 +185,10 @@ export class Wireup {
                 instance.route({
                     handler: Wireup.getHandler(endpoint),
                     method: endpoint.methodOptions.method,
+                    onRequest: [
+                        Wireup.getAuthorizationHandler(opts.container, endpoint)]
+                        .filter((handler) => handler !== undefined),
                     preHandler: [
-                        Wireup.getAuthorizationHandler(opts.container, endpoint),
                         Wireup.getSerializerHandler()]
                         .filter((handler) => handler !== undefined),
                     url: endpoint.url,

@@ -1,6 +1,7 @@
 import {Token} from 'auth-header';
 import {environment} from '../core/environment';
 import {AuthOptions} from '../plugins/common/method/AuthOptions';
+import {Request} from '../types';
 import {AuthProvider} from './AuthProvider';
 import {Principal} from './Principal';
 
@@ -26,11 +27,15 @@ export class BasicAuthProvider extends AuthProvider {
 
     /**
      * Authenticate
-     * @param {Token} token
-     * @param {AuthOptions} options
-     * @returns {Principal}
+     * @param request
+     * @param token
+     * @param options
      */
-    public authenticate(token: Token, options: AuthOptions): Principal {
+    public async authenticate(request: Request, token: Token, options: AuthOptions): Promise<Principal> {
+
+        if (!token || !token.scheme || token.scheme.toLowerCase() !== 'basic') {
+            throw new Error('Basic auth: authorization scheme should be \'basic\'');
+        }
 
         const decoded = Buffer.from(token.token.toString(), 'base64')
             .toString('ascii');
@@ -42,7 +47,7 @@ export class BasicAuthProvider extends AuthProvider {
         const userOptions = this.options[login];
 
         if (!userOptions || userOptions.password !== password) {
-            throw new Error('bad credentials');
+            throw new Error('Basic auth: bad credentials');
         }
 
         return this.provideUser(login, userOptions, token);
@@ -63,14 +68,6 @@ export class BasicAuthProvider extends AuthProvider {
             roles: userOptions.roles,
             token,
         });
-    }
-
-    /**
-     * Get authentication scheme
-     * @returns {string}
-     */
-    public getScheme(): string {
-        return 'basic';
     }
 }
 
