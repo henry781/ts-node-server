@@ -164,8 +164,6 @@ export class SwaggerGenerator {
                 };
                 configuration = merge(configuration, authConfiguration);
 
-            } else {
-                throw new Error('swagger generator cannot implement authentication');
             }
         });
 
