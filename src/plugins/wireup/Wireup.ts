@@ -88,14 +88,13 @@ export class Wireup {
         const authOptions = AuthUtil.normalizeAuthOptions(endpoint.methodOptions.auth);
         const authProviders = AuthUtil.getAuthProviders(container, authOptions);
 
-        return async (request: Request, reply: Reply, done) => {
+        return async (request: Request, reply: Reply) => {
 
             let token;
             try {
                 token = AuthUtil.parseAuthorizationHeader(request);
             } catch (err) {
                 sendUnauthorized(reply, err);
-                done();
                 return;
             }
 
@@ -124,7 +123,6 @@ export class Wireup {
                 sendUnauthorized(reply, errors);
             }
 
-            done();
             return;
         };
     }

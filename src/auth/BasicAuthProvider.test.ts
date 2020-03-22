@@ -30,7 +30,7 @@ describe('BasicAuthProvider', () => {
                 await provider.authenticate({} as Request, undefined, {});
                 chai.expect.fail();
             } catch (err) {
-                chai.expect(err.message).equal('Basic auth: authorization scheme should be \'basic\'');
+                chai.expect(err.message).equal('Authorization header is missing');
             }
         });
 
@@ -51,7 +51,7 @@ describe('BasicAuthProvider', () => {
                 await provider.authenticate({} as Request, token, {});
                 chai.expect.fail();
             } catch (err) {
-                chai.expect(err.message).equal('Basic auth: authorization scheme should be \'basic\'');
+                chai.expect(err.message).equal('Authorization scheme should be \'basic\'');
             }
         });
 
@@ -72,7 +72,7 @@ describe('BasicAuthProvider', () => {
                 await provider.authenticate({} as Request, token, {});
                 chai.expect.fail();
             } catch (err) {
-                chai.expect(err.message).equal('Basic auth: bad credentials');
+                chai.expect(err.message).equal('Bad credentials');
             }
         });
 
@@ -93,7 +93,7 @@ describe('BasicAuthProvider', () => {
                 await provider.authenticate({} as Request, token, {});
                 chai.expect.fail();
             } catch (err) {
-                chai.expect(err.message).equal('Basic auth: bad credentials');
+                chai.expect(err.message).equal('Bad credentials');
             }
         });
 
@@ -114,7 +114,7 @@ describe('BasicAuthProvider', () => {
                 await provider.authenticate({} as Request, token, {});
                 chai.expect.fail();
             } catch (err) {
-                chai.expect(err.message).equal('Basic auth: bad credentials');
+                chai.expect(err.message).equal('Bad credentials');
             }
         });
 

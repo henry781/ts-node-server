@@ -36,8 +36,12 @@ export class JwtAuthProvider extends AuthProvider {
      */
     public async authenticate(request: Request, token: Token, options: AuthOptions): Promise<Principal> {
 
-        if (!token || !token.scheme || token.scheme.toLowerCase() !== 'bearer') {
-            throw new Error('Jwt auth: authorization scheme should be \'bearer\'');
+        if (!token) {
+            throw new Error('Authorization header is missing');
+        }
+
+        if (!token.scheme || token.scheme.toLowerCase() !== 'bearer') {
+            throw new Error('Authorization scheme should be \'bearer\'');
         }
 
         const jwtToken = Array.isArray(token.token) ? token.token[0] : token.token;

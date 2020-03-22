@@ -31,7 +31,7 @@ describe('JwtAuthProvider', () => {
                 await provider.authenticate({} as Request, undefined, {});
                 chai.expect.fail();
             } catch (err) {
-                chai.expect(err.message).equal('Jwt auth: authorization scheme should be \'bearer\'');
+                chai.expect(err.message).equal('Authorization header is missing');
             }
         });
 
@@ -52,7 +52,7 @@ describe('JwtAuthProvider', () => {
                 await provider.authenticate({} as Request, token, {});
                 chai.expect.fail();
             } catch (err) {
-                chai.expect(err.message).equal('Jwt auth: authorization scheme should be \'bearer\'');
+                chai.expect(err.message).equal('Authorization scheme should be \'bearer\'');
             }
         });
 

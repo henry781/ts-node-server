@@ -33,8 +33,12 @@ export class BasicAuthProvider extends AuthProvider {
      */
     public async authenticate(request: Request, token: Token, options: AuthOptions): Promise<Principal> {
 
-        if (!token || !token.scheme || token.scheme.toLowerCase() !== 'basic') {
-            throw new Error('Basic auth: authorization scheme should be \'basic\'');
+        if (!token) {
+            throw new Error('Authorization header is missing');
+        }
+
+        if (!token.scheme || token.scheme.toLowerCase() !== 'basic') {
+            throw new Error('Authorization scheme should be \'basic\'');
         }
 
         const decoded = Buffer.from(token.token.toString(), 'base64')
@@ -47,7 +51,7 @@ export class BasicAuthProvider extends AuthProvider {
         const userOptions = this.options[login];
 
         if (!userOptions || userOptions.password !== password) {
-            throw new Error('Basic auth: bad credentials');
+            throw new Error('Bad credentials');
         }
 
         return this.provideUser(login, userOptions, token);
