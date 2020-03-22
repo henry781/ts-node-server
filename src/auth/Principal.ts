@@ -1,5 +1,5 @@
 import {Token} from 'auth-header';
-import {arrayOf, jsonObject, jsonProperty} from 'tipify';
+import {any, arrayOf, jsonObject, jsonProperty, keyValueOf} from 'tipify';
 
 @jsonObject()
 export class Principal {
@@ -45,6 +45,13 @@ export class Principal {
         return this._roles;
     }
 
+    @jsonProperty('params', keyValueOf(String, any()))
+    private _params: { [key: string]: any };
+
+    public get params(): { [key: string]: any } {
+        return this._params;
+    }
+
     constructor(options?: PrincipalOptions) {
         if (options) {
             this._login = options.login;
@@ -53,6 +60,7 @@ export class Principal {
             this._firstname = options.firstname;
             this._lastname = options.lastname;
             this._roles = options.roles;
+            this._params = options.params;
 
             if (options.password !== undefined) {
                 const base64Token = Buffer.from(`${this._login}:${options.password}`).toString('base64');
@@ -83,4 +91,5 @@ export interface PrincipalOptions {
     firstname?: string;
     lastname?: string;
     roles?: string[];
+    params?: { [key: string]: any };
 }
