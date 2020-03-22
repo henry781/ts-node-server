@@ -1,8 +1,8 @@
 import * as inspector from 'inspector';
 import {decorate} from 'inversify';
 import {Logger} from 'pino';
-import {loggerService} from '../logger/loggerService';
 import {WebServiceError} from '../core/WebServiceError';
+import {loggerService} from '../logger/loggerService';
 import {AuthOptions, controller, httpPut, pathParam, queryParam} from '../plugins/common/api';
 
 @controller('/admin')

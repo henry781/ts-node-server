@@ -10,11 +10,11 @@ import {AdminController, AdminOptions} from '../admin/AdminController';
 import {AuthProvider, BasicAuthProvider, BasicAuthProviderOptions, JwtAuthProvider, JwtAuthProviderOptions} from '../auth/api';
 import {Healthcheck, HealthcheckController} from '../healthcheck/api';
 import {loggerContextMiddleware} from '../logger/api';
+import {loggerService} from '../logger/loggerService';
 import {MongoHealthcheck, MongoOptions, MongoService} from '../mongo/api';
 import {Controller, OpenApiConf, SwaggerGenerator, Wireup} from '../plugins/api';
 import {Instance, types} from '../types';
 import {environment} from './environment';
-import {loggerService} from '../logger/loggerService';
 
 const fastify = _fastify;
 
