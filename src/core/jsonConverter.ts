@@ -1,3 +1,3 @@
 import {JsonConverter as Converter} from 'tipify';
 
-export const jsonConverter = new Converter({tryParse: true, keepObjectFieldValues: true});
+export const jsonConverter = new Converter({unsafe: true}, {tryParse: true, keepObjectFieldValues: true});
