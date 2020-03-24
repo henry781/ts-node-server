@@ -1,13 +1,12 @@
 import {
-    ArrayConverter,
-    ArrayConverterOptions,
-    BooleanConverter,
-    JsonConverterMapper,
-    normalizeConverter,
-    NumberConverter,
-    ObjectConverter,
-    ObjectConverterOptions,
-    StringConverter,
+    arrayConverter,
+    ArrayConverterArgs,
+    booleanConverter,
+    JsonConverterMapper, normalizeConverterAndArgs,
+    numberConverter,
+    objectConverter,
+    ObjectConverterArgs,
+    stringConverter,
     TypeOrConverter,
 } from 'tipify';
 import {OpenApiSchema} from './models/OpenApiSchema';
@@ -17,27 +16,27 @@ export class SwaggerTipifyUtil {
     public static buildOpenApiSchema(type: TypeOrConverter,
                                      schemas: { [name: string]: OpenApiSchema }): OpenApiSchema {
 
-        const c = normalizeConverter(type);
+        const c = normalizeConverterAndArgs(type);
 
-        if (c.converter === StringConverter) {
+        if (c.converter === stringConverter) {
             return {type: 'string'};
 
-        } else if (c.converter === NumberConverter) {
+        } else if (c.converter === numberConverter) {
             return {type: 'number'};
 
-        } else if (c.converter === BooleanConverter) {
+        } else if (c.converter === booleanConverter) {
             return {type: 'boolean'};
 
-        } else if (c.converter === ArrayConverter) {
-            const itemConverterDefinition = normalizeConverter((c.options as ArrayConverterOptions).itemConverter);
+        } else if (c.converter === arrayConverter) {
+            const itemConverterDefinition = normalizeConverterAndArgs((c.args as ArrayConverterArgs).itemConverter);
             return {
                 items: SwaggerTipifyUtil.buildOpenApiSchema(itemConverterDefinition, schemas),
                 type: 'array',
             };
 
-        } else if (c.converter === ObjectConverter) {
+        } else if (c.converter === objectConverter) {
 
-            const objectType = (c.options as ObjectConverterOptions).type;
+            const objectType = (c.args as ObjectConverterArgs).type;
             const mapping = JsonConverterMapper.getMappingForType(objectType);
 
             if (mapping) {
@@ -67,7 +66,7 @@ export class SwaggerTipifyUtil {
 
                     for (const property of mapping.properties) {
                         schema.properties[property.serializedName] = SwaggerTipifyUtil.buildOpenApiSchema(
-                            property.converterWithOptions,
+                            {converter: property.converter, args: property.args},
                             schemas);
                     }
                 }
