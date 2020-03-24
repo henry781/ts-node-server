@@ -2,7 +2,8 @@ import {
     arrayConverter,
     ArrayConverterArgs,
     booleanConverter,
-    JsonConverterMapper, normalizeConverterAndArgs,
+    JsonConverterMapper,
+    normalizeConverterAndArgs,
     numberConverter,
     objectConverter,
     ObjectConverterArgs,
@@ -28,6 +29,10 @@ export class SwaggerTipifyUtil {
             return {type: 'boolean'};
 
         } else if (c.converter === arrayConverter) {
+            if (!c.args) {
+                return {type: 'array'};
+            }
+
             const itemConverterDefinition = normalizeConverterAndArgs((c.args as ArrayConverterArgs).itemConverter);
             return {
                 items: SwaggerTipifyUtil.buildOpenApiSchema(itemConverterDefinition, schemas),
@@ -36,46 +41,48 @@ export class SwaggerTipifyUtil {
 
         } else if (c.converter === objectConverter) {
 
+            if (!c.args) {
+                return {type: 'object'};
+            }
+
             const objectType = (c.args as ObjectConverterArgs).type;
             const mapping = JsonConverterMapper.getMappingForType(objectType);
 
-            if (mapping) {
-
-                if (!schemas[mapping.type.name]) {
-
-                    const schema: OpenApiSchema = {
-                        properties: {},
-                        type: 'object',
-                    };
-
-                    if (!mapping.parent) {
-                        schemas[mapping.type.name] = schema;
-
-                    } else {
-                        const parent = mapping.parent.type;
-                        schemas[mapping.type.name] = {
-                            allOf: [
-                                {
-                                    $ref: `#/components/schemas/${parent.name}`,
-                                },
-                                schema,
-                            ],
-                        };
-                        SwaggerTipifyUtil.buildOpenApiSchema(parent, schemas);
-                    }
-
-                    for (const property of mapping.properties) {
-                        schema.properties[property.serializedName] = SwaggerTipifyUtil.buildOpenApiSchema(
-                            {converter: property.converter, args: property.args},
-                            schemas);
-                    }
-                }
-
-                return {$ref: `#/components/schemas/${objectType.name}`};
-
-            } else {
+            if (!mapping) {
                 return {type: 'object'};
             }
+
+            if (!schemas[mapping.type.name]) {
+
+                const schema: OpenApiSchema = {
+                    properties: {},
+                    type: 'object',
+                };
+
+                if (!mapping.parent) {
+                    schemas[mapping.type.name] = schema;
+
+                } else {
+                    const parent = mapping.parent.type;
+                    schemas[mapping.type.name] = {
+                        allOf: [
+                            {
+                                $ref: `#/components/schemas/${parent.name}`,
+                            },
+                            schema,
+                        ],
+                    };
+                    SwaggerTipifyUtil.buildOpenApiSchema(parent, schemas);
+                }
+
+                for (const property of mapping.properties) {
+                    schema.properties[property.serializedName] = SwaggerTipifyUtil.buildOpenApiSchema(
+                        {converter: property.converter, args: property.args},
+                        schemas);
+                }
+            }
+
+            return {$ref: `#/components/schemas/${objectType.name}`};
         }
     }
 
