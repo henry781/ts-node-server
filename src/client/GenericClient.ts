@@ -9,7 +9,7 @@ import {getLogger, getReqId} from '../logger/loggerService';
 import {GenericClientError} from './GenericClientError';
 
 @injectable()
-export abstract class GenericClient {
+export class GenericClient {
 
     protected request = _request;
 
@@ -24,7 +24,7 @@ export abstract class GenericClient {
      * @param uri
      * @param options
      */
-    protected get<T>(uri: string, options: RequestOptions<T>): Promise<T> {
+    public get<T>(uri: string, options: RequestOptions<T>): Promise<T> {
         return this.http(uri, options, 'get');
     }
 
@@ -33,7 +33,7 @@ export abstract class GenericClient {
      * @param uri
      * @param options
      */
-    protected post<T>(uri: string, options: RequestOptions<T>): Promise<T> {
+    public post<T>(uri: string, options: RequestOptions<T>): Promise<T> {
         return this.http(uri, options, 'post');
     }
 
@@ -42,7 +42,7 @@ export abstract class GenericClient {
      * @param uri
      * @param options
      */
-    protected delete<T>(uri: string, options: RequestOptions<T>): Promise<T> {
+    public delete<T>(uri: string, options: RequestOptions<T>): Promise<T> {
         return this.http(uri, options, 'delete');
     }
 
@@ -51,7 +51,7 @@ export abstract class GenericClient {
      * @param uri
      * @param options
      */
-    protected put<T>(uri: string, options: RequestOptions<T>): Promise<T> {
+    public put<T>(uri: string, options: RequestOptions<T>): Promise<T> {
         return this.http(uri, options, 'put');
     }
 
@@ -60,8 +60,59 @@ export abstract class GenericClient {
      * @param uri
      * @param options
      */
-    protected patch<T>(uri: string, options: RequestOptions<T>): Promise<T> {
+    public patch<T>(uri: string, options: RequestOptions<T>): Promise<T> {
         return this.http(uri, options, 'patch');
+    }
+
+    /**
+     * Http request
+     * @param uri
+     * @param options
+     * @param method
+     */
+    public http<T>(uri: string, options: RequestOptions<T>, method: string): Promise<T> {
+
+        const logger = getLogger('http', this);
+
+        logger.debug(`requesting <${uri}>`);
+        const httpOptions = this.buildHttpOptions(options, method);
+
+        return new Promise((resolve, reject) => {
+            this.request(uri, httpOptions, (err, response, body) => {
+
+                if (err) {
+                    logger.error(`error calling <${uri}> :`, err);
+                    const error = new GenericClientError(`error calling <${uri}>`, 500, err, response, body);
+                    reject(error);
+
+                } else {
+
+                    logger.debug(`request on <${uri}> complete`);
+                    if (response.statusCode !== options.expectedStatus) {
+                        const msg = `expecting status <${options.expectedStatus}> calling <${uri}>, got <${response.statusCode}>`;
+                        logger.error(msg);
+                        logger.debug('got body', body);
+                        const error = new GenericClientError(msg, 500, undefined, response, body);
+                        reject(error);
+
+                    } else {
+
+                        if (options.deserializer === false) {
+                            resolve(body);
+
+                        } else if (typeof (options.deserializer) === 'function') {
+                            resolve(options.deserializer(body));
+
+                        } else if (options.deserializeType) {
+                            resolve(jsonConverter.deserialize(body, options.deserializeType));
+
+                        } else {
+                            resolve();
+                        }
+                    }
+                }
+            });
+        });
     }
 
     /**
@@ -115,57 +166,6 @@ export abstract class GenericClient {
 
         return httpOptions;
     }
-
-    /**
-     * Http request
-     * @param uri
-     * @param options
-     * @param method
-     */
-    protected http<T>(uri: string, options: RequestOptions<T>, method: string): Promise<T> {
-
-        const logger = getLogger('http', this);
-
-        logger.debug(`requesting <${uri}>`);
-        const httpOptions = this.buildHttpOptions(options, method);
-
-        return new Promise((resolve, reject) => {
-            this.request(uri, httpOptions, (err, response, body) => {
-
-                if (err) {
-                    logger.error(`error calling <${uri}> :`, err);
-                    const error = new GenericClientError(`error calling <${uri}>`, 500, err, response, body);
-                    reject(error);
-
-                } else {
-
-                    logger.debug(`request on <${uri}> complete`);
-                    if (response.statusCode !== options.expectedStatus) {
-                        const msg = `expecting status <${options.expectedStatus}> calling <${uri}>, got <${response.statusCode}>`;
-                        logger.error(msg);
-                        logger.debug('got body', body);
-                        const error = new GenericClientError(msg, 500, undefined, response, body);
-                        reject(error);
-
-                    } else {
-
-                        if (options.deserializer === false) {
-                            resolve(body);
-
-                        } else if (typeof (options.deserializer) === 'function') {
-                            resolve(options.deserializer(body));
-
-                        } else if (options.deserializeType) {
-                            resolve(jsonConverter.deserialize(body, options.deserializeType));
-
-                        } else {
-                            resolve();
-                        }
-                    }
-                }
-            });
-        });
-    }
 }
 
 type converter = (obj: any) => any;
@@ -181,3 +181,5 @@ export interface RequestOptions<T> {
     expectedStatus?: number;
     deserializeType?: any;
 }
+
+export const genericClient = new GenericClient();
