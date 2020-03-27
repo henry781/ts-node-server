@@ -9,7 +9,7 @@ import {getLogger, getReqId} from '../logger/loggerService';
 import {GenericClientError} from './GenericClientError';
 
 @injectable()
-export abstract class GenericClient {
+export class GenericClient {
 
     protected request = _request;
 
@@ -181,3 +181,5 @@ export interface RequestOptions<T> {
     expectedStatus?: number;
     deserializeType?: any;
 }
+
+export const genericClient = new GenericClient();

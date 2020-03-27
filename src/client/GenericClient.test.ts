@@ -11,21 +11,10 @@ describe('GenericClient', () => {
 
     const sandbox = sinon.createSandbox();
 
-    class FinalClient extends GenericClient {
-        public request = super.request;
-        public get = super.get;
-        public post = super.post;
-        public delete = super.delete;
-        public put = super.put;
-        public patch = super.patch;
-        public http = super.http;
-        public buildHttpOptions = super.buildHttpOptions;
-    }
-
-    let genericClient: FinalClient;
+    let genericClient: GenericClient;
 
     beforeEach(() => {
-        genericClient = new FinalClient();
+        genericClient = new GenericClient();
         sandbox.restore();
     });
 
