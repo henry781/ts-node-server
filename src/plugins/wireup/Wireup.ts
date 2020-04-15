@@ -113,11 +113,11 @@ export class Wireup {
             }
 
             if (user) {
-                if (options.role && !request.user.hasRole(options.role)) {
+                if (options.role && !user.hasRole(options.role)) {
                     sendUnauthorized(reply, `User should have role <${options.role}>`);
                 }
                 request.user = user;
-                request.log.info({login: request.user.login}, 'authenticated successfully');
+                request.log.info({login: user.login}, 'authenticated successfully');
 
             } else {
                 sendUnauthorized(reply, errors);
