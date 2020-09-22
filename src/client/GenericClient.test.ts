@@ -3,7 +3,7 @@ import {CoreOptions} from 'request';
 import * as sinon from 'sinon';
 import {jsonObject, jsonProperty} from 'tipify';
 import {Principal} from '../auth/Principal';
-import * as loggerService from '../core/loggerService';
+import * as loggerService from '../logger/loggerService';
 import {GenericClient, RequestOptions} from './GenericClient';
 import {GenericClientError} from './GenericClientError';
 

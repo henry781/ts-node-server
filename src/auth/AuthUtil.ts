@@ -46,32 +46,15 @@ export class AuthUtil {
         }
     }
 
-    /**
-     * Get auth providers by scheme
-     * @param {Container} container
-     * @param {AuthOptions[]} authOptions
-     * @returns {{[p: string]: {provider: AuthProvider; options: AuthOptions}}}
-     */
-    public static getAuthProvidersByScheme(container: Container, authOptions: AuthOptions[])
-        : {
-        [scheme: string]: {
-            provider: AuthProvider,
-            options: AuthOptions,
-        },
-    } {
+    public static getAuthProviders(container: Container, authOptions: AuthOptions[])
+        : Array<{ provider: AuthProvider, options: AuthOptions }> {
 
-        const result = {};
-
-        for (const a of authOptions) {
-
-            const authProvider = container.getNamed<AuthProvider>(types.AuthProvider, a.providerName);
-
-            result[authProvider.getScheme()] = {
-                options: a,
-                provider: authProvider,
-            };
-        }
-
-        return result;
+        return authOptions.map(
+            (options) => {
+                return {
+                    options,
+                    provider: container.getNamed<AuthProvider>(types.AuthProvider, options.providerName),
+                };
+            });
     }
 }

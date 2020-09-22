@@ -1,19 +1,20 @@
 import * as _fastify from 'fastify';
+import {ServerOptions as FastifyServerOptions} from 'fastify';
 import * as fastifyCompress from 'fastify-compress';
 import * as helmet from 'fastify-helmet';
 import * as fastifyMetrics from 'fastify-metrics';
+import {Container} from 'inversify';
 import {Logger} from 'pino';
 import * as shortid from 'shortid';
-import {AdminController} from '../admin/AdminController';
-import {AuthProvider, BasicAuthProvider, JwtAuthProvider} from '../auth/api';
+import {AdminController, AdminOptions} from '../admin/AdminController';
+import {AuthProvider, BasicAuthProvider, BasicAuthProviderOptions, JwtAuthProvider, JwtAuthProviderOptions} from '../auth/api';
 import {Healthcheck, HealthcheckController} from '../healthcheck/api';
-import {loggerContextMiddleware} from '../middlewares/api';
-import {MongoHealthcheck, MongoService} from '../mongo/api';
-import {Controller, SwaggerGenerator, Wireup} from '../plugins/api';
+import {loggerContextMiddleware} from '../logger/api';
+import {loggerService} from '../logger/loggerService';
+import {MongoHealthcheck, MongoOptions, MongoService} from '../mongo/api';
+import {Controller, OpenApiConf, SwaggerGenerator, Wireup} from '../plugins/api';
 import {Instance, types} from '../types';
 import {environment} from './environment';
-import {loggerService} from './loggerService';
-import {ServerOptions} from './ServerOptions';
 
 const fastify = _fastify;
 
@@ -52,7 +53,8 @@ export class Server {
     public buildInstance(options: ServerOptions) {
 
         options.logger = options.logger || loggerService;
-        options.genReqId = options.genReqId || ((req) => req.headers['request-id'] || shortid.generate());
+        options.genReqId = () => shortid.generate();
+        options.requestIdHeader = 'request-id';
 
         this._instance = fastify(options);
         this._instance.register(helmet);
@@ -122,4 +124,17 @@ export class Server {
     public async listen(port = environment.PORT): Promise<string> {
         return this._instance.listen(port, '0.0.0.0');
     }
+}
+
+export interface ServerOptions extends FastifyServerOptions {
+    container: Container;
+    metrics?: boolean | string;
+    admin?: boolean | AdminOptions;
+    healthcheck?: boolean;
+    swagger?: boolean | OpenApiConf;
+    mongo?: boolean | MongoOptions;
+    auth?: {
+        jwt?: boolean | JwtAuthProviderOptions,
+        basic?: boolean | BasicAuthProviderOptions,
+    };
 }

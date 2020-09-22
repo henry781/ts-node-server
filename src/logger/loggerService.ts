@@ -1,7 +1,7 @@
 import {getNamespace} from 'cls-hooked';
 import * as _pino from 'pino';
 import {Logger, LoggerOptions} from 'pino';
-import {environment} from './environment';
+import {environment} from '../core/environment';
 
 const pino = _pino;
 

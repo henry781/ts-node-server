@@ -2,11 +2,10 @@ import * as chai from 'chai';
 import * as inspector from 'inspector';
 import {Container} from 'inversify';
 import * as sinon from 'sinon';
-import {loggerService} from '../core/loggerService';
+import {loggerService} from '../logger/loggerService';
 import {ControllerTest} from '../test/ControllerTest';
 import {types} from '../types';
-import {AdminController} from './AdminController';
-import {AdminOptions} from './AdminOptions';
+import {AdminController, AdminOptions} from './AdminController';
 
 // tslint:disable-next-line:no-var-requires
 const chaiHttp = require('chai-http');

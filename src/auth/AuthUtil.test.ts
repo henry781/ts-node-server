@@ -3,6 +3,7 @@ import {Container} from 'inversify';
 import * as sinon from 'sinon';
 import {Request, types} from '../types';
 import {AuthUtil} from './AuthUtil';
+import {BasicAuthProvider} from './BasicAuthProvider';
 import {JwtAuthProvider} from './JwtAuthProvider';
 
 /**
@@ -101,30 +102,42 @@ describe('AuthUtil', () => {
     /**
      * getAuthProvidersByScheme
      */
-    describe('getAuthProvidersByScheme', () => {
+    describe('getAuthProviders', () => {
 
         it('should return auth providers by scheme', () => {
 
             const container = new Container();
             const jwtAuthProvider = new JwtAuthProvider();
-            const getNamed = sinon.stub(container, 'getNamed')
-                .withArgs(types.AuthProvider, 'jwt')
+            const basicAuthProvider = new BasicAuthProvider();
+
+            const getNamed = sinon.stub(container, 'getNamed');
+            getNamed.withArgs(types.AuthProvider, 'jwt')
                 .returns(jwtAuthProvider);
+            getNamed.withArgs(types.AuthProvider, 'basic')
+                .returns(basicAuthProvider);
 
             const authOptions = [
                 {
                     providerName: 'jwt',
                     role: ['admin'],
                 },
+                {
+                    providerName: 'basic',
+                    role: ['super-admin'],
+                },
             ];
 
-            const providersByScheme = AuthUtil.getAuthProvidersByScheme(container, authOptions);
+            const providers = AuthUtil.getAuthProviders(container, authOptions);
 
-            chai.expect(getNamed.calledOnce).to.be.true;
-            chai.expect(providersByScheme.bearer)
-                .deep.equal({
+            chai.expect(getNamed.callCount).equal(2);
+            chai.expect(providers).length(2);
+            chai.expect(providers[0]).deep.equal({
                 options: authOptions[0],
                 provider: jwtAuthProvider,
+            });
+            chai.expect(providers[1]).deep.equal({
+                options: authOptions[1],
+                provider: basicAuthProvider,
             });
         });
     });

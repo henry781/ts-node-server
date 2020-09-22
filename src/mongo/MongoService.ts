@@ -11,6 +11,7 @@ import {
     InsertWriteOpResult,
     Logger as MongoLogger,
     MongoClient,
+    MongoClientOptions,
     MongoCountPreferences,
     MongoError,
     ReplaceOneOptions,
@@ -20,10 +21,11 @@ import {
     UpdateWriteOpResult,
 } from 'mongodb';
 import {Logger} from 'pino';
-import {JsonConverter} from '../json/JsonConverter';
+import {arrayOf} from 'tipify';
+import {environment} from '../core/environment';
+import {jsonConverter} from '../core/jsonConverter';
 import {types} from '../types';
 import {MONGO_COLLECTION} from './collection.decorator';
-import {DEFAULT_MONGO_OPTIONS, MongoOptions} from './MongoOptions';
 
 export interface MongoIsMasterResult {
     ismaster: boolean;
@@ -134,7 +136,7 @@ export class MongoService {
 
         return this.doAction(
             () => this._db.collection(collection).findOne(query, options))
-            .then((json) => JsonConverter.deserialize<T>(json, type));
+            .then((json) => jsonConverter.deserialize<T>(json, type));
     }
 
     /**
@@ -145,7 +147,7 @@ export class MongoService {
      */
     public insertOne(obj: any, options?: CollectionInsertOneOptions): Promise<InsertOneWriteOpResult<any>> {
 
-        const json = JsonConverter.serialize(obj);
+        const json = jsonConverter.serialize(obj);
         const collection = MongoService.getCollection(obj);
 
         return this.doAction(
@@ -161,7 +163,7 @@ export class MongoService {
      */
     public insertMany(type: any, obj: any, options?: CollectionInsertManyOptions): Promise<InsertWriteOpResult<any>> {
 
-        const json = JsonConverter.serialize(obj);
+        const json = jsonConverter.serialize(obj);
         const collection = MongoService.getCollectionForType(type);
 
         return this.doAction(
@@ -196,7 +198,7 @@ export class MongoService {
 
                 return cursor.toArray();
             })
-            .then((json) => JsonConverter.deserialize<T[]>(json, [type]));
+            .then((json) => jsonConverter.deserialize<T[]>(json, arrayOf(type)));
     }
 
     /**
@@ -220,7 +222,7 @@ export class MongoService {
 
                 return cursor.toArray();
             })
-            .then((json) => outputType ? JsonConverter.deserialize<T[]>(json, [outputType]) : json);
+            .then((json) => outputType ? jsonConverter.deserialize<T[]>(json, arrayOf(outputType)) : json);
     }
 
     /**
@@ -270,7 +272,7 @@ export class MongoService {
     public replaceOne(type: any, query: object = {}, obj: object = {}, options?: ReplaceOneOptions): Promise<ReplaceWriteOpResult> {
 
         const collection = MongoService.getCollectionForType(type);
-        const document = JsonConverter.serialize(obj);
+        const document = jsonConverter.serialize(obj);
 
         return this.doAction(
             () => this._db.collection(collection).replaceOne(query, document, options));
@@ -326,4 +328,20 @@ export class MongoService {
     public close() {
         return this.client.close();
     }
+}
+
+export const DEFAULT_MONGO_OPTIONS: MongoOptions = {
+    client: {
+        reconnectInterval: 1000,
+        reconnectTries: 60,
+        useNewUrlParser: true,
+    },
+    dbName: environment.MONGO_DB,
+    uri: environment.MONGO_URL,
+};
+
+export interface MongoOptions {
+    uri?: string;
+    dbName?: string;
+    client?: MongoClientOptions;
 }

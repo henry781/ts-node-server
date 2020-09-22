@@ -77,7 +77,8 @@ describe('Wireup', () => {
             chai.expect(route.calledWith({
                 handler,
                 method: 'GET',
-                preHandler: [getAuthorizationHandler, getSerializerHandler],
+                onRequest: [getAuthorizationHandler],
+                preHandler: [getSerializerHandler],
                 url: '/a',
             })).to.be.true;
         });

@@ -2,6 +2,7 @@ import {Token} from 'auth-header';
 import * as jwt from 'jsonwebtoken';
 import {environment} from '../core/environment';
 import {AuthOptions} from '../plugins/common/method/AuthOptions';
+import {Request} from '../types';
 import {AuthProvider} from './AuthProvider';
 import {Principal} from './Principal';
 
@@ -28,20 +29,21 @@ export class JwtAuthProvider extends AuthProvider {
     }
 
     /**
-     * Get scheme
-     * @returns {string}
-     */
-    public getScheme() {
-        return 'bearer';
-    }
-
-    /**
      * Authenticate
-     * @param {Token} token
-     * @param {AuthOptions} options
-     * @returns {Principal}
+     * @param request
+     * @param token
+     * @param options
      */
-    public authenticate(token: Token, options: AuthOptions): Principal {
+    public async authenticate(request: Request, token: Token, options: AuthOptions): Promise<Principal> {
+
+        if (!token) {
+            throw new Error('Authorization header is missing');
+        }
+
+        if (!token.scheme || token.scheme.toLowerCase() !== 'bearer') {
+            throw new Error('Authorization scheme should be \'bearer\'');
+        }
+
         const jwtToken = Array.isArray(token.token) ? token.token[0] : token.token;
         const decodedToken = jwt.verify(jwtToken, this._certificate) as object;
         return this.provideUser(decodedToken, token);
