@@ -7,4 +7,5 @@ export interface GenericMethodOptions {
     options?: RouteShorthandOptions;
     swagger?: OpenApiMethod;
     auth?: string | string[] | { [provider: string]: AuthOptions };
+    views?: { [name: string]: (data: any) => any };
 }

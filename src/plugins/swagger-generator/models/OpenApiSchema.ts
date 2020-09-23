@@ -1,6 +1,6 @@
 export interface OpenApiSchema {
 
-    type?: 'object' | 'array' | 'string' | 'number' | 'integer' | 'boolean';
+    type?: 'object' | 'array' | 'string' | 'number' | 'integer' | 'boolean' | 'enum';
 
     required?: string[];
 
@@ -13,4 +13,6 @@ export interface OpenApiSchema {
     allOf?: Array<{ $ref: string } | OpenApiSchema>;
 
     items?: OpenApiSchema;
+
+    enum?: string[];
 }

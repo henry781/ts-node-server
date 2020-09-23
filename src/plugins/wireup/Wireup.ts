@@ -4,11 +4,12 @@ import {FastifyInstance} from 'fastify';
 import * as _flatstr from 'flatstr';
 import {Container} from 'inversify';
 import * as _yaml from 'js-yaml';
+import {isNullOrUndefined} from 'tipify';
 import {AuthUtil} from '../../auth/AuthUtil';
 import {Principal} from '../../auth/Principal';
 import {jsonConverter} from '../../core/jsonConverter';
 import {WebServiceError} from '../../core/WebServiceError';
-import {loggerService} from '../../logger/loggerService';
+import {getReqId, loggerService} from '../../logger/loggerService';
 import {Reply, Request} from '../../types';
 import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
 import {AuthOptions} from '../common/method/AuthOptions';
@@ -60,9 +61,20 @@ export class Wireup {
 
             return endpoint.controller[endpoint.method].apply(endpoint.controller, args)
                 .then((result) => {
-                    if (!reply.sent && result === undefined) {
-                        reply.status(204);
+                    if (!reply.sent) {
+                        const reqId = getReqId();
+                        reply.header('request-id', reqId);
+                        if (isNullOrUndefined(result)) {
+                            reply.status(204);
+                        }
                     }
+
+                    const view = request.query.view;
+                    const views = endpoint.methodOptions.views;
+                    if (view && view !== 'DEFAULT' && views && views[view]) {
+                        return views[view](result);
+                    }
+
                     return result;
                 });
         };

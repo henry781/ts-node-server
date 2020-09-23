@@ -324,6 +324,17 @@ export class SwaggerGenerator {
             configuration = SwaggerGenerator.buildConfigurationForParameter(configuration, endpointConfiguration, param);
         });
 
+        if (endpoint.methodOptions.views) {
+            endpointConfiguration.parameters.push({
+                in: 'query',
+                name: 'view',
+                schema: {
+                    enum: ['DEFAULT', ...Object.keys(endpoint.methodOptions.views)],
+                    type: 'enum',
+                },
+            });
+        }
+
         if (endpoint.methodOptions.swagger) {
             logger.trace('merging endpoint configuration with user defined configuration');
             configuration.paths[url][method] = merge(configuration.paths[url][method], endpoint.methodOptions.swagger);
