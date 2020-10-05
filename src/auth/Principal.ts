@@ -46,9 +46,9 @@ export class Principal {
     }
 
     @jsonProperty('params', keyValueOf(String, any()))
-    private _params: { [key: string]: any };
+    private _params: PrincipalParams;
 
-    public get params(): { [key: string]: any } {
+    public get params(): PrincipalParams {
         return this._params;
     }
 
@@ -91,5 +91,9 @@ export interface PrincipalOptions {
     firstname?: string;
     lastname?: string;
     roles?: string[];
-    params?: { [key: string]: any };
+    params?: PrincipalParams;
+}
+
+export interface PrincipalParams {
+    clientHeaders: { [key: string]: string };
 }

@@ -149,6 +149,13 @@ export class GenericClient {
             httpOptions.headers.Authorization = authHeader.format(options.principal.token as TokenOptions);
         }
 
+        if (options.principal && options.principal.params && options.principal.params.clientHeaders) {
+            httpOptions.headers = {
+                ...options.principal.params.clientHeaders,
+                ...httpOptions.headers,
+            };
+        }
+
         if (options.body) {
             logger.debug('setting body');
 
