@@ -96,4 +96,6 @@ export interface PrincipalOptions {
 
 export interface PrincipalParams {
     clientHeaders: { [key: string]: string };
+
+    [key: string]: object;
 }
