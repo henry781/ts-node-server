@@ -1,13 +1,16 @@
 import * as authHeader from 'auth-header';
 import {TokenOptions} from 'auth-header';
 import {injectable} from 'inversify';
-import * as _request from 'request';
+import  _request from 'request';
 import {CoreOptions} from 'request';
 import {Principal} from '../auth/Principal';
 import {jsonConverter} from '../core/jsonConverter';
 import {getLogger, getReqId} from '../logger/loggerService';
 import {GenericClientError} from './GenericClientError';
 
+/**
+ * @deprecated Use SimpleClient instead
+ */
 @injectable()
 export class GenericClient {
 

@@ -20,8 +20,8 @@ export class AuthUtil {
 
     /**
      * Normalize auth options
-     * @param {string | string[] | {[p: string]: AuthOptions}} authOptions
      * @returns {AuthOptions[]}
+     * @param authOptions
      */
     public static normalizeAuthOptions(
         authOptions: string
@@ -32,9 +32,7 @@ export class AuthUtil {
             return [{providerName: authOptions}];
 
         } else if (Array.isArray(authOptions)) {
-            return authOptions.map((a) => {
-                return {providerName: a};
-            });
+            return authOptions.map((a) => ({providerName: a}));
 
         } else {
 
@@ -47,14 +45,12 @@ export class AuthUtil {
     }
 
     public static getAuthProviders(container: Container, authOptions: AuthOptions[])
-        : Array<{ provider: AuthProvider, options: AuthOptions }> {
+        : { provider: AuthProvider, options: AuthOptions }[] {
 
         return authOptions.map(
-            (options) => {
-                return {
-                    options,
-                    provider: container.getNamed<AuthProvider>(types.AuthProvider, options.providerName),
-                };
-            });
+            (options) => ({
+                options,
+                provider: container.getNamed<AuthProvider>(types.AuthProvider, options.providerName),
+            }));
     }
 }

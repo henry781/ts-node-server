@@ -15,6 +15,7 @@
     "noImplicitAny": false,
     "removeComments": true,
     "preserveConstEnums": true,
+    "esModuleInterop": true,
     "sourceMap": true,
     "declaration": true,
     "rootDir": "src/"

@@ -1,14 +1,14 @@
 import * as chai from 'chai';
-import * as inspector from 'inspector';
+import inspector from 'inspector';
 import {Container} from 'inversify';
 import * as sinon from 'sinon';
 import {loggerService} from '../logger/loggerService';
 import {ControllerTest} from '../test/ControllerTest';
 import {types} from '../types';
 import {AdminController, AdminOptions} from './AdminController';
-
-// tslint:disable-next-line:no-var-requires
-const chaiHttp = require('chai-http');
+// @ts-ignore
+import chaiHttp = require('chai-http');
+import { request, expect } from 'chai';
 
 chai.use(chaiHttp);
 
@@ -33,24 +33,24 @@ describe('AdminController', () => {
     describe('setLoggingLevel', () => {
 
         it('should throw an error when level is unknown', async () => {
-            const response = await chai.request(test.server)
+            const response = await request(test.server)
                 .put('/admin/logging/level/TEST')
                 .send();
-            chai.expect(response.status).equal(400);
+            expect(response.status).equal(400);
         });
 
         it('should set level', async () => {
 
             loggerService.level = 'debug';
-            chai.expect(loggerService.level).equal('debug');
+            expect(loggerService.level).equal('debug');
 
-            const response = await chai.request(test.server)
+            const response = await request(test.server)
                 .put('/admin/logging/level/trace')
                 .send();
 
-            chai.expect(loggerService.level).equal('trace');
+            expect(loggerService.level).equal('trace');
 
-            chai.expect(response.status).equal(204);
+            expect(response.status).equal(204);
         });
     });
 
@@ -69,14 +69,14 @@ describe('AdminController', () => {
                 .withArgs()
                 .returns('http//inspector');
 
-            const response = await chai.request(test.server)
+            const response = await request(test.server)
                 .put('/admin/inspector/enabled')
                 .send();
 
-            chai.expect(response.status).equal(200);
-            chai.expect(response.body.url).equal('http//inspector');
-            chai.expect(open.calledOnce).to.be.true;
-            chai.expect(url.calledOnce).to.be.true;
+            expect(response.status).equal(200);
+            expect(response.body.url).equal('http//inspector');
+            expect(open.calledOnce).to.be.true;
+            expect(url.calledOnce).to.be.true;
         });
     });
 
@@ -91,12 +91,12 @@ describe('AdminController', () => {
                 .withArgs()
                 .returns(undefined);
 
-            const response = await chai.request(test.server)
+            const response = await request(test.server)
                 .put('/admin/inspector/disabled')
                 .send();
 
-            chai.expect(response.status).equal(204);
-            chai.expect(close.calledOnce).to.be.true;
+            expect(response.status).equal(204);
+            expect(close.calledOnce).to.be.true;
         });
     });
 });

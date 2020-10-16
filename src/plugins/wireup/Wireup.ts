@@ -1,9 +1,9 @@
 import {QuerySearch} from '@henry781/querysearch';
-import * as _accepts from 'accepts';
+import accepts from 'accepts';
 import {FastifyInstance} from 'fastify';
-import * as _flatstr from 'flatstr';
+import flatstr from 'flatstr';
 import {Container} from 'inversify';
-import * as _yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import {isNullOrUndefined} from 'tipify';
 import {AuthUtil} from '../../auth/AuthUtil';
 import {Principal} from '../../auth/Principal';
@@ -13,10 +13,6 @@ import {getReqId, loggerService} from '../../logger/loggerService';
 import {Reply, Request} from '../../types';
 import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
 import {AuthOptions} from '../common/method/AuthOptions';
-
-const accepts = _accepts;
-const flatstr = _flatstr;
-const yaml = _yaml;
 
 /**
  * Wireup plugin
@@ -69,7 +65,7 @@ export class Wireup {
                         }
                     }
 
-                    const view = request.query.view;
+                    const view = request.query.view as string;
                     const views = endpoint.methodOptions.views;
                     if (view && view !== 'DEFAULT' && views && views[view]) {
                         return views[view](result);

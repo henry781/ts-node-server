@@ -6,7 +6,7 @@ export interface OpenApiMethod {
     tags?: string[];
     summary?: string;
     operationId?: string;
-    security?: Array<{ [name: string]: string[] }>;
+    security?: { [name: string]: string[] }[];
     requestBody?: OpenApiRequestBody;
     consumes?: string[];
     produces?: string[];

@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 import {FastifyInstance, RouteOptions} from 'fastify';
 import {Container} from 'inversify';
-import * as pino from 'pino';
+import pino from 'pino';
 import * as sinon from 'sinon';
 import {SinonSandbox} from 'sinon';
 import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';

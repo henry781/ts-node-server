@@ -1,4 +1,4 @@
-import {HTTPMethod} from 'fastify';
+import {HTTPMethods} from 'fastify';
 import 'reflect-metadata';
 import {GenericMethodOptions} from './GenericMethodOptions';
 import {MethodOptions} from './MethodOptions';
@@ -33,7 +33,7 @@ export function httpGet(options?: string | GenericMethodOptions) {
         };
     }
 
-    return http(Object.assign(options, {method: 'GET' as HTTPMethod}));
+    return http(Object.assign(options, {method: 'GET' as HTTPMethods}));
 }
 
 /**
@@ -52,7 +52,7 @@ export function httpPost(options?: string | GenericMethodOptions) {
         };
     }
 
-    return http(Object.assign(options ? options : {}, {method: 'POST' as HTTPMethod}));
+    return http(Object.assign(options ? options : {}, {method: 'POST' as HTTPMethods}));
 }
 
 /**
@@ -71,7 +71,7 @@ export function httpPut(options?: string | GenericMethodOptions) {
         };
     }
 
-    return http(Object.assign(options, {method: 'PUT' as HTTPMethod}));
+    return http(Object.assign(options, {method: 'PUT' as HTTPMethods}));
 }
 
 /**
@@ -90,7 +90,7 @@ export function httpPatch(options?: string | GenericMethodOptions) {
         };
     }
 
-    return http(Object.assign(options, {method: 'PATCH' as HTTPMethod}));
+    return http(Object.assign(options, {method: 'PATCH' as HTTPMethods}));
 }
 
 /**
@@ -109,5 +109,5 @@ export function httpDelete(options?: string | GenericMethodOptions) {
         };
     }
 
-    return http(Object.assign(options, {method: 'DELETE' as HTTPMethod}));
+    return http(Object.assign(options, {method: 'DELETE' as HTTPMethods}));
 }

@@ -20,9 +20,9 @@ export interface OpenApiConf {
         license?: { [name: string]: string },
     };
 
-    servers?: Array<{
+    servers?: {
         url: string,
-    }>;
+    }[];
 
     paths?: { [name: string]: OpenApiPath };
 

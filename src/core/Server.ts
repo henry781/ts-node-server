@@ -1,22 +1,19 @@
-import * as _fastify from 'fastify';
-import {ServerOptions as FastifyServerOptions} from 'fastify';
-import * as fastifyCompress from 'fastify-compress';
-import * as helmet from 'fastify-helmet';
-import * as fastifyMetrics from 'fastify-metrics';
+import fastify, {FastifyServerOptions} from 'fastify';
+import compress from 'fastify-compress';
+import helmet from 'fastify-helmet';
+import fastifyMetrics from 'fastify-metrics';
 import {Container} from 'inversify';
 import {Logger} from 'pino';
 import * as shortid from 'shortid';
 import {AdminController, AdminOptions} from '../admin/AdminController';
 import {AuthProvider, BasicAuthProvider, BasicAuthProviderOptions, JwtAuthProvider, JwtAuthProviderOptions} from '../auth/api';
 import {Healthcheck, HealthcheckController} from '../healthcheck/api';
-import {loggerContextMiddleware} from '../logger/api';
+import {loggerContextPlugin} from '../logger/api';
 import {loggerService} from '../logger/loggerService';
 import {MongoHealthcheck, MongoOptions, MongoService} from '../mongo/api';
 import {Controller, OpenApiConf, SwaggerGenerator, Wireup} from '../plugins/api';
 import {Instance, types} from '../types';
 import {environment} from './environment';
-
-const fastify = _fastify;
 
 export class Server {
 
@@ -57,13 +54,13 @@ export class Server {
         options.requestIdHeader = 'request-id';
 
         this._instance = fastify(options);
-        this._instance.register(helmet);
+        this._instance.register(helmet, {contentSecurityPolicy: false,});
 
-        this._instance.use(loggerContextMiddleware);
+        this._instance.register(loggerContextPlugin);
 
         options.container.bind<Logger>(types.Logger).toConstantValue(this._instance.log);
 
-        this._instance.register(fastifyCompress);
+        this._instance.register(compress);
 
         if (options.healthcheck !== false) {
             options.container.bind<Controller>(types.Controller).to(HealthcheckController).inSingletonScope();

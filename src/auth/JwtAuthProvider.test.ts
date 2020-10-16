@@ -1,6 +1,6 @@
 import {Token} from 'auth-header';
 import * as chai from 'chai';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import * as sinon from 'sinon';
 import {Request} from '../types';
 import {JwtAuthProvider} from './JwtAuthProvider';

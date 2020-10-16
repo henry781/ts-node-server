@@ -1,2 +1,2 @@
-export * from './loggerContextMiddleware';
+export * from './loggerContextPlugin';
 export * from './loggerService';

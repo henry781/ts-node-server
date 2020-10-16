@@ -10,7 +10,7 @@ export interface OpenApiSchema {
         [name: string]: OpenApiSchema,
     };
 
-    allOf?: Array<{ $ref: string } | OpenApiSchema>;
+    allOf?: ({ $ref: string } | OpenApiSchema)[];
 
     items?: OpenApiSchema;
 

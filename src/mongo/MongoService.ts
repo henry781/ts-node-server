@@ -130,12 +130,12 @@ export class MongoService {
      * @param {FindOneOptions} options
      * @returns {Promise<T>}
      */
-    public findOne<T>(type: any, query?: object, options?: FindOneOptions): Promise<T> {
+    public findOne<T>(type: any, query?: object, options?: FindOneOptions<T>): Promise<T> {
 
         const collection = MongoService.getCollectionForType(type);
 
         return this.doAction(
-            () => this._db.collection(collection).findOne(query, options))
+            () => this._db.collection(collection).findOne<any>(query, options))
             .then((json) => jsonConverter.deserialize<T>(json, type));
     }
 

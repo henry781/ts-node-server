@@ -1,9 +1,7 @@
 import {getNamespace} from 'cls-hooked';
-import * as _pino from 'pino';
+import pino from 'pino';
 import {Logger, LoggerOptions} from 'pino';
 import {environment} from '../core/environment';
-
-const pino = _pino;
 
 export const DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
     level: environment.LOG_LEVEL,

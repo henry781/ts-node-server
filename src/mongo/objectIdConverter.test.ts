@@ -3,7 +3,7 @@ import * as chai from 'chai';
 import {objectIdCustomConverter} from './objectIdCustomConverter';
 
 /**
- * ObjectId converter
+ * ObjectId Converter
  */
 describe('ObjectIdConverter', () => {
 

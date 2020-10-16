@@ -1,6 +1,6 @@
-import * as _merge from 'deepmerge';
+import deepmerge from 'deepmerge';
 import {FastifyInstance} from 'fastify';
-import * as fastifyStatic from 'fastify-static';
+import fastifyStatic from 'fastify-static';
 import {Container} from 'inversify';
 import * as path from 'path';
 import swaggerUiDist from 'swagger-ui-dist';
@@ -16,8 +16,6 @@ import {ParamOptions} from '../common/param/ParamOptions';
 import {OPENAPI_DEFAULT_CONFIGURATION, OpenApiConf} from './models/OpenApiConf';
 import {OpenApiMethod} from './models/OpenApiMethod';
 import {SwaggerTipifyUtil} from './SwaggerTipifyUtil';
-
-const merge = _merge;
 
 export class SwaggerGenerator {
 
@@ -106,11 +104,11 @@ export class SwaggerGenerator {
 
         CommonUtil.getAllEndpoints(container).forEach(
             (endpoint) => {
-                configuration = merge(configuration, SwaggerGenerator.buildConfigurationForEndpoint(endpoint));
+                configuration = deepmerge(configuration, SwaggerGenerator.buildConfigurationForEndpoint(endpoint));
             });
 
         if (userDefinedConfiguration) {
-            configuration = merge(configuration, userDefinedConfiguration);
+            configuration = deepmerge(configuration, userDefinedConfiguration);
         }
 
         logger.debug('open api configuration built');
@@ -148,7 +146,7 @@ export class SwaggerGenerator {
                         },
                     },
                 };
-                configuration = merge(configuration, authConfiguration);
+                configuration = deepmerge(configuration, authConfiguration);
 
             } else if (provider instanceof BasicAuthProvider) {
 
@@ -162,7 +160,7 @@ export class SwaggerGenerator {
                         },
                     },
                 };
-                configuration = merge(configuration, authConfiguration);
+                configuration = deepmerge(configuration, authConfiguration);
 
             }
         });
@@ -295,7 +293,7 @@ export class SwaggerGenerator {
 
         if (endpoint.controllerOptions.swagger) {
             logger.trace('merging endpoint configuration with user defined configuration (controller)');
-            endpointConfiguration = merge(endpointConfiguration, endpoint.controllerOptions.swagger);
+            endpointConfiguration = deepmerge(endpointConfiguration, endpoint.controllerOptions.swagger);
         }
 
         const auth = endpoint.methodOptions.auth;
@@ -337,7 +335,7 @@ export class SwaggerGenerator {
 
         if (endpoint.methodOptions.swagger) {
             logger.trace('merging endpoint configuration with user defined configuration');
-            configuration.paths[url][method] = merge(configuration.paths[url][method], endpoint.methodOptions.swagger);
+            configuration.paths[url][method] = deepmerge(configuration.paths[url][method], endpoint.methodOptions.swagger);
         }
 
         if (!configuration.paths[url][method].responses) {
@@ -380,7 +378,7 @@ export class SwaggerGenerator {
         logger.info('initializing swagger...');
         let configuration = SwaggerGenerator.buildConfiguration(opts.container);
         if (opts.configuration) {
-            configuration = merge(configuration, opts.configuration);
+            configuration = deepmerge(configuration, opts.configuration);
         }
 
         const index = SwaggerGenerator.INDEX_HTML_TEMPLATE;

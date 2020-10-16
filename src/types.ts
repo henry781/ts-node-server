@@ -15,8 +15,10 @@ export type HttpRequest = http.IncomingMessage | http2.Http2ServerRequest;
 export type HttpResponse = http.ServerResponse | http2.Http2ServerResponse;
 export type HttpServer = http.Server | http2.Http2Server;
 
-export type Request = FastifyRequest<HttpRequest> & {
+type RouteGeneric = { Querystring: { [key: string]: (string | string[]) } };
+
+export type Request = FastifyRequest<RouteGeneric> & {
     user?: Principal,
 };
-export type Reply = FastifyReply<HttpResponse>;
+export type Reply = FastifyReply;
 export type Instance = FastifyInstance<HttpServer, HttpRequest, HttpResponse>;

@@ -1,5 +1,5 @@
 import {Token} from 'auth-header';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import {environment} from '../core/environment';
 import {AuthOptions} from '../plugins/common/method/AuthOptions';
 import {Request} from '../types';
@@ -15,8 +15,8 @@ export class JwtAuthProvider extends AuthProvider {
         return this._options;
     }
 
-    private _options: JwtAuthProviderOptions;
-    private _certificate: string;
+    private readonly _options: JwtAuthProviderOptions;
+    private readonly _certificate: string;
 
     /**
      * Constructor
