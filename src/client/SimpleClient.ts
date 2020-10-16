@@ -10,39 +10,39 @@ import {SimpleClientError} from './SimpleClientError';
 @injectable()
 export class SimpleClient {
 
-    public async get(uri: string, options: ResponseOptions): Promise<Response>;
-    public async get<T>(uri: string, options: JsonOptions): Promise<T>;
-    public async get<T>(uri: string, options: Options): Promise<T | Response> {
+    public async get(uri: string, options: ResponseClientOptions): Promise<Response>;
+    public async get<T>(uri: string, options: JsonClientOptions): Promise<T>;
+    public async get<T>(uri: string, options: ClientOptions): Promise<T | Response> {
         return this.http<T>(uri, 'get', options as any);
     }
 
-    public async post(uri: string, options: ResponseOptions): Promise<Response>;
-    public async post<T>(uri: string, options: JsonOptions): Promise<T>;
-    public async post<T>(uri: string, options: Options): Promise<T | Response> {
+    public async post(uri: string, options: ResponseClientOptions): Promise<Response>;
+    public async post<T>(uri: string, options: JsonClientOptions): Promise<T>;
+    public async post<T>(uri: string, options: ClientOptions): Promise<T | Response> {
         return this.http<T>(uri, 'post', options as any);
     }
 
-    public async delete(uri: string, options: ResponseOptions): Promise<Response>;
-    public async delete<T>(uri: string, options: JsonOptions): Promise<T>;
-    public async delete<T>(uri: string, options: Options): Promise<T | Response> {
+    public async delete(uri: string, options: ResponseClientOptions): Promise<Response>;
+    public async delete<T>(uri: string, options: JsonClientOptions): Promise<T>;
+    public async delete<T>(uri: string, options: ClientOptions): Promise<T | Response> {
         return this.http<T>(uri, 'delete', options as any);
     }
 
-    public async put(uri: string, options: ResponseOptions): Promise<Response>;
-    public async put<T>(uri: string, options: JsonOptions): Promise<T>;
-    public async put<T>(uri: string, options: Options): Promise<T | Response> {
+    public async put(uri: string, options: ResponseClientOptions): Promise<Response>;
+    public async put<T>(uri: string, options: JsonClientOptions): Promise<T>;
+    public async put<T>(uri: string, options: ClientOptions): Promise<T | Response> {
         return this.http<T>(uri, 'put', options as any);
     }
 
-    public async patch(uri: string, options: ResponseOptions): Promise<Response>;
-    public async patch<T>(uri: string, options: JsonOptions): Promise<T>;
-    public async patch<T>(uri: string, options: Options): Promise<T | Response> {
+    public async patch(uri: string, options: ResponseClientOptions): Promise<Response>;
+    public async patch<T>(uri: string, options: JsonClientOptions): Promise<T>;
+    public async patch<T>(uri: string, options: ClientOptions): Promise<T | Response> {
         return this.http<T>(uri, 'patch', options as any);
     }
 
-    public async http(uri: string, method: Method, options: ResponseOptions): Promise<Response>;
-    public async http<T>(uri: string, method: Method, options: JsonOptions): Promise<T>;
-    public async http<T>(uri: string, method: Method, options: Options): Promise<T | Response> {
+    public async http(uri: string, method: Method, options: ResponseClientOptions): Promise<Response>;
+    public async http<T>(uri: string, method: Method, options: JsonClientOptions): Promise<T>;
+    public async http<T>(uri: string, method: Method, options: ClientOptions): Promise<T | Response> {
         const logger = getLogger('http', this);
 
         const requestInit = this.buildFetchOptionsInit(method, options);
@@ -72,7 +72,7 @@ export class SimpleClient {
         }
 
         if (options.mode === 'json') {
-            const jsonOptions = options as JsonOptions;
+            const jsonOptions = options as JsonClientOptions;
             if (jsonOptions.deserializer) {
                 return (jsonOptions.deserializer(await response.json()));
             } else if (jsonOptions.deserializeType) {
@@ -85,7 +85,7 @@ export class SimpleClient {
         return response;
     }
 
-    public buildFetchOptionsInit(method: string, options: Options): RequestInit {
+    public buildFetchOptionsInit(method: string, options: ClientOptions): RequestInit {
 
         const logger = getLogger('buildHttpOptions', this);
 
@@ -159,7 +159,7 @@ type Converter = (obj: any) => any;
 type Mode = 'response' | 'json';
 type Method = 'get' | 'post' | 'patch' | 'put' | 'delete';
 
-interface Options {
+interface ClientOptions {
     principal?: Principal;
     token?: string;
     fetchOptions?: RequestInit;
@@ -170,7 +170,7 @@ interface Options {
     serializer?: boolean | Converter;
 }
 
-export interface ResponseOptions extends Options {
+export interface ResponseClientOptions extends ClientOptions {
     principal?: Principal;
     token?: string;
     httpOptions?: RequestInit;
@@ -178,7 +178,7 @@ export interface ResponseOptions extends Options {
     mode: 'response';
 }
 
-export interface JsonOptions extends Options {
+export interface JsonClientOptions extends ClientOptions {
     deserializer?: Converter;
     deserializeType?: any;
     mode: 'json';
