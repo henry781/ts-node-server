@@ -1,10 +1,11 @@
 import {createNamespace} from 'cls-hooked';
 import {FastifyInstance} from 'fastify';
+import fp from 'fastify-plugin';
 
 const clsNamespace = createNamespace('app');
 
-export function loggerContextPlugin(fastify: FastifyInstance, options, done) {
-    fastify.addHook('preHandler', (request, reply, d) => {
+export const contextLogger = fp((fastify: FastifyInstance, options, done) => {
+    fastify.addHook('onRequest', (request, reply, d) => {
         // req and res are event emitters. We want to access CLS context inside of their event callbacks
         clsNamespace.bind(request);
         clsNamespace.bind(reply);
@@ -16,4 +17,4 @@ export function loggerContextPlugin(fastify: FastifyInstance, options, done) {
         });
     });
     done();
-}
+});

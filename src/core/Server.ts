@@ -8,10 +8,10 @@ import * as shortid from 'shortid';
 import {AdminController, AdminOptions} from '../admin/AdminController';
 import {AuthProvider, BasicAuthProvider, BasicAuthProviderOptions, JwtAuthProvider, JwtAuthProviderOptions} from '../auth/api';
 import {Healthcheck, HealthcheckController} from '../healthcheck/api';
-import {loggerContextPlugin} from '../logger/api';
 import {loggerService} from '../logger/loggerService';
 import {MongoHealthcheck, MongoOptions, MongoService} from '../mongo/api';
 import {Controller, OpenApiConf, SwaggerGenerator, Wireup} from '../plugins/api';
+import {contextLogger} from '../plugins/context-logger/contextLogger';
 import {Instance, types} from '../types';
 import {environment} from './environment';
 
@@ -56,7 +56,7 @@ export class Server {
         this._instance = fastify(options);
         this._instance.register(helmet, {contentSecurityPolicy: false,});
 
-        this._instance.register(loggerContextPlugin);
+        this._instance.register(contextLogger);
 
         options.container.bind<Logger>(types.Logger).toConstantValue(this._instance.log);
 
