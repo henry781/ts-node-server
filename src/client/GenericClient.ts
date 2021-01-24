@@ -110,7 +110,7 @@ export class GenericClient {
                             resolve(jsonConverter.deserialize(body, options.deserializeType));
 
                         } else {
-                            resolve();
+                            resolve(undefined);
                         }
                     }
                 }

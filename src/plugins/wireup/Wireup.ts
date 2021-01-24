@@ -147,7 +147,7 @@ export class Wireup {
 
         return (data) => {
             const json = jsonConverter.serialize(data, undefined, {unsafe: true});
-            return flatstr(yaml.safeDump(json));
+            return flatstr(yaml.dump(json));
         };
 
     }

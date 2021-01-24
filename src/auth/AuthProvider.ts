@@ -9,5 +9,5 @@ import {Principal} from './Principal';
  */
 @injectable()
 export abstract class AuthProvider {
-    public abstract async authenticate(request: Request, token: Token, options: AuthOptions): Promise<Principal>;
+    public abstract authenticate(request: Request, token: Token, options: AuthOptions): Promise<Principal>;
 }
