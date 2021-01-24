@@ -111,9 +111,7 @@ const server = new Server({
     auth: {
         jwt: {
             authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
-            certificate: '-----BEGIN CERTIFICATE-----\n' +
-                '.......CONTENT.......\n' +
-                '-----END CERTIFICATE-----',
+            certificate: '.......CONTENT.......',
             application: 'test'
         }
     }
