@@ -1,6 +1,9 @@
-import {JsonConverter as Converter} from 'tipify';
+import {DeserializeOptions, JsonConverter as Converter, SerializeOptions} from 'tipify';
+
+export const deserializeOptions: DeserializeOptions = {tryParse: true, keepObjectFieldValues: false};
+export const serializeOptions: SerializeOptions = {unsafe: true};
 
 export const jsonConverter = new Converter({
-    deserialize: {tryParse: true, keepObjectFieldValues: false},
-    serialize: {unsafe: true},
+    deserialize: deserializeOptions,
+    serialize: serializeOptions,
 });

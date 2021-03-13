@@ -21,9 +21,9 @@ import {
     UpdateWriteOpResult,
 } from 'mongodb';
 import {Logger} from 'pino';
-import {arrayOf} from 'tipify';
+import {arrayOf, DeserializeOptions, SerializeOptions} from 'tipify';
 import {environment} from '../core/environment';
-import {jsonConverter} from '../core/jsonConverter';
+import {deserializeOptions, jsonConverter, serializeOptions} from '../core/jsonConverter';
 import {types} from '../types';
 import {MONGO_COLLECTION} from './collection.decorator';
 
@@ -32,6 +32,9 @@ export interface MongoIsMasterResult {
     readOnly: boolean;
     ok: number;
 }
+
+const mongoDeserializeOptions: DeserializeOptions = {...deserializeOptions, context: 'mongo'};
+const mongoSerializeOptions: SerializeOptions = {...serializeOptions, context: 'mongo'};
 
 @injectable()
 export class MongoService {
@@ -136,7 +139,7 @@ export class MongoService {
 
         return this.doAction(
             () => this._db.collection(collection).findOne<any>(query, options))
-            .then((json) => jsonConverter.deserialize<T>(json, type));
+            .then((json) => jsonConverter.deserialize<T>(json, type, mongoDeserializeOptions));
     }
 
     /**
@@ -147,7 +150,7 @@ export class MongoService {
      */
     public insertOne(obj: any, options?: CollectionInsertOneOptions): Promise<InsertOneWriteOpResult<any>> {
 
-        const json = jsonConverter.serialize(obj);
+        const json = jsonConverter.serialize(obj, undefined, mongoSerializeOptions);
         const collection = MongoService.getCollection(obj);
 
         return this.doAction(
@@ -163,7 +166,7 @@ export class MongoService {
      */
     public insertMany(type: any, obj: any, options?: CollectionInsertManyOptions): Promise<InsertWriteOpResult<any>> {
 
-        const json = jsonConverter.serialize(obj);
+        const json = jsonConverter.serialize(obj, undefined, mongoSerializeOptions);
         const collection = MongoService.getCollectionForType(type);
 
         return this.doAction(
@@ -198,7 +201,7 @@ export class MongoService {
 
                 return cursor.toArray();
             })
-            .then((json) => jsonConverter.deserialize<T[]>(json, arrayOf(type)));
+            .then((json) => jsonConverter.deserialize<T[]>(json, arrayOf(type), mongoDeserializeOptions));
     }
 
     /**
@@ -222,7 +225,7 @@ export class MongoService {
 
                 return cursor.toArray();
             })
-            .then((json) => outputType ? jsonConverter.deserialize<T[]>(json, arrayOf(outputType)) : json);
+            .then((json) => outputType ? jsonConverter.deserialize<T[]>(json, arrayOf(outputType), mongoDeserializeOptions) : json);
     }
 
     /**
@@ -272,7 +275,7 @@ export class MongoService {
     public replaceOne(type: any, query: object = {}, obj: object = {}, options?: ReplaceOneOptions): Promise<ReplaceWriteOpResult> {
 
         const collection = MongoService.getCollectionForType(type);
-        const document = jsonConverter.serialize(obj);
+        const document = jsonConverter.serialize(obj, undefined, serializeOptions);
 
         return this.doAction(
             () => this._db.collection(collection).replaceOne(query, document, options));
