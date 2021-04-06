@@ -6,6 +6,7 @@ export const environment = {
     AUTH_JWT_APPLICATION: process.env.AUTH_JWT_APPLICATION || '',
     AUTH_JWT_AUTHORIZATION_URL: process.env.AUTH_JWT_AUTHORIZATION_URL || '',
     AUTH_JWT_CERTIFICATE: process.env.AUTH_JWT_CERTIFICATE || '',
+    AUTH_JWKS_URI: process.env.AUTH_JWKS_URI || '',
     LOG_LEVEL: process.env.LOG_LEVEL || 'trace',
     LOG_PRETTY: process.env.LOG_PRETTY ? tryParseBoolean(process.env.LOG_PRETTY) : false,
     MONGO_DB: process.env.MONGO_DB || 'main',

@@ -107,7 +107,11 @@ describe('AuthUtil', () => {
         it('should return auth providers by scheme', () => {
 
             const container = new Container();
-            const jwtAuthProvider = new JwtAuthProvider();
+            const jwtAuthProvider = new JwtAuthProvider({
+                application: 'test-app',
+                authorizationUrl: 'http://mocked/auth',
+                jwksUri: 'http://mocked/jwks',
+            });
             const basicAuthProvider = new BasicAuthProvider();
 
             const getNamed = sinon.stub(container, 'getNamed');
