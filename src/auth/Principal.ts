@@ -39,11 +39,7 @@ export class Principal {
     }
 
     @jsonProperty('roles', arrayOf(String))
-    private _roles: string[];
-
-    public get roles(): string[] {
-        return this._roles;
-    }
+    public roles: string[];
 
     @jsonProperty('params', keyValueOf(String, any()))
     private _params: PrincipalParams;
@@ -59,7 +55,7 @@ export class Principal {
             this._token = options.token;
             this._firstname = options.firstname;
             this._lastname = options.lastname;
-            this._roles = options.roles;
+            this.roles = options.roles;
             this._params = options.params;
 
             if (options.password !== undefined) {
@@ -71,14 +67,14 @@ export class Principal {
 
     public hasRole(role: string | string[]): boolean {
 
-        if (!this._roles) {
+        if (!this.roles) {
             return false;
         }
 
         if (Array.isArray(role)) {
-            return this._roles.some((r) => role.indexOf(r) !== -1);
+            return this.roles.some((r) => role.indexOf(r) !== -1);
         } else {
-            return this._roles.indexOf(role) !== -1;
+            return this.roles.indexOf(role) !== -1;
         }
     }
 }
