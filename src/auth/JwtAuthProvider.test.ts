@@ -33,6 +33,7 @@ describe('JwtAuthProvider', () => {
         it('should throw an error when there is no certificate nor jwks uri', async () => {
             try {
                 new JwtAuthProvider({
+                    name: 'jwt',
                     application: 'test',
                     authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
                 });
@@ -48,6 +49,7 @@ describe('JwtAuthProvider', () => {
                 .returns(undefined)
 
             new JwtAuthProvider({
+                name: 'jwt',
                 application: 'test',
                 authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
                 certificate
@@ -63,6 +65,7 @@ describe('JwtAuthProvider', () => {
                 .returns(undefined)
 
             new JwtAuthProvider({
+                name: 'jwt',
                 application: 'test',
                 authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
                 jwksUri
@@ -83,6 +86,7 @@ describe('JwtAuthProvider', () => {
                 .returns(undefined)
 
             new JwtAuthProvider({
+                name: 'jwt',
                 application: 'test',
                 authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
                 jwksUri,
@@ -102,6 +106,7 @@ describe('JwtAuthProvider', () => {
         it('should throw an error when token is not defined', async () => {
 
             const provider = new JwtAuthProvider({
+                name: 'jwt',
                 application: 'test',
                 authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
                 certificate,
@@ -118,6 +123,7 @@ describe('JwtAuthProvider', () => {
         it('should throw an error when token scheme is not bearer', async () => {
 
             const provider = new JwtAuthProvider({
+                name: 'jwt',
                 application: 'test',
                 authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
                 certificate,
@@ -139,6 +145,7 @@ describe('JwtAuthProvider', () => {
         it('should throw an error when verify throw an error', async () => {
 
             const provider = new JwtAuthProvider({
+                name: 'jwt',
                 application: 'test',
                 authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
                 certificate,
@@ -164,6 +171,7 @@ describe('JwtAuthProvider', () => {
         it('should not throw an error when everything is ok', async () => {
 
             const provider = new JwtAuthProvider({
+                name: 'jwt',
                 application: 'test',
                 authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
                 certificate,
@@ -188,6 +196,7 @@ describe('JwtAuthProvider', () => {
         it('should return authenticated user', async () => {
 
             const provider = new JwtAuthProvider({
+                name: 'jwt',
                 application: 'test',
                 authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
                 certificate,

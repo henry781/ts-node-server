@@ -1,13 +1,13 @@
 import {Token} from 'auth-header';
+import * as crypto from 'crypto';
+import {KeyObject} from 'crypto';
+import * as jwks from 'jose/jwks/remote';
+import * as jwt from 'jose/jwt/verify';
 import {environment} from '../core/environment';
 import {AuthOptions} from '../plugins/common/method/AuthOptions';
 import {Request} from '../types';
 import {AuthProvider} from './AuthProvider';
 import {Principal} from './Principal';
-import * as jwks from 'jose/jwks/remote';
-import * as jwt from 'jose/jwt/verify';
-import * as crypto from 'crypto';
-import {KeyObject} from 'crypto';
 
 /**
  * Jwt authentication provider
@@ -30,12 +30,12 @@ export class JwtAuthProvider extends AuthProvider {
      * @param {JwtAuthProviderOptions} options
      */
     constructor(options: JwtAuthProviderOptions = DEFAULT_JWT_AUTH_PROVIDER_OPTIONS) {
-        super();
+        super(options.name);
         this._options = options;
 
         // use jwks first
         if (this._options.jwksUri) {
-            this._verifyingKey = jwks.createRemoteJWKSet(new URL(this._options.jwksUri));
+            this._verifyingKey = jwks.createRemoteJWKSet(new URL(this._options.jwksUri), this._options.jwksSetOptions);
         } else if (this._options.certificate) {
             const certificate = '-----BEGIN CERTIFICATE-----\n' + this._options.certificate + '\n-----END CERTIFICATE-----';
             this._verifyingKey = crypto.createPublicKey(certificate);
@@ -61,7 +61,7 @@ export class JwtAuthProvider extends AuthProvider {
         }
 
         const jwtToken = Array.isArray(token.token) ? token.token[0] : token.token;
-        const { payload } = await jwt.jwtVerify(jwtToken, this._verifyingKey, this._options.jwtVerifyOptions)
+        const {payload} = await jwt.jwtVerify(jwtToken, this._verifyingKey, this._options.jwtVerifyOptions);
         return this.provideUser(payload, token);
     }
 
@@ -97,6 +97,7 @@ export class JwtAuthProvider extends AuthProvider {
 }
 
 export const DEFAULT_JWT_AUTH_PROVIDER_OPTIONS: JwtAuthProviderOptions = {
+    name: 'jwt',
     application: environment.AUTH_JWT_APPLICATION,
     authorizationUrl: environment.AUTH_JWT_AUTHORIZATION_URL,
     certificate: environment.AUTH_JWT_CERTIFICATE,
@@ -104,8 +105,10 @@ export const DEFAULT_JWT_AUTH_PROVIDER_OPTIONS: JwtAuthProviderOptions = {
 };
 
 export interface JwtAuthProviderOptions {
+    name: string;
     certificate?: string;
     jwksUri?: string;
+    jwksSetOptions?: jwks.RemoteJWKSetOptions;
     jwtVerifyOptions?: jwt.JWTVerifyOptions;
     authorizationUrl: string;
     application: string;

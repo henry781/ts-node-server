@@ -21,9 +21,12 @@ describe('BasicAuthProvider', () => {
         it('should throw an error when token is not defined', async () => {
 
             const provider = new BasicAuthProvider({
-                user1: {
-                    password: 'pass',
-                },
+                name: 'basic',
+                users: {
+                    user1: {
+                        password: 'pass',
+                    },
+                }
             });
 
             try {
@@ -37,9 +40,12 @@ describe('BasicAuthProvider', () => {
         it('should throw an error when token scheme is not basic', async () => {
 
             const provider = new BasicAuthProvider({
-                user1: {
-                    password: 'pass',
-                },
+                name: 'basic',
+                users: {
+                    user1: {
+                        password: 'pass',
+                    }
+                }
             });
             const token: Token = {
                 params: undefined,
@@ -58,9 +64,12 @@ describe('BasicAuthProvider', () => {
         it('should throw an error when user is not defined', async () => {
 
             const provider = new BasicAuthProvider({
-                user1: {
-                    password: 'pass',
-                },
+                name: 'basic',
+                users: {
+                    user1: {
+                        password: 'pass',
+                    },
+                }
             });
             const token: Token = {
                 params: undefined,
@@ -79,9 +88,12 @@ describe('BasicAuthProvider', () => {
         it('should throw an error when password is not ok', async () => {
 
             const provider = new BasicAuthProvider({
-                user1: {
-                    password: 'pass',
-                },
+                name: 'basic',
+                users: {
+                    user1: {
+                        password: 'pass',
+                    },
+                }
             });
             const token: Token = {
                 params: undefined,
@@ -100,9 +112,12 @@ describe('BasicAuthProvider', () => {
         it('should throw an error when token is invalid', async () => {
 
             const provider = new BasicAuthProvider({
-                user1: {
-                    password: 'pass',
-                },
+                name: 'basic',
+                users: {
+                    user1: {
+                        password: 'pass',
+                    },
+                }
             });
             const token: Token = {
                 params: undefined,
@@ -121,9 +136,12 @@ describe('BasicAuthProvider', () => {
         it('should not throw an error when everything is ok', async () => {
 
             const provider = new BasicAuthProvider({
-                user1: {
-                    password: 'pass',
-                },
+                name: 'basic',
+                users: {
+                    user1: {
+                        password: 'pass',
+                    },
+                }
             });
             const token: Token = {
                 params: undefined,
@@ -140,7 +158,10 @@ describe('BasicAuthProvider', () => {
                 password: 'pass',
             };
             const provider = new BasicAuthProvider({
-                user1: userOptions,
+                name: 'basic',
+                users: {
+                    user1: userOptions,
+                }
             });
             const token: Token = {
                 params: undefined,

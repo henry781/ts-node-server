@@ -134,7 +134,7 @@ export class SwaggerGenerator {
                 const authConfiguration: OpenApiConf = {
                     components: {
                         securitySchemes: {
-                            jwt: {
+                            [provider.name]: {
                                 flows: {
                                     implicit: {
                                         authorizationUrl: provider.options.authorizationUrl,
@@ -153,7 +153,7 @@ export class SwaggerGenerator {
                 const authConfiguration: OpenApiConf = {
                     components: {
                         securitySchemes: {
-                            basic: {
+                            [provider.name]: {
                                 scheme: 'basic',
                                 type: 'http',
                             },

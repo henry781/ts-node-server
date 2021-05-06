@@ -21,7 +21,7 @@ export class BasicAuthProvider extends AuthProvider {
      * @param {BasicAuthProviderOptions} options
      */
     constructor(options = DEFAULT_BASIC_AUTH_PROVIDER_OPTIONS) {
-        super();
+        super(options.name);
         this._options = options;
     }
 
@@ -48,7 +48,7 @@ export class BasicAuthProvider extends AuthProvider {
         const login = decoded.substring(0, separatorPosition);
         const password = decoded.substring(separatorPosition + 1);
 
-        const userOptions = this.options[login];
+        const userOptions = this.options.users[login];
 
         if (!userOptions || userOptions.password !== password) {
             throw new Error('Bad credentials');
@@ -76,13 +76,19 @@ export class BasicAuthProvider extends AuthProvider {
 }
 
 export const DEFAULT_BASIC_AUTH_PROVIDER_OPTIONS: BasicAuthProviderOptions = {
-    [environment.AUTH_BASIC_LOGIN]: {
-        password: environment.AUTH_BASIC_PASSWORD,
-    },
+    name: 'basic',
+    users: {
+        [environment.AUTH_BASIC_LOGIN]: {
+            password: environment.AUTH_BASIC_PASSWORD,
+        }
+    }
 };
 
 export interface BasicAuthProviderOptions {
-    [login: string]: BasicAuthUserOptions;
+    name: string,
+    users: {
+        [login: string]: BasicAuthUserOptions
+    }
 }
 
 export interface BasicAuthUserOptions {
