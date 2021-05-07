@@ -72,6 +72,9 @@ export class SwaggerGenerator {
         '        plugins: [\n' +
         '        ]\n' +
         '      })\n' +
+        '      ui.initOAuth({\n' +
+        '        clientId: "' + environment.SWAGGER_AUTH_CLIENT_ID + '"\n' +
+        '      })\n' +
         '      window.ui = ui\n' +
         '    }\n' +
         '  </script>\n' +
