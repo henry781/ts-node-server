@@ -62,6 +62,10 @@ export class Server {
 
         this._instance.register(compress);
 
+        if (options.onInit) {
+            options.onInit.apply(this, [this._instance]);
+        }
+
         if (options.healthcheck !== false) {
             options.container.bind<Controller>(types.Controller).to(HealthcheckController).inSingletonScope();
         }
@@ -134,4 +138,5 @@ export interface ServerOptions extends FastifyServerOptions {
         jwt?: boolean | JwtAuthProviderOptions,
         basic?: boolean | BasicAuthProviderOptions,
     };
+    onInit?: (instance: Instance) => void;
 }
