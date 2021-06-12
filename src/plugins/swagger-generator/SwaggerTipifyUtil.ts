@@ -33,9 +33,11 @@ export class SwaggerTipifyUtil {
                 return {type: 'array'};
             }
 
-            const itemConverterDefinition = normalizeConverterAndArgs((c.args as ArrayConverterArgs).itemConverter);
+            const args = (c.args as ArrayConverterArgs);
             return {
-                items: SwaggerTipifyUtil.buildOpenApiSchema(itemConverterDefinition, schemas),
+                items: SwaggerTipifyUtil.buildOpenApiSchema(
+                    {converter: args.itemConverter, args: args.itemConverterArgs},
+                    schemas),
                 type: 'array',
             };
 
