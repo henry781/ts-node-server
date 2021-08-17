@@ -6,4 +6,5 @@ import {OpenApiMethod} from '../../swagger-generator/models/OpenApiMethod';
 export interface ControllerOptions {
     url?: string;
     swagger?: OpenApiMethod;
+    provides?: boolean;
 }

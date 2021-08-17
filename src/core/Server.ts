@@ -10,7 +10,7 @@ import {AuthProvider, BasicAuthProvider, BasicAuthProviderOptions, JwtAuthProvid
 import {Healthcheck, HealthcheckController} from '../healthcheck/api';
 import {loggerService} from '../logger/loggerService';
 import {MongoHealthcheck, MongoOptions, MongoService} from '../mongo/api';
-import {Controller, OpenApiConf, SwaggerGenerator, Wireup} from '../plugins/api';
+import {Controller, listProviders, OpenApiConf, SwaggerGenerator, Wireup} from '../plugins/api';
 import {contextLogger} from '../plugins/context-logger/contextLogger';
 import {Instance, types} from '../types';
 import {environment} from './environment';
@@ -65,6 +65,13 @@ export class Server {
         if (options.onInit) {
             options.onInit.apply(this, [this._instance]);
         }
+
+        listProviders().forEach(p => {
+            const bind = options.container.bind(p.bind).to(p.cls).inSingletonScope();
+            if (p.targetNamed) {
+                bind.whenTargetNamed(p.targetNamed);
+            }
+        });
 
         if (options.healthcheck !== false) {
             options.container.bind<Controller>(types.Controller).to(HealthcheckController).inSingletonScope();

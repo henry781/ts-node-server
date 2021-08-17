@@ -5,7 +5,7 @@ import {WebServiceError} from '../core/WebServiceError';
 import {loggerService} from '../logger/loggerService';
 import {AuthOptions, controller, httpPut, pathParam, queryParam} from '../plugins/common/api';
 
-@controller('/admin')
+@controller({url: '/admin', provides: false})
 export class AdminController {
 
     /**

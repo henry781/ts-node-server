@@ -1,5 +1,7 @@
 import {decorate, injectable} from 'inversify';
 import 'reflect-metadata';
+import {types} from '../../../types';
+import {provides} from '../provides.decorator';
 import {ControllerOptions} from './ControllerOptions';
 
 export const ROUTE_CONTROLLER = Symbol('route:controller');
@@ -22,6 +24,10 @@ export function controller(options?: string | ControllerOptions) {
             options = {
                 url: options as string,
             };
+        }
+
+        if (options.provides !== false) {
+            decorate(provides({bind: types.Controller}), target);
         }
 
         Reflect.defineMetadata(ROUTE_CONTROLLER, options, target.prototype);

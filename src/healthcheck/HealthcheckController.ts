@@ -5,14 +5,14 @@ import {httpReply} from '../plugins/common/param/api';
 import {Reply, types} from '../types';
 import {Healthcheck} from './Healthcheck';
 
-@controller('/healthcheck')
+@controller({url: '/healthcheck', provides: false})
 export class HealthcheckController {
 
     /**
      * Constructor
      * @param {Healthcheck[]} healthchecks
      */
-    constructor(@multiInject(types.Healthcheck) @optional() private  healthchecks: Healthcheck[] = []) {
+    constructor(@multiInject(types.Healthcheck) @optional() private healthchecks: Healthcheck[] = []) {
     }
 
     /**
