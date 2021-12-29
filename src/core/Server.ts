@@ -66,12 +66,14 @@ export class Server {
             options.onInit.apply(this, [this._instance]);
         }
 
-        listProviders().forEach(p => {
-            const bind = options.container.bind(p.bind).to(p.cls).inSingletonScope();
-            if (p.targetNamed) {
-                bind.whenTargetNamed(p.targetNamed);
-            }
-        });
+        if (!options.ignoreProvidesdecorator) {
+            listProviders().forEach(p => {
+                const bind = options.container.bind(p.bind).to(p.cls).inSingletonScope();
+                if (p.targetNamed) {
+                    bind.whenTargetNamed(p.targetNamed);
+                }
+            });
+        }
 
         if (options.healthcheck !== false) {
             options.container.bind<Controller>(types.Controller).to(HealthcheckController).inSingletonScope();
@@ -147,4 +149,5 @@ export interface ServerOptions extends FastifyServerOptions {
     };
     onInit?: (instance: Instance) => void;
     compressOptions?: FastifyCompressOptions;
+    ignoreProvidesdecorator?: boolean;
 }
