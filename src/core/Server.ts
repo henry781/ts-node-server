@@ -66,7 +66,7 @@ export class Server {
             options.onInit.apply(this, [this._instance]);
         }
 
-        if (!options.ignoreProvidesdecorator) {
+        if (!options.ignoreProvidesDecorator) {
             listProviders().forEach(p => {
                 const bind = options.container.bind(p.bind).to(p.cls).inSingletonScope();
                 if (p.targetNamed) {
@@ -149,5 +149,5 @@ export interface ServerOptions extends FastifyServerOptions {
     };
     onInit?: (instance: Instance) => void;
     compressOptions?: FastifyCompressOptions;
-    ignoreProvidesdecorator?: boolean;
+    ignoreProvidesDecorator?: boolean;
 }

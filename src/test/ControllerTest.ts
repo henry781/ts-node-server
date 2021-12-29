@@ -18,6 +18,7 @@ export class ControllerTest {
             metrics: false,
             mongo: false,
             swagger: false,
+            ignoreProvidesDecorator: true
         });
     }
 }
