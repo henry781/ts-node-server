@@ -1,5 +1,5 @@
 import fastify, {FastifyServerOptions} from 'fastify';
-import compress from 'fastify-compress';
+import compress, {FastifyCompressOptions} from 'fastify-compress';
 import helmet from 'fastify-helmet';
 import fastifyMetrics from 'fastify-metrics';
 import {Container} from 'inversify';
@@ -60,7 +60,7 @@ export class Server {
 
         options.container.bind<Logger>(types.Logger).toConstantValue(this._instance.log);
 
-        this._instance.register(compress);
+        this._instance.register(compress, options.compressOptions);
 
         if (options.onInit) {
             options.onInit.apply(this, [this._instance]);
@@ -146,4 +146,5 @@ export interface ServerOptions extends FastifyServerOptions {
         basic?: boolean | BasicAuthProviderOptions,
     };
     onInit?: (instance: Instance) => void;
+    compressOptions?: FastifyCompressOptions;
 }
