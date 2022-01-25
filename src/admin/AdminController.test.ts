@@ -6,8 +6,7 @@ import {loggerService} from '../logger/loggerService';
 import {ControllerTest} from '../test/ControllerTest';
 import {types} from '../types';
 import {AdminController, AdminOptions} from './AdminController';
-// @ts-ignore
-import chaiHttp = require('chai-http');
+import chaiHttp from 'chai-http';
 import { request, expect } from 'chai';
 
 chai.use(chaiHttp);

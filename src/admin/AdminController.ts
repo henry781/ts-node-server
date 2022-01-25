@@ -1,8 +1,7 @@
 import * as inspector from 'inspector';
 import {decorate} from 'inversify';
-import {Logger} from 'pino';
 import {WebServiceError} from '../core/WebServiceError';
-import {loggerService} from '../logger/loggerService';
+import {getLogger, loggerService} from '../logger/loggerService';
 import {AuthOptions, controller, httpPut, pathParam, queryParam} from '../plugins/common/api';
 
 @controller({url: '/admin', provides: false})
@@ -32,13 +31,10 @@ export class AdminController {
             'disableInspector');
     }
 
-    private logger: Logger;
-
     /**
      * Constructor
      */
     constructor(private options: AdminOptions) {
-        this.logger = loggerService.child({module: 'AdminController'});
         AdminController.decorateMethods(options);
     }
 
@@ -48,7 +44,7 @@ export class AdminController {
      */
     public async setLoggingLevel(@pathParam('level') level: string) {
 
-        const logger = this.logger.child({method: 'setLoggingLevel'});
+        const logger = getLogger('setLoggingLevel', this);
 
         const value = loggerService.levels.labels[loggerService.levels.values[level]];
 
@@ -64,7 +60,7 @@ export class AdminController {
      */
     public async enableInspector(@queryParam('port') port: number) {
 
-        const logger = this.logger.child({method: 'enableInspector'});
+        const logger = getLogger('enableInspector', this);
 
         const inspectorPort = port ? port :
             this.options.inspectorPort ? this.options.inspectorPort : undefined;
@@ -82,7 +78,7 @@ export class AdminController {
      */
     public async disableInspector() {
 
-        const logger = this.logger.child({method: 'disableInspector'});
+        const logger = getLogger('disableInspector', this);
 
         inspector.close();
         logger.info('inspector disabled');
