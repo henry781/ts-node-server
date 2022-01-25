@@ -1,13 +1,13 @@
+import {AxiosError} from 'axios';
 import {expect} from 'chai';
 import nock from 'nock';
 import {isString, jsonObject, jsonProperty} from 'tipify';
+import * as url from 'url';
 import {Principal} from '../auth/Principal';
-import {SimpleClient} from './SimpleClient';
-import {SimpleClientError} from './SimpleClientError';
+import {simpleClient} from './simpleClient';
 
-describe('SimpleClient', () => {
+describe('simpleClient', () => {
 
-    const client = new SimpleClient();
     const principal = new Principal({
         login: 'someone',
         token: {token: 'okfopsdfsdfsd5f4sd6f4sd65f', scheme: 'bearer', params: undefined},
@@ -47,7 +47,7 @@ describe('SimpleClient', () => {
                     .reply(200, json);
 
                 // TEST
-                await client.get(fullPath, {mode: 'json', principal});
+                await simpleClient.get(fullPath, {principal});
 
                 // VERIFY
                 expect(scope.isDone()).to.be.true;
@@ -62,7 +62,7 @@ describe('SimpleClient', () => {
                     .reply(200, json);
 
                 // TEST
-                await client.get(fullPath, {mode: 'json', principal, token: 'token'});
+                await simpleClient.get(fullPath, {principal, token: 'token'});
 
                 // VERIFY
                 expect(scope.isDone()).to.be.true;
@@ -77,7 +77,7 @@ describe('SimpleClient', () => {
                     .reply(200, json);
 
                 // TEST
-                await client.get(fullPath, {mode: 'json', principal});
+                await simpleClient.get(fullPath, {principal});
 
                 // VERIFY
                 expect(scope.isDone()).to.be.true;
@@ -94,14 +94,13 @@ describe('SimpleClient', () => {
 
                 // TEST
                 try {
-                    await client.get(fullPath, {mode: 'json'});
+                    await simpleClient.get(fullPath, {});
                     expect.fail();
                 } catch (e) {
                     // VERIFY
-                    expect(e).instanceof(SimpleClientError);
-                    const clientError = e as SimpleClientError;
-                    expect(clientError.responseStatus).equals(401);
-                    expect(clientError.responseBody).equals('Not Authorized');
+                    const err = e as AxiosError;
+                    expect(err.response.status).equals(401);
+                    expect(err.response.data).equals('Not Authorized');
                     expect(scope.isDone()).to.be.true;
                 }
             });
@@ -115,14 +114,13 @@ describe('SimpleClient', () => {
 
                 // TEST
                 try {
-                    await client.get(fullPath, {mode: 'json'});
+                    await simpleClient.get(fullPath, {});
                     expect.fail();
                 } catch (e) {
                     // VERIFY
-                    expect(e).instanceof(SimpleClientError);
-                    const clientError = e as SimpleClientError;
-                    expect(clientError.responseStatus).equals(401);
-                    expect(clientError.responseBody).deep.equal(expectedErrorBody);
+                    const err = e as AxiosError;
+                    expect(err.response.status).equals(401);
+                    expect(err.response.data).deep.equal(expectedErrorBody);
                     expect(scope.isDone()).to.be.true;
                 }
             });
@@ -130,76 +128,67 @@ describe('SimpleClient', () => {
 
         describe('when ok', () => {
 
-            let scope: nock.Scope;
-
-            beforeEach(() => {
-                scope = nock(basePath)
-                    .get(path)
-                    .reply(200, json);
-            });
-
             describe('when json', () => {
+
+                let scope: nock.Scope;
+
+                beforeEach(() => {
+                    scope = nock(basePath)
+                        .get(path)
+                        .reply(200, json);
+                });
 
                 it('should return json', async () => {
 
                     // TEST
-                    const result = await client.get(fullPath, {mode: 'json'});
+                    const result = await simpleClient.get(fullPath, {});
 
                     // VERIFY
-                    expect(result).deep.equal(json);
+                    expect(result.data).deep.equal(json);
                     expect(scope.isDone()).to.be.true;
                 });
 
                 it('should return person', async () => {
 
                     // TEST
-                    const result = await client.get<Person>(fullPath, {
-                        mode: 'json',
-                        deserializeType: Person
-                    });
+                    const result = await simpleClient.get<Person>(fullPath, {deserializeType: Person});
 
                     // VERIFY
-                    expect(result).instanceOf(Person);
-                    expect(result.firstName).equal(json.firstname);
-                    expect(result.lastName).equal(json.lastname);
+                    const actualPerson = result.data;
+                    expect(actualPerson).instanceOf(Person);
+                    expect(actualPerson.firstName).equal(json.firstname);
+                    expect(actualPerson.lastName).equal(json.lastname);
                     expect(scope.isDone()).to.be.true;
                 });
 
                 it('should return custom result', async () => {
 
                     // TEST
-                    const result = await client.get<string>(fullPath, {
-                        mode: 'json',
+                    const result = await simpleClient.get<string>(fullPath, {
                         deserializer: (data) => data.firstname + '-' + data.lastname,
                     });
 
                     // VERIFY
-                    expect(result).equals('steve-jobs');
+                    expect(result.data).equals('steve-jobs');
                     expect(scope.isDone()).to.be.true;
                 });
             });
 
             describe('when response', () => {
 
-                it('should return response', async () => {
-
-                    // TEST
-                    const result = await client.get(basePath + path, {mode: 'response'});
-
-                    // VERIFY
-                    expect(await result.json()).deep.equal(json);
-                    expect(scope.isDone()).to.be.true;
-                });
-
                 it('should return text', async () => {
 
+                    const scope = nock(basePath)
+                        .get(path)
+                        .reply(200, 'text');
+
                     // TEST
-                    const result = await client.get(fullPath, {mode: 'response'});
+                    const result = await simpleClient.get<string>(fullPath, {responseType: 'text'});
 
                     // VERIFY
-                    const text = await result.text();
+                    const text = result.data;
                     expect(isString(text)).to.be.true;
-                    expect(JSON.parse(text)).deep.equal(json);
+                    expect(text).deep.equal('text');
                     expect(scope.isDone()).to.be.true;
                 });
             });
@@ -218,16 +207,15 @@ describe('SimpleClient', () => {
                     .post(path, new RegExp('^name=steve$', 'm'))
                     .reply(200, json);
 
+                const params = new url.URLSearchParams({ name: 'steve' });
+
                 // TEST
-                const result = await client.post(fullPath, {
-                    form: {
-                        name: 'steve'
-                    },
-                    mode: 'json'
+                const result = await simpleClient.post(fullPath, params,{
+                    serializer: false
                 });
 
                 // VERIFY
-                expect(result).deep.equal(json);
+                expect(result.data).deep.equal(json);
                 expect(scope.isDone()).to.be.true;
             });
         });

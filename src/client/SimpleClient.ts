@@ -1,185 +1,109 @@
 import * as authHeader from 'auth-header';
 import {TokenOptions} from 'auth-header';
-import {injectable} from 'inversify';
-import fetch, {RequestInit, Response} from 'node-fetch';
+import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
+import {Logger} from 'pino';
 import {Principal} from '../auth/Principal';
 import {jsonConverter} from '../core/jsonConverter';
 import {getLogger, getReqId} from '../logger/loggerService';
-import {SimpleClientError} from './SimpleClientError';
 
-@injectable()
-export class SimpleClient {
-
-    public async get(uri: string, options: ResponseClientOptions): Promise<Response>;
-    public async get<T>(uri: string, options: JsonClientOptions): Promise<T>;
-    public async get<T>(uri: string, options: ClientOptions): Promise<T | Response> {
-        return this.http<T>(uri, 'get', options as any);
-    }
-
-    public async post(uri: string, options: ResponseClientOptions): Promise<Response>;
-    public async post<T>(uri: string, options: JsonClientOptions): Promise<T>;
-    public async post<T>(uri: string, options: ClientOptions): Promise<T | Response> {
-        return this.http<T>(uri, 'post', options as any);
-    }
-
-    public async delete(uri: string, options: ResponseClientOptions): Promise<Response>;
-    public async delete<T>(uri: string, options: JsonClientOptions): Promise<T>;
-    public async delete<T>(uri: string, options: ClientOptions): Promise<T | Response> {
-        return this.http<T>(uri, 'delete', options as any);
-    }
-
-    public async put(uri: string, options: ResponseClientOptions): Promise<Response>;
-    public async put<T>(uri: string, options: JsonClientOptions): Promise<T>;
-    public async put<T>(uri: string, options: ClientOptions): Promise<T | Response> {
-        return this.http<T>(uri, 'put', options as any);
-    }
-
-    public async patch(uri: string, options: ResponseClientOptions): Promise<Response>;
-    public async patch<T>(uri: string, options: JsonClientOptions): Promise<T>;
-    public async patch<T>(uri: string, options: ClientOptions): Promise<T | Response> {
-        return this.http<T>(uri, 'patch', options as any);
-    }
-
-    public async http(uri: string, method: Method, options: ResponseClientOptions): Promise<Response>;
-    public async http<T>(uri: string, method: Method, options: JsonClientOptions): Promise<T>;
-    public async http<T>(uri: string, method: Method, options: ClientOptions): Promise<T | Response> {
-        const logger = getLogger('http', this);
-
-        const requestInit = this.buildFetchOptionsInit(method, options);
-
-        let response: Response;
-        try {
-            response = await fetch(uri, requestInit);
-        } catch (e) {
-            const msg = 'fail to execute request : ' + e.message;
-            logger.error(msg);
-            throw new SimpleClientError(msg, 500, e);
-        }
-
-        const expectedStatus = options.expectedStatus ? options.expectedStatus : 200;
-        if (response.status !== expectedStatus) {
-            const msg = `expecting status <${expectedStatus}> calling <${uri}>, got <${response.status}>`;
-            logger.error(msg);
-            const text = await response.text();
-            let responseBody = text;
-            try {
-                responseBody = JSON.parse(text);
-            } catch (e) {
-                logger.debug('cannot deserialize body');
-            }
-            logger.debug('got body', responseBody);
-            throw new SimpleClientError(msg, 500, undefined, response.status, responseBody);
-        }
-
-        if (options.mode === 'json') {
-            const jsonOptions = options as JsonClientOptions;
-            if (jsonOptions.deserializer) {
-                return (jsonOptions.deserializer(await response.json()));
-            } else if (jsonOptions.deserializeType) {
-                return jsonConverter.deserialize(await response.json(), jsonOptions.deserializeType);
-            } else {
-                return response.json();
-            }
-        }
-
-        return response;
-    }
-
-    public buildFetchOptionsInit(method: string, options: ClientOptions): RequestInit {
-
-        const logger = getLogger('buildHttpOptions', this);
-
-        let headers: { [key: string]: string } = {
-            'pragma': 'no-cache',
-            'cache-control': 'no-cache',
-        };
-        let body: any;
-
-        // append request id
-        const reqId = getReqId();
-        if (reqId) {
-            headers['request-id'] = reqId;
-        }
-
-        // append authorization header
-        if (options.token) {
-            logger.debug('setting authorization header from given token');
-            headers.Authorization = options.token;
-        } else if (options.principal && options.principal.token) {
-            logger.debug('setting authorization header from give principal');
-            headers.Authorization = authHeader.format(options.principal.token as TokenOptions);
-        }
-
-        // append client headers from principal
-        if (options.principal && options.principal.params && options.principal.params.clientHeaders) {
-            headers = {
-                ...options.principal.params.clientHeaders,
-                ...headers,
-            };
-        }
-
-        // setting json body
-        if (options.json) {
-            logger.debug('setting json body');
-            headers['Content-Type'] = 'application/json';
-            headers.Accept = 'application/json';
-
-            if (options.serializer === false) {
-                body = JSON.stringify(options.json);
-            } else if (typeof (options.serializer) === 'function') {
-                logger.debug('serializing body');
-                body = JSON.stringify(options.serializer(options.json));
-            } else {
-                body = jsonConverter.serialize(options.json, undefined, {unsafe: true});
-            }
-        }
-
-        // setting form body
-        if (options.form) {
-            logger.debug('setting form body');
-            body = new URLSearchParams(options.form);
-        }
-
-        // build request init
-        let requestInit: RequestInit = {body, method};
-        if (options.fetchOptions) {
-            requestInit = {...requestInit, ...options.fetchOptions};
-        }
-        if (requestInit.headers) {
-            requestInit.headers = {...headers, ...requestInit.headers};
-        } else {
-            requestInit.headers = headers;
-        }
-
-        return requestInit;
+declare module 'axios' {
+    export interface AxiosRequestConfig {
+        logger?: Logger,
+        token?: string;
+        principal?: Principal;
+        serializer?: boolean | Converter;
+        deserializer?: Converter;
+        deserializeType?: any;
     }
 }
 
 type Converter = (obj: any) => any;
-type Mode = 'response' | 'json';
-type Method = 'get' | 'post' | 'patch' | 'put' | 'delete';
 
-interface ClientOptions {
-    principal?: Principal;
-    token?: string;
-    fetchOptions?: RequestInit;
-    expectedStatus?: number;
-    mode: Mode;
-    json?: any;
-    form?: { [key: string]: string }
-    serializer?: boolean | Converter;
+export const simpleClient = axios.create();
+
+simpleClient.interceptors.request.use((config) => {
+    config = normalizeConfig(config);
+    logRequest(config);
+    return config;
+}, (error) => {
+    return Promise.reject(error);
+});
+
+simpleClient.interceptors.response.use((response) => {
+    logResponse(response);
+    return response;
+}, (error) => {
+    return Promise.reject(error);
+});
+
+export function logRequest(config: AxiosRequestConfig) {
+    let logger = config.logger;
+    if (!logger) {
+        logger = getLogger('simpleClient');
+    }
+    logger.debug({
+        http: {
+            baseUrl: config.baseURL,
+            url: config.url,
+            method: config.method
+        }
+    }, 'New request');
 }
 
-export interface ResponseClientOptions extends ClientOptions {
-    principal?: Principal;
-    token?: string;
-    httpOptions?: RequestInit;
-    expectedStatus?: number;
-    mode: 'response';
+export function logResponse(response: AxiosResponse) {
+    let logger = response.config.logger;
+    if (!logger) {
+        logger = getLogger('simpleClient');
+    }
+    logger.info({
+        http: {
+            baseUrl: response.config.baseURL,
+            url: response.config.url,
+            method: response.config.method,
+            status: response.status,
+            statusText: response.statusText
+        }
+    }, 'Response received');
+    logger.trace({data: response.data}, 'Data received');
 }
 
-export interface JsonClientOptions extends ClientOptions {
-    deserializer?: Converter;
-    deserializeType?: any;
-    mode: 'json';
+export function normalizeConfig(config: AxiosRequestConfig): AxiosRequestConfig {
+
+    if (!config.headers) {
+        config.headers = {};
+    }
+
+    const reqId = getReqId();
+    if (reqId) {
+        config.headers['request-id'] = reqId;
+    }
+
+    const principal = config.principal;
+    if (principal) {
+        config.headers.Authorization = authHeader.format(principal.token as TokenOptions);
+        if (principal.params && principal.params.clientHeaders) {
+            config.headers = {
+                ...principal.params.clientHeaders,
+                ...config.headers,
+            };
+        }
+    }
+
+    if (config.token) {
+        config.headers.Authorization = config.token;
+    }
+
+    if (config.serializer !== false) {
+        config.transformRequest = [data => jsonConverter.serialize(data, undefined, {unsafe: true})];
+    } else if (typeof (config.serializer) === 'function') {
+        config.transformRequest = [data => JSON.stringify((config.serializer as Converter)(data))];
+    }
+
+    if (config.deserializeType) {
+        config.transformResponse = [data => jsonConverter.deserialize(JSON.parse(data), config.deserializeType)];
+    } else if (config.deserializer) {
+        config.transformResponse = [data => config.deserializer(JSON.parse(data))];
+    }
+
+    return config;
 }

@@ -84,7 +84,7 @@ export class GenericClient {
             this.request(uri, httpOptions, (err, response, body) => {
 
                 if (err) {
-                    logger.error(`error calling <${uri}> :`, err);
+                    logger.error({err}, `error calling <${uri}>`);
                     const error = new GenericClientError(`error calling <${uri}>`, 500, err, response, body);
                     reject(error);
 

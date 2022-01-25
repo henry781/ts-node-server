@@ -1,4 +1,3 @@
-export * from './GenericClient';
+export * from './simpleClient';
 export * from './GenericClientError';
-export * from './SimpleClient';
-export * from './SimpleClientError';
+export * from './GenericClient';
