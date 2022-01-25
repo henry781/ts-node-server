@@ -1,5 +1,6 @@
-import typescript from 'rollup-plugin-typescript2'
-import pkg from './package.json'
+import typescript from 'rollup-plugin-typescript2';
+import pkg from './package.json';
+import autoExternal from 'rollup-plugin-auto-external';
 
 export default {
     input: 'src/api.ts',
@@ -13,14 +14,11 @@ export default {
             format: 'es',
         },
     ],
-    external: [
-        ...Object.keys(pkg.dependencies || {}),
-        ...Object.keys(pkg.peerDependencies || {}),
-    ],
     plugins: [
         typescript({
             typescript: require('typescript'),
             exclude: ["**/*.test.ts"]
         }),
+        autoExternal()
     ]
 }

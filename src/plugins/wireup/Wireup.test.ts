@@ -37,7 +37,7 @@ describe('Wireup', () => {
             log: pino(),
             route: (opts: RouteOptions<any, any, any>) => {
             },
-        } as FastifyInstance;
+        } as unknown as FastifyInstance;
 
         const container = new Container();
         const endpoint: WireupEndpoint = {

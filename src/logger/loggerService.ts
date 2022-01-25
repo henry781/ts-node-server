@@ -6,8 +6,7 @@ import {environment} from '../core/environment';
 export const DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
     level: environment.LOG_LEVEL,
     prettyPrint: environment.LOG_PRETTY ? {forceColor: true} : undefined,
-    timestamp: () => `,"time":"${new Date().toISOString()}"`,
-    useLevelLabels: true,
+    timestamp: () => `,"time":"${new Date().toISOString()}"`
 };
 
 export const loggerService = pino(DEFAULT_LOGGER_OPTIONS);

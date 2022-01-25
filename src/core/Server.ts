@@ -58,7 +58,7 @@ export class Server {
 
         this._instance.register(contextLogger);
 
-        options.container.bind<Logger>(types.Logger).toConstantValue(this._instance.log);
+        options.container.bind<Logger>(types.Logger).toConstantValue(this._instance.log as Logger);
 
         this._instance.register(compress, options.compressOptions);
 

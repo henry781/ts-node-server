@@ -19,6 +19,16 @@ describe('AuthUtil', () => {
         it('should return undefined when authorization header is not defined', () => {
 
             const request: Request = {
+                connection: undefined,
+                context: undefined,
+                is404: false,
+                method: '',
+                protocol: undefined,
+                routerMethod: '',
+                routerPath: '',
+                server: undefined,
+                socket: undefined,
+                url: '',
                 body: undefined,
                 headers: {},
                 hostname: undefined,
@@ -29,7 +39,7 @@ describe('AuthUtil', () => {
                 params: undefined,
                 query: undefined,
                 raw: undefined,
-                req: undefined,
+                req: undefined
             };
 
             const result = AuthUtil.parseAuthorizationHeader(request);
@@ -39,6 +49,16 @@ describe('AuthUtil', () => {
         it('should parse token', () => {
 
             const request: Request = {
+                connection: undefined,
+                context: undefined,
+                is404: false,
+                method: '',
+                protocol: undefined,
+                routerMethod: '',
+                routerPath: '',
+                server: undefined,
+                socket: undefined,
+                url: '',
                 body: undefined,
                 headers: {
                     authorization: 'Basic dXNlcjE6aHl6LUR2ci00ZXQtcnlL',
@@ -51,7 +71,7 @@ describe('AuthUtil', () => {
                 params: undefined,
                 query: undefined,
                 raw: undefined,
-                req: undefined,
+                req: undefined
             };
 
             const result = AuthUtil.parseAuthorizationHeader(request);
@@ -108,9 +128,10 @@ describe('AuthUtil', () => {
 
             const container = new Container();
             const jwtAuthProvider = new JwtAuthProvider({
+                name: 'jwt',
                 application: 'test-app',
                 authorizationUrl: 'http://mocked/auth',
-                jwksUri: 'http://mocked/jwks',
+                jwksUri: 'http://mocked/jwks'
             });
             const basicAuthProvider = new BasicAuthProvider();
 

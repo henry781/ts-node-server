@@ -1,24 +1,16 @@
 import {QuerySearch} from '@henry781/querysearch';
 import {inject, injectable} from 'inversify';
 import {
-    CollectionAggregationOptions,
-    CollectionInsertManyOptions,
-    CollectionInsertOneOptions,
-    Db,
-    DeleteWriteOpResultObject,
-    FindOneOptions,
-    InsertOneWriteOpResult,
-    InsertWriteOpResult,
+    AggregateOptions, BulkWriteOptions, CountDocumentsOptions,
+    Db, DeleteResult, Document, FindOptions, InsertManyResult,
+    InsertOneOptions, InsertOneResult,
     Logger as MongoLogger,
     MongoClient,
     MongoClientOptions,
-    MongoCountPreferences,
     MongoError,
-    ReplaceOneOptions,
-    ReplaceWriteOpResult,
-    UpdateManyOptions,
-    UpdateOneOptions,
-    UpdateWriteOpResult,
+    ReplaceOptions,
+    Sort,
+    UpdateOptions, UpdateResult,
 } from 'mongodb';
 import {Logger} from 'pino';
 import {arrayOf, DeserializeOptions, SerializeOptions} from 'tipify';
@@ -69,7 +61,7 @@ export class MongoService {
 
     /**
      * Constructor
-     * @param {P.Logger} logger
+     * @param {Logger} logger
      */
     constructor(@inject(types.Logger) logger: Logger) {
         this.logger = logger.child({module: 'MongoService'});
@@ -93,7 +85,7 @@ export class MongoService {
             this._db = this.client.db(options.dbName);
             logger.info('connected to mongodb successfully');
         } catch (err) {
-            logger.error('failed to connect to mongodb', err);
+            logger.error({err}, 'failed to connect to mongodb');
             this.error = err;
         }
     }
@@ -120,20 +112,21 @@ export class MongoService {
      * Is mongo master
      * @returns {Promise<MongoIsMasterResult>}
      */
-    public isMaster(): Promise<MongoIsMasterResult> {
+    public async isMaster(): Promise<MongoIsMasterResult> {
 
-        return this.doAction(
+        const document = await this.doAction(
             () => this._db.command({isMaster: 1}));
+        return document as MongoIsMasterResult;
     }
 
     /**
      * Find one document
      * @param type
      * @param {object} query
-     * @param {FindOneOptions} options
+     * @param {FindOptions} options
      * @returns {Promise<T>}
      */
-    public findOne<T>(type: any, query?: object, options?: FindOneOptions<T>): Promise<T> {
+    public findOne<T>(type: any, query?: object, options?: FindOptions<T>): Promise<T> {
 
         const collection = MongoService.getCollectionForType(type);
 
@@ -145,10 +138,10 @@ export class MongoService {
     /**
      * Insert one document
      * @param obj
-     * @param {CollectionInsertOneOptions} options
-     * @returns {Promise<InsertOneWriteOpResult>}
+     * @param {InsertOneOptions} options
+     * @returns {Promise<InsertOneResult>}
      */
-    public insertOne(obj: any, options?: CollectionInsertOneOptions): Promise<InsertOneWriteOpResult<any>> {
+    public insertOne(obj: any, options?: InsertOneOptions): Promise<InsertOneResult> {
 
         const json = jsonConverter.serialize(obj, undefined, mongoSerializeOptions);
         const collection = MongoService.getCollection(obj);
@@ -161,10 +154,10 @@ export class MongoService {
      * Insert many
      * @param type
      * @param obj
-     * @param {CollectionInsertManyOptions} options
-     * @returns {Promise<InsertWriteOpResult>}
+     * @param {BulkWriteOptions} options
+     * @returns {Promise<InsertManyResult>}
      */
-    public insertMany(type: any, obj: any, options?: CollectionInsertManyOptions): Promise<InsertWriteOpResult<any>> {
+    public insertMany(type: any, obj: any, options?: BulkWriteOptions): Promise<InsertManyResult> {
 
         const json = jsonConverter.serialize(obj, undefined, mongoSerializeOptions);
         const collection = MongoService.getCollectionForType(type);
@@ -181,7 +174,7 @@ export class MongoService {
      * @param limit
      * @param offset
      */
-    public find<T>(type: any, query: object = {}, sort: object = {}, limit?: number, offset?: number): Promise<T[]> {
+    public find<T>(type: any, query: object = {}, sort: Sort, limit?: number, offset?: number): Promise<T[]> {
 
         const collection = MongoService.getCollectionForType(type);
 
@@ -213,7 +206,7 @@ export class MongoService {
      */
     public aggregate<T>(type: any,
                         pipeline?: object[],
-                        options?: CollectionAggregationOptions,
+                        options?: AggregateOptions,
                         outputType = type): Promise<T[]> {
 
         const collection = MongoService.getCollectionForType(type);
@@ -221,7 +214,7 @@ export class MongoService {
         return this.doAction(
             () => {
                 const cursor = this._db.collection(collection)
-                    .aggregate(pipeline, options);
+                    .aggregate<any>(pipeline, options);
 
                 return cursor.toArray();
             })
@@ -234,17 +227,17 @@ export class MongoService {
      * @param search
      */
     public search<T>(type: any, search: QuerySearch): Promise<T[]> {
-
-        return this.find<T>(type, search.filter, search.sort, search.limit, search.offset);
+        const sort = search.sort as Sort;
+        return this.find<T>(type, search.filter, sort, search.limit, search.offset);
     }
 
     /**
      * Delete one
      * @param type
      * @param {object} query
-     * @returns {Promise<DeleteWriteOpResultObject>}
+     * @returns {Promise<DeleteResult>}
      */
-    public deleteOne(type: any, query: object = {}): Promise<DeleteWriteOpResultObject> {
+    public deleteOne(type: any, query: object = {}): Promise<DeleteResult> {
 
         const collection = MongoService.getCollectionForType(type);
 
@@ -257,7 +250,7 @@ export class MongoService {
      * @param type
      * @param query
      */
-    public deleteMany(type: any, query: object = {}): Promise<DeleteWriteOpResultObject> {
+    public deleteMany(type: any, query: object = {}): Promise<DeleteResult> {
 
         const collection = MongoService.getCollectionForType(type);
 
@@ -272,7 +265,7 @@ export class MongoService {
      * @param obj
      * @param options
      */
-    public replaceOne(type: any, query: object = {}, obj: object = {}, options?: ReplaceOneOptions): Promise<ReplaceWriteOpResult> {
+    public replaceOne(type: any, query: object = {}, obj: object = {}, options?: ReplaceOptions): Promise<Document | UpdateResult> {
 
         const collection = MongoService.getCollectionForType(type);
         const document = jsonConverter.serialize(obj, undefined, serializeOptions);
@@ -286,10 +279,10 @@ export class MongoService {
      * @param type
      * @param {object} query
      * @param {object} update
-     * @param {UpdateOneOptions} options
-     * @returns {Promise<UpdateWriteOpResult>}
+     * @param {UpdateOptions} options
+     * @returns {Promise<UpdateResult>}
      */
-    public updateOne(type: any, query: object = {}, update: object = {}, options?: UpdateOneOptions): Promise<UpdateWriteOpResult> {
+    public updateOne(type: any, query: object = {}, update: object = {}, options?: UpdateOptions): Promise<UpdateResult> {
 
         const collection = MongoService.getCollectionForType(type);
 
@@ -302,10 +295,10 @@ export class MongoService {
      * @param type
      * @param {object} query
      * @param {object} update
-     * @param {UpdateManyOptions} options
-     * @returns {Promise<UpdateWriteOpResult>}
+     * @param {UpdateOptions} options
+     * @returns {Promise<Document | UpdateResult>}
      */
-    public updateMany(type: any, query: object = {}, update: object = {}, options?: UpdateManyOptions): Promise<UpdateWriteOpResult> {
+    public updateMany(type: any, query: object = {}, update: object = {}, options?: UpdateOptions): Promise<Document | UpdateResult> {
 
         const collection = MongoService.getCollectionForType(type);
 
@@ -317,10 +310,10 @@ export class MongoService {
      * Count documents
      * @param type
      * @param {object} query
-     * @param {MongoCountPreferences} options
+     * @param {CountDocumentsOptions} options
      * @returns {Promise<number>}
      */
-    public count(type: any, query: object = {}, options ?: MongoCountPreferences): Promise<number> {
+    public count(type: any, query: object = {}, options ?: CountDocumentsOptions): Promise<number> {
 
         const collection = MongoService.getCollectionForType(type);
 
@@ -335,9 +328,6 @@ export class MongoService {
 
 export const DEFAULT_MONGO_OPTIONS: MongoOptions = {
     client: {
-        reconnectInterval: 1000,
-        reconnectTries: 60,
-        useNewUrlParser: true,
     },
     dbName: environment.MONGO_DB,
     uri: environment.MONGO_URL,

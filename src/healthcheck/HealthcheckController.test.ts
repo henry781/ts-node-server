@@ -5,9 +5,7 @@ import {ControllerTest} from '../test/ControllerTest';
 import {types} from '../types';
 import {Healthcheck} from './Healthcheck';
 import {HealthcheckController} from './HealthcheckController';
-
-// tslint:disable-next-line:no-var-requires
-const chaiHttp = require('chai-http');
+import chaiHttp from 'chai-http';
 
 chai.use(chaiHttp);
 

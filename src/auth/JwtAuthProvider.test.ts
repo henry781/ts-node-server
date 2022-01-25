@@ -1,16 +1,25 @@
 import {Token} from 'auth-header';
 import * as chai from 'chai';
-import * as jwt from 'jose/jwt/verify';
+import * as crypto from 'crypto';
+import * as jose from 'jose';
+import rewiremock from 'rewiremock/node';
 import * as sinon from 'sinon';
+import {URL} from 'url';
 import {Request} from '../types';
-import {JwtAuthProvider} from './JwtAuthProvider';
 import {Principal} from './Principal';
-import {JWTPayload, JWTVerifyResult } from 'jose/webcrypto/types';
-import * as jwks from 'jose/jwks/remote';
 
-describe('JwtAuthProvider', () => {
+describe('JwtAuthProvider', async () => {
 
     const sandbox = sinon.createSandbox();
+
+    const createPublicKeyStub = sandbox.stub(crypto, 'createPublicKey');
+    const jwtVerifyStub = sandbox.stub(jose, 'jwtVerify');
+    const createRemoteJWKSetStub = sandbox.stub(jose, 'createRemoteJWKSet');
+    const m = rewiremock.proxy(()=> require('./JwtAuthProvider'), {
+        'crypto': {createPublicKey: createPublicKeyStub},
+        'jose': {jwtVerify: jwtVerifyStub, createRemoteJWKSet: createRemoteJWKSetStub}
+    });
+
     const certificate = 'MIICmzCCAYMCBgF3NTyWqjANBgkqhkiG9w0BAQsFADARMQ8wDQYDVQQDDAZtYXN0ZXIwHhcNMjEwMTI' +
         '0MTYyOTU5WhcNMzEwMTI0MTYzMTM5WjARMQ8wDQYDVQQDDAZtYXN0ZXIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAo' +
         'IBAQCdWS6+TbKy5LR0LfBXr5mbrSlxZiwbShbXmxrlku0xTwUO1L9fariV0otRB7S33rjwoTXdJHbpPdAruv0nIOuVGQzaN' +
@@ -23,7 +32,7 @@ describe('JwtAuthProvider', () => {
         'F9KVAdfaUzyKkxVB4IHy9CaFJJT66ZfiLyhRrv3GZB1RdUB51ivqKDmA=';
 
     beforeEach(() => {
-        sandbox.restore();
+        sandbox.reset();
     });
 
     /**
@@ -32,7 +41,7 @@ describe('JwtAuthProvider', () => {
     describe('constructor', () => {
         it('should throw an error when there is no certificate nor jwks uri', async () => {
             try {
-                new JwtAuthProvider({
+                new m.JwtAuthProvider({
                     name: 'jwt',
                     application: 'test',
                     authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
@@ -43,49 +52,47 @@ describe('JwtAuthProvider', () => {
         });
 
         it('should call crypto when there is a certificate', async () => {
-            const crypto = require('crypto');
-            const createPublicKey = sandbox.stub(crypto, 'createPublicKey')
-                .withArgs('-----BEGIN CERTIFICATE-----\n'+certificate+'\n-----END CERTIFICATE-----')
-                .returns(undefined)
+            createPublicKeyStub
+                .withArgs('-----BEGIN CERTIFICATE-----\n' + certificate + '\n-----END CERTIFICATE-----')
+                .returns(undefined);
 
-            new JwtAuthProvider({
+            new m.JwtAuthProvider({
                 name: 'jwt',
                 application: 'test',
                 authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
                 certificate
             });
 
-            chai.expect(createPublicKey.callCount).equal(1);
+            chai.expect(createPublicKeyStub.callCount).equal(1);
         });
 
         it('should call remote jwks when there is a jwks uri', async () => {
             const jwksUri = 'https://keycloak';
-            const createRemoteJWKSet = sandbox.stub(jwks, 'createRemoteJWKSet')
+            createRemoteJWKSetStub
                 .withArgs(new URL(jwksUri))
-                .returns(undefined)
+                .returns(undefined);
 
-            new JwtAuthProvider({
+            new m.JwtAuthProvider({
                 name: 'jwt',
                 application: 'test',
                 authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
                 jwksUri
             });
 
-            chai.expect(createRemoteJWKSet.callCount).equal(1);
+            chai.expect(createRemoteJWKSetStub.callCount).equal(1);
         });
 
         it('should call remote jwks when there is a jwks uri and a certificate', async () => {
-            const crypto = require('crypto');
 
             const jwksUri = 'https://keycloak';
-            const createRemoteJWKSet = sandbox.stub(jwks, 'createRemoteJWKSet')
+            createRemoteJWKSetStub
                 .withArgs(new URL(jwksUri))
-                .returns(undefined)
-            const createPublicKey = sandbox.stub(crypto, 'createPublicKey')
+                .returns(undefined);
+            createPublicKeyStub
                 .withArgs(sinon.match.any)
-                .returns(undefined)
+                .returns(undefined);
 
-            new JwtAuthProvider({
+            new m.JwtAuthProvider({
                 name: 'jwt',
                 application: 'test',
                 authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
@@ -93,10 +100,10 @@ describe('JwtAuthProvider', () => {
                 certificate
             });
 
-            chai.expect(createRemoteJWKSet.callCount).equal(1);
-            chai.expect(createPublicKey.callCount).equal(0);
+            chai.expect(createRemoteJWKSetStub.callCount).equal(1);
+            chai.expect(createPublicKeyStub.callCount).equal(0);
         });
-    })
+    });
 
     /**
      * Authenticate
@@ -105,7 +112,7 @@ describe('JwtAuthProvider', () => {
 
         it('should throw an error when token is not defined', async () => {
 
-            const provider = new JwtAuthProvider({
+            const provider = new m.JwtAuthProvider({
                 name: 'jwt',
                 application: 'test',
                 authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
@@ -122,7 +129,7 @@ describe('JwtAuthProvider', () => {
 
         it('should throw an error when token scheme is not bearer', async () => {
 
-            const provider = new JwtAuthProvider({
+            const provider = new m.JwtAuthProvider({
                 name: 'jwt',
                 application: 'test',
                 authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
@@ -144,7 +151,7 @@ describe('JwtAuthProvider', () => {
 
         it('should throw an error when verify throw an error', async () => {
 
-            const provider = new JwtAuthProvider({
+            const provider = new m.JwtAuthProvider({
                 name: 'jwt',
                 application: 'test',
                 authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
@@ -156,7 +163,7 @@ describe('JwtAuthProvider', () => {
                 token: '1234567890',
             };
 
-            sandbox.stub(jwt, 'jwtVerify')
+            jwtVerifyStub
                 .withArgs('1234567890', sinon.match.any, undefined)
                 .throws(new Error('Token expired'));
 
@@ -170,7 +177,7 @@ describe('JwtAuthProvider', () => {
 
         it('should not throw an error when everything is ok', async () => {
 
-            const provider = new JwtAuthProvider({
+            const provider = new m.JwtAuthProvider({
                 name: 'jwt',
                 application: 'test',
                 authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
@@ -182,20 +189,22 @@ describe('JwtAuthProvider', () => {
                 token: '1234567890',
             };
 
-            sandbox.stub(jwt, 'jwtVerify')
+            jwtVerifyStub
                 .withArgs('1234567890', sinon.match.any, undefined)
                 .resolves({
+                    key: undefined,
+                    protectedHeader: undefined,
                     payload: {
                         iss: 'localhost'
                     }
-                } as JWTVerifyResult);
+                });
 
             await provider.authenticate({} as Request, token, {});
         });
 
         it('should return authenticated user', async () => {
 
-            const provider = new JwtAuthProvider({
+            const provider = new m.JwtAuthProvider({
                 name: 'jwt',
                 application: 'test',
                 authorizationUrl: 'http://localhost:9000/auth/realms/master/protocol/openid-connect/auth?nonce=',
@@ -210,16 +219,17 @@ describe('JwtAuthProvider', () => {
             const payload = {
                 iss: 'localhost',
                 preferred_username: userLogin
-            } as JWTPayload;
+            };
 
-            sandbox.stub(jwt, 'jwtVerify')
+            jwtVerifyStub
                 .withArgs('1234567890', sinon.match.any, undefined)
                 .resolves({
+                    key: undefined,
                     payload,
                     protectedHeader: {
-
+                        alg: undefined
                     }
-                } as JWTVerifyResult);
+                });
 
             const user = new Principal({
                 login: userLogin,

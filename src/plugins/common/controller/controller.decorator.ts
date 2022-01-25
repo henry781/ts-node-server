@@ -6,7 +6,7 @@ import {ControllerOptions} from './ControllerOptions';
 
 export const ROUTE_CONTROLLER = Symbol('route:controller');
 
-/***
+/**
  * Controller decorator
  * @param {string | ControllerOptions} options
  * @returns {(target: any) => void}
