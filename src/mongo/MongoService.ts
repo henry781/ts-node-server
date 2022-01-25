@@ -174,7 +174,7 @@ export class MongoService {
      * @param limit
      * @param offset
      */
-    public find<T>(type: any, query: object = {}, sort: Sort, limit?: number, offset?: number): Promise<T[]> {
+    public find<T>(type: any, query: object = {}, sort?: Sort, limit?: number, offset?: number): Promise<T[]> {
 
         const collection = MongoService.getCollectionForType(type);
 
