@@ -1,13 +1,14 @@
 import * as chai from 'chai';
 import inspector from 'inspector';
 import {Container} from 'inversify';
+import pino from 'pino';
 import * as sinon from 'sinon';
-import {loggerService} from '../logger/loggerService';
 import {ControllerTest} from '../test/ControllerTest';
 import {types} from '../types';
 import {AdminController, AdminOptions} from './AdminController';
 import chaiHttp from 'chai-http';
 import { request, expect } from 'chai';
+import Logger = pino.Logger;
 
 chai.use(chaiHttp);
 
@@ -40,14 +41,15 @@ describe('AdminController', () => {
 
         it('should set level', async () => {
 
-            loggerService.level = 'debug';
-            expect(loggerService.level).equal('debug');
+            const logger = test.instance.log as Logger;
+            logger.level = 'debug';
+            expect(logger.level).equal('debug');
 
             const response = await request(test.server)
                 .put('/admin/logging/level/trace')
                 .send();
 
-            expect(loggerService.level).equal('trace');
+            expect(logger.level).equal('trace');
 
             expect(response.status).equal(204);
         });

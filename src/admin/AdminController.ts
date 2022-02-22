@@ -1,8 +1,11 @@
 import * as inspector from 'inspector';
 import {decorate} from 'inversify';
+import pino from 'pino';
 import {WebServiceError} from '../core/WebServiceError';
-import {getLogger, loggerService} from '../logger/loggerService';
-import {AuthOptions, controller, httpPut, pathParam, queryParam} from '../plugins/common/api';
+import {getLogger} from '../logger/loggerService';
+import {AuthOptions, controller, httpPut, httpRequest, instanceLogger, pathParam, queryParam} from '../plugins/common/api';
+import {Request} from '../types';
+import Logger = pino.Logger;
 
 @controller({url: '/admin', provides: false})
 export class AdminController {
@@ -41,18 +44,22 @@ export class AdminController {
     /**
      * Set logging level
      * @param level
+     * @param request
+     * @param instanceLog
      */
-    public async setLoggingLevel(@pathParam('level') level: string) {
+    public async setLoggingLevel(@pathParam('level') level: string,
+                                 @httpRequest() request: Request,
+                                 @instanceLogger() instanceLog: Logger) {
 
         const logger = getLogger('setLoggingLevel', this);
 
-        const value = loggerService.levels.labels[loggerService.levels.values[level]];
+        const value = instanceLog.levels.labels[instanceLog.levels.values[level]];
 
         if (value === undefined) {
             throw new WebServiceError(`level <${level}> is unknown`, 400);
         }
         logger.info(`logging level changed to <${value}>`);
-        loggerService.level = value;
+        instanceLog.level = value;
     }
 
     /**

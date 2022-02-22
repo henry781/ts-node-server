@@ -9,7 +9,7 @@ import {AuthUtil} from '../../auth/AuthUtil';
 import {Principal} from '../../auth/Principal';
 import {jsonConverter} from '../../core/jsonConverter';
 import {WebServiceError} from '../../core/WebServiceError';
-import {getReqId, loggerService} from '../../logger/loggerService';
+import {getReqId} from '../../logger/loggerService';
 import {Reply, Request} from '../../types';
 import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
 import {AuthOptions} from '../common/method/AuthOptions';
@@ -22,9 +22,10 @@ export class Wireup {
     /**
      * Get handler
      * @param {WireupEndpoint} endpoint
+     * @param {FastifyInstance} instance
      * @returns {(request: Request, reply: Reply) => Promise<any>}
      */
-    public static getHandler(endpoint: WireupEndpoint) {
+    public static getHandler(endpoint: WireupEndpoint, instance: FastifyInstance) {
 
         return async (request: Request, reply: Reply) => {
 
@@ -50,6 +51,10 @@ export class Wireup {
                         return reply;
                     case 'auth':
                         return request.user;
+                    case 'logger':
+                        return request.log;
+                    case 'instanceLogger':
+                        return instance.log;
                     default:
                         return undefined;
                 }
@@ -174,7 +179,7 @@ export class Wireup {
 
     /**
      * Get wireup plugin
-     * @param {fastify.FastifyInstance} instance
+     * @param {FastifyInstance} instance
      * @param {{container: Container}} opts
      * @param {(err?: Error) => void} next
      */
@@ -183,7 +188,7 @@ export class Wireup {
         opts: { container: Container },
         next: (err?: Error) => void) {
 
-        const logger = Wireup.logger.child({method: 'getPlugin'});
+        const logger = instance.log.child({module: 'Wireup', method: 'getPlugin'});
 
         logger.info('initializing wireup...');
 
@@ -191,7 +196,7 @@ export class Wireup {
             (endpoint) => {
 
                 instance.route({
-                    handler: Wireup.getHandler(endpoint),
+                    handler: Wireup.getHandler(endpoint, instance),
                     method: endpoint.methodOptions.method,
                     onRequest: [
                         Wireup.getAuthorizationHandler(opts.container, endpoint)]
@@ -207,6 +212,4 @@ export class Wireup {
         logger.info('wireup initialized');
         next();
     }
-
-    private static logger = loggerService.child({module: 'Wireup'});
 }

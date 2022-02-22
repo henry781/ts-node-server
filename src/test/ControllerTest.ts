@@ -9,13 +9,16 @@ export class ControllerTest {
         return this._server.instance.server;
     }
 
+    public get instance() {
+        return this._server.instance;
+    }
+
     constructor(container: Container) {
 
         this._server = new Server({
             auth: {},
             container,
             healthcheck: false,
-            metrics: false,
             mongo: false,
             swagger: false,
             ignoreProvidesDecorator: true

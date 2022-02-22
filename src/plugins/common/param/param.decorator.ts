@@ -102,3 +102,15 @@ export function body(paramType?: any) {
         type: 'body',
     });
 }
+
+export function logger() {
+    return param({
+        type: 'logger',
+    });
+}
+
+export function instanceLogger() {
+    return param({
+        type: 'instanceLogger',
+    });
+}

@@ -1,42 +1,38 @@
 import {getNamespace} from 'cls-hooked';
-import pino from 'pino';
-import {Logger, LoggerOptions} from 'pino';
-import {environment} from '../core/environment';
+import {FastifyLoggerInstance} from 'fastify';
+import {Logger} from 'pino';
 
-export const DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
-    level: environment.LOG_LEVEL,
-    prettyPrint: environment.LOG_PRETTY ? {forceColor: true} : undefined,
-    timestamp: () => `,"time":"${new Date().toISOString()}"`
+export const loggerService = {
+    log: undefined as FastifyLoggerInstance
 };
-
-export const loggerService = pino(DEFAULT_LOGGER_OPTIONS);
 
 /**
  * Get a logger
  */
 export function getLogger(method?: string | string[], module?: any): Logger {
     const session = getNamespace('app');
-    const logger = (session && session.get('log')) ? session.get('log') : loggerService;
+
+    const log = (session && session.get('log')) ? session.get('log') : loggerService.log;
 
     if (!method && !module) {
-        return logger;
+        return log;
 
     } else if (typeof method === 'string') {
 
         if (module && module.constructor) {
-            return logger.child({
+            return log.child({
                 method,
                 module: module.constructor.name,
             });
 
         } else {
-            return logger.child({
+            return log.child({
                 method,
             });
         }
 
     } else {
-        return logger.child({method: method.join('.')});
+        return log.child({method: method.join('.')});
     }
 }
 

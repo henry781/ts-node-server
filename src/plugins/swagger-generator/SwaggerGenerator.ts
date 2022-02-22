@@ -1,15 +1,15 @@
 import deepmerge from 'deepmerge';
-import {FastifyInstance} from 'fastify';
+import {FastifyInstance, FastifyLoggerInstance} from 'fastify';
 import fastifyStatic from 'fastify-static';
 import {Container} from 'inversify';
 import * as path from 'path';
+import pino from 'pino';
 import swaggerUiDist from 'swagger-ui-dist';
 import {AuthProvider} from '../../auth/AuthProvider';
 import {AuthUtil} from '../../auth/AuthUtil';
 import {BasicAuthProvider} from '../../auth/BasicAuthProvider';
 import {JwtAuthProvider} from '../../auth/JwtAuthProvider';
 import {environment} from '../../core/environment';
-import {loggerService} from '../../logger/loggerService';
 import {Reply, Request, types} from '../../types';
 import {CommonUtil, WireupEndpoint} from '../common/CommonUtil';
 import {ParamOptions} from '../common/param/ParamOptions';
@@ -94,12 +94,15 @@ export class SwaggerGenerator {
     /**
      * Build open API configuration
      * @param {Container} container
+     * @param {FastifyLoggerInstance} log
      * @param {OpenApiConf} userDefinedConfiguration
      * @returns {OpenApiConf}
      */
-    public static buildConfiguration(container: Container, userDefinedConfiguration?: OpenApiConf): OpenApiConf {
+    public static buildConfiguration(container: Container,
+                                     log: FastifyLoggerInstance,
+                                     userDefinedConfiguration?: OpenApiConf): OpenApiConf {
 
-        const logger = SwaggerGenerator.logger.child({method: 'buildConfiguration'});
+        const logger = log.child({method: 'buildConfiguration'});
 
         let configuration = OPENAPI_DEFAULT_CONFIGURATION;
 
@@ -107,7 +110,7 @@ export class SwaggerGenerator {
 
         CommonUtil.getAllEndpoints(container).forEach(
             (endpoint) => {
-                configuration = deepmerge(configuration, SwaggerGenerator.buildConfigurationForEndpoint(endpoint));
+                configuration = deepmerge(configuration, SwaggerGenerator.buildConfigurationForEndpoint(endpoint, log));
             });
 
         if (userDefinedConfiguration) {
@@ -281,11 +284,13 @@ export class SwaggerGenerator {
     /**
      * build open API configuration for an endpoint
      * @param {WireupEndpoint} endpoint
+     * @param {FastifyLoggerInstance} log
      * @returns {OpenApiConf}
      */
-    public static buildConfigurationForEndpoint(endpoint: WireupEndpoint): OpenApiConf {
+    public static buildConfigurationForEndpoint(endpoint: WireupEndpoint,
+                                                log: FastifyLoggerInstance): OpenApiConf {
 
-        const logger = SwaggerGenerator.logger.child({method: 'buildConfigurationForEndpoint'});
+        const logger = log.child({method: 'buildConfigurationForEndpoint'});
 
         const url = SwaggerGenerator.translateUrl(endpoint.url);
         const method = endpoint.methodOptions.method.toLowerCase();
@@ -367,7 +372,7 @@ export class SwaggerGenerator {
 
     /**
      * Get swagge generator plugin
-     * @param {fastify.FastifyInstance} instance
+     * @param {FastifyInstance} instance
      * @param {{container: Container; configuration: OpenApiConf}} opts
      * @param {(err?: Error) => void} next
      */
@@ -376,10 +381,11 @@ export class SwaggerGenerator {
         opts: { container: Container, configuration: OpenApiConf },
         next: (err?: Error) => void) {
 
-        const logger = SwaggerGenerator.logger.child({method: 'getPlugin'});
+        const log = instance.log.child({module: 'SwaggerGenerator'});
+        const logger = log.child({ method: 'getPlugin'});
 
         logger.info('initializing swagger...');
-        let configuration = SwaggerGenerator.buildConfiguration(opts.container);
+        let configuration = SwaggerGenerator.buildConfiguration(opts.container, log);
         if (opts.configuration) {
             configuration = deepmerge(configuration, opts.configuration);
         }
@@ -414,6 +420,4 @@ export class SwaggerGenerator {
         logger.info('swagger initialized');
         next();
     }
-
-    private static logger = loggerService.child({module: 'SwaggerGenerator'});
 }

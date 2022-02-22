@@ -1,9 +1,8 @@
 import fastify, {FastifyServerOptions} from 'fastify';
 import compress, {FastifyCompressOptions} from 'fastify-compress';
 import helmet from 'fastify-helmet';
-import fastifyMetrics from 'fastify-metrics';
 import {Container} from 'inversify';
-import {Logger} from 'pino';
+import pino, {Logger, LoggerOptions} from 'pino';
 import * as shortid from 'shortid';
 import {AdminController, AdminOptions} from '../admin/AdminController';
 import {AuthProvider, BasicAuthProvider, BasicAuthProviderOptions, JwtAuthProvider, JwtAuthProviderOptions} from '../auth/api';
@@ -16,6 +15,15 @@ import {Instance, types} from '../types';
 import {environment} from './environment';
 
 export class Server {
+
+    public static readonly DEFAULT_GEN_REQ_ID = () => shortid.generate();
+    public static readonly DEFAULT_REQUEST_ID_HEADER = 'request-id';
+
+    public static readonly DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
+        level: environment.LOG_LEVEL,
+        prettyPrint: environment.LOG_PRETTY ? {forceColor: true} : undefined,
+        timestamp: () => `,"time":"${new Date().toISOString()}"`
+    };
 
     /**
      * Get fastify instance
@@ -49,11 +57,14 @@ export class Server {
      */
     public buildInstance(options: ServerOptions) {
 
-        options.logger = options.logger || loggerService;
-        options.genReqId = () => shortid.generate();
-        options.requestIdHeader = 'request-id';
+        if (!options.logger) {
+            options.logger = pino(Server.DEFAULT_LOGGER_OPTIONS);
+        }
+        options.genReqId = options.genReqId || Server.DEFAULT_GEN_REQ_ID;
+        options.requestIdHeader = options.requestIdHeader || Server.DEFAULT_REQUEST_ID_HEADER;
 
         this._instance = fastify(options);
+        loggerService.log = this._instance.log;
         this._instance.register(helmet, {contentSecurityPolicy: false,});
 
         this._instance.register(contextLogger);
@@ -85,11 +96,6 @@ export class Server {
         }
 
         this._instance.register(Wireup.getPlugin, {container: options.container});
-
-        if (options.metrics !== false) {
-            const endpoint = typeof (options.metrics) === 'string' ? options.metrics : '/metrics';
-            this._instance.register(fastifyMetrics, {endpoint});
-        }
 
         if (options.mongo) {
             options.container.bind<MongoService>(types.MongoService).to(MongoService).inSingletonScope();
@@ -138,7 +144,6 @@ export class Server {
 
 export interface ServerOptions extends FastifyServerOptions {
     container: Container;
-    metrics?: boolean | string;
     admin?: boolean | AdminOptions;
     healthcheck?: boolean;
     swagger?: boolean | OpenApiConf;

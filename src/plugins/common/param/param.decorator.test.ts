@@ -1,7 +1,8 @@
 import {QuerySearch} from '@henry781/querysearch';
 import * as chai from 'chai';
+import {Logger} from 'pino';
 import {HttpRequest, Reply} from '../../../types';
-import {body, httpReply, httpRequest, pathParam, queryParam, querySearch, ROUTE_PARAMS} from './param.decorator';
+import {body, httpReply, httpRequest, instanceLogger, logger, pathParam, queryParam, querySearch, ROUTE_PARAMS} from './param.decorator';
 import {ParamOptions} from './ParamOptions';
 
 describe('param', () => {
@@ -13,7 +14,9 @@ describe('param', () => {
                     @queryParam('limit') limit: number,
                     @httpRequest() request: HttpRequest,
                     @httpReply() reply: Reply,
-                    @querySearch() search: QuerySearch) {
+                    @querySearch() search: QuerySearch,
+                    @logger() log: Logger,
+                    @instanceLogger() instanceLog: Logger) {
         }
     }
 
@@ -94,6 +97,24 @@ describe('param', () => {
             const paramOptions = Reflect.getMetadata(ROUTE_PARAMS, controllerA, 'post')[4] as ParamOptions;
             chai.expect(paramOptions).not.undefined;
             chai.expect(paramOptions.type).equal('httpReply');
+        });
+    });
+
+    describe('logger', () => {
+
+        it('should define metadata', () => {
+            const paramOptions = Reflect.getMetadata(ROUTE_PARAMS, controllerA, 'post')[6] as ParamOptions;
+            chai.expect(paramOptions).not.undefined;
+            chai.expect(paramOptions.type).equal('logger');
+        });
+    });
+
+    describe('instanceLogger', () => {
+
+        it('should define metadata', () => {
+            const paramOptions = Reflect.getMetadata(ROUTE_PARAMS, controllerA, 'post')[7] as ParamOptions;
+            chai.expect(paramOptions).not.undefined;
+            chai.expect(paramOptions.type).equal('instanceLogger');
         });
     });
 });
