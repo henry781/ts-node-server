@@ -2,12 +2,12 @@ import fastify, {FastifyServerOptions} from 'fastify';
 import compress, {FastifyCompressOptions} from 'fastify-compress';
 import helmet from 'fastify-helmet';
 import {Container} from 'inversify';
-import pino, {Logger, LoggerOptions} from 'pino';
+import pino, {Logger} from 'pino';
 import * as shortid from 'shortid';
 import {AdminController, AdminOptions} from '../admin/AdminController';
 import {AuthProvider, BasicAuthProvider, BasicAuthProviderOptions, JwtAuthProvider, JwtAuthProviderOptions} from '../auth/api';
 import {Healthcheck, HealthcheckController} from '../healthcheck/api';
-import {loggerService} from '../logger/loggerService';
+import {DEFAULT_LOGGER_OPTIONS, loggerService} from '../logger/loggerService';
 import {MongoHealthcheck, MongoOptions, MongoService} from '../mongo/api';
 import {Controller, listProviders, OpenApiConf, SwaggerGenerator, Wireup} from '../plugins/api';
 import {contextLogger} from '../plugins/context-logger/contextLogger';
@@ -18,12 +18,6 @@ export class Server {
 
     public static readonly DEFAULT_GEN_REQ_ID = () => shortid.generate();
     public static readonly DEFAULT_REQUEST_ID_HEADER = 'request-id';
-
-    public static readonly DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
-        level: environment.LOG_LEVEL,
-        prettyPrint: environment.LOG_PRETTY ? {forceColor: true} : undefined,
-        timestamp: () => `,"time":"${new Date().toISOString()}"`
-    };
 
     /**
      * Get fastify instance
@@ -58,7 +52,7 @@ export class Server {
     public buildInstance(options: ServerOptions) {
 
         if (!options.logger) {
-            options.logger = pino(Server.DEFAULT_LOGGER_OPTIONS);
+            options.logger = pino(DEFAULT_LOGGER_OPTIONS);
         }
         options.genReqId = options.genReqId || Server.DEFAULT_GEN_REQ_ID;
         options.requestIdHeader = options.requestIdHeader || Server.DEFAULT_REQUEST_ID_HEADER;

@@ -50,7 +50,7 @@
     "reflect-metadata": "0.1.13",
     "request": "^2.88.2",
     "shortid": "^2.2.16",
-    "swagger-ui-dist": "4.5.2",
+    "swagger-ui-dist": "4.2.1",
     "url-join": "4.0.1"
   },
   "devDependencies": {

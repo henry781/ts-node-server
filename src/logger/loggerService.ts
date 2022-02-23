@@ -1,9 +1,16 @@
 import {getNamespace} from 'cls-hooked';
 import {FastifyLoggerInstance} from 'fastify';
-import {Logger} from 'pino';
+import pino, {Logger, LoggerOptions} from 'pino';
+import {environment} from '../core/environment';
 
 export const loggerService = {
     log: undefined as FastifyLoggerInstance
+};
+
+export const DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
+    level: environment.LOG_LEVEL,
+    prettyPrint: environment.LOG_PRETTY ? {forceColor: true} : undefined,
+    timestamp: () => `,"time":"${new Date().toISOString()}"`
 };
 
 /**
@@ -12,7 +19,10 @@ export const loggerService = {
 export function getLogger(method?: string | string[], module?: any): Logger {
     const session = getNamespace('app');
 
-    const log = (session && session.get('log')) ? session.get('log') : loggerService.log;
+    let log = (session && session.get('log')) ? session.get('log') : loggerService.log;
+    if (!log) {
+        log = pino(DEFAULT_LOGGER_OPTIONS);
+    }
 
     if (!method && !module) {
         return log;
