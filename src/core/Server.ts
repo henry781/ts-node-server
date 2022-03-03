@@ -59,7 +59,7 @@ export class Server {
 
         this._instance = fastify(options);
         loggerService.log = this._instance.log;
-        this._instance.register(helmet, {contentSecurityPolicy: false,});
+        this._instance.register(helmet, {contentSecurityPolicy: false, crossOriginOpenerPolicy: false,});
 
         this._instance.register(contextLogger);
 

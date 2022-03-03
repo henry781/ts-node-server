@@ -3,7 +3,6 @@ import {FastifyInstance, FastifyLoggerInstance} from 'fastify';
 import fastifyStatic from 'fastify-static';
 import {Container} from 'inversify';
 import * as path from 'path';
-import pino from 'pino';
 import swaggerUiDist from 'swagger-ui-dist';
 import {AuthProvider} from '../../auth/AuthProvider';
 import {AuthUtil} from '../../auth/AuthUtil';
@@ -382,7 +381,7 @@ export class SwaggerGenerator {
         next: (err?: Error) => void) {
 
         const log = instance.log.child({module: 'SwaggerGenerator'});
-        const logger = log.child({ method: 'getPlugin'});
+        const logger = log.child({method: 'getPlugin'});
 
         logger.info('initializing swagger...');
         let configuration = SwaggerGenerator.buildConfiguration(opts.container, log);
@@ -412,6 +411,7 @@ export class SwaggerGenerator {
         instance.register(fastifyStatic, {
             index: [], // was false before
             prefix: '/docs',
+            decorateReply: false,
             root: environment.SWAGGER_PATH
                 ? path.join(__dirname, environment.SWAGGER_PATH)
                 : swaggerUiDist.getAbsoluteFSPath(),

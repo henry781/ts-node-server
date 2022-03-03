@@ -7,8 +7,10 @@ export const loggerService = {
     log: undefined as FastifyLoggerInstance
 };
 
+export const DEFAULT_LOG_LEVEL = 'info';
+
 export const DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
-    level: environment.LOG_LEVEL,
+    level: environment.LOG_LEVEL || DEFAULT_LOG_LEVEL,
     prettyPrint: environment.LOG_PRETTY ? {forceColor: true} : undefined,
     timestamp: () => `,"time":"${new Date().toISOString()}"`
 };
