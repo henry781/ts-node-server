@@ -33,13 +33,13 @@ export function getLogger(method?: string | string[], module?: any): Logger {
 
         if (module && module.constructor) {
             return log.child({
-                method,
-                module: module.constructor.name,
+                'log.origin.function': method,
+                'log.logger': module.constructor.name,
             });
 
         } else {
             return log.child({
-                method,
+                'log.origin.function': method,
             });
         }
 
