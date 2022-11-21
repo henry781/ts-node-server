@@ -38,7 +38,7 @@
     "accepts": "^1.3.8",
     "auth-header": "^1.0.0",
     "cls-hooked": "^4.2.2",
-    "fastify": "3.27.2",
+    "fastify": "3.29.4",
     "fastify-compress": "^4.0.1",
     "fastify-helmet": "^7.0.1",
     "fastify-static": "4.5.0",
